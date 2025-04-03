@@ -12,7 +12,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   login: (username: string, password: string, email: string) => boolean;
-  register: (email: string, username: string) => boolean;
+  register: (email: string, username: string, password: string) => boolean;
   logout: () => void;
   users: Record<string, User & { password: string }>;
 }
@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       users: INITIAL_USERS,
-      register: (email: string, username: string) => {
+      register: (email: string, username: string, password: string) => {
         const { users } = get();
         
         const userExists = Object.values(users).some(
@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState>()(
           id: Date.now().toString(),
           username,
           email,
-          password: Math.random().toString(36).substring(2, 15),
+          password,
           role: 'user' as const,
         };
 
@@ -64,46 +64,20 @@ export const useAuthStore = create<AuthState>()(
       login: (username: string, password: string, email: string) => {
         const { users } = get();
         
-        if (username !== 'admin') {
-          const existingUser = Object.values(users).find(
-            (u) => u.username === username && u.role === 'user'
-          );
-          
-          if (existingUser) {
-            const { password: _, ...user } = existingUser;
-            set({ user, isAuthenticated: true });
-            return true;
-          }
-          
-          const newUser = {
-            id: Date.now().toString(),
-            username,
-            email,
-            password: Math.random().toString(36).substring(2, 15),
-            role: 'user' as const,
-          };
-
-          set((state) => ({
-            users: {
-              ...state.users,
-              [newUser.id]: newUser,
-            },
-            user: newUser,
-            isAuthenticated: true,
-          }));
-          return true;
-        }
-
-        const adminEntry = Object.values(users).find(
-          (u) => u.username === 'admin' && u.password === password
+        const existingUser = Object.values(users).find(
+          (u) => u.username === username && u.password === password
         );
-
-        if (adminEntry) {
-          const { password: _, ...user } = adminEntry;
-          set({ user, isAuthenticated: true });
-          return true;
+        
+        if (!existingUser) {
+          return false;
         }
-        return false;
+
+        set({
+          user: existingUser,
+          isAuthenticated: true,
+        });
+
+        return true;
       },
       logout: () => {
         set({ user: null, isAuthenticated: false });

@@ -1,6 +1,29 @@
+import AuthLayout from "@/screens/authScreens/authLayout";
+import RegisterForm from "@/screens/authScreens/registerForm";
+
+
+export default function RegisterPage() {
+  return (
+    <AuthLayout>
+      <RegisterForm />
+    </AuthLayout>
+  )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import React from 'react';
 // import { Formik, Form, Field, ErrorMessage } from 'formik';
-// import * as Yup from 'yup';
 // import { useNavigate } from 'react-router-dom';
 // import { useAuthStore } from '@/store/authStore';
 // import Button from '@/components/ui/Button';
@@ -18,10 +41,11 @@
 //         initialValues={{
 //           username: '',
 //           email: '',
+//           password: '',
 //         }}
 //         validationSchema={registerSchema}
 //         onSubmit={async (values, { setSubmitting }) => {
-//           const success = register(values.email, values.username);
+//           const success = register(values.email, values.username, values.password);
           
 //           if (success) {
 //             navigate('/login', { 
@@ -63,6 +87,20 @@
 //               />
 //             </div>
             
+//             <div>
+//               <label className="block text-gray-700">Contraseña</label>
+//               <Field
+//                 type="password"
+//                 name="password"
+//                 className="w-full mt-1 p-2 border rounded-md"
+//               />
+//               <ErrorMessage
+//                 name="password"
+//                 component="div"
+//                 className="text-red-500 text-sm mt-1"
+//               />
+//             </div>
+            
 //             <Button
 //               type="submit"
 //               disabled={isSubmitting}
@@ -70,6 +108,15 @@
 //             >
 //               {isSubmitting ? 'Registrando...' : 'Registrarse'}
 //             </Button>
+
+//             <div className="text-center mt-4">
+//               <p className="text-sm text-gray-600">
+//                 ¿Ya tienes una cuenta?{' '}
+//                 <a href="/login" className="text-blue-500 hover:text-blue-700">
+//                   Inicia sesión aquí
+//                 </a>
+//               </p>
+//             </div>
 //           </Form>
 //         )}
 //       </Formik>
