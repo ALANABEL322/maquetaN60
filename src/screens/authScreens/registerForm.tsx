@@ -1,11 +1,10 @@
 import type React from "react"
-
 import { useState } from "react"
-import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/Button"
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -169,13 +168,13 @@ export default function RegisterForm() {
               value={formData.password}
               onChange={handleChange}
             />
-            <button
+            <Button
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-3"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
-            </button>
+            </Button>
           </div>
           {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
           <p className="text-xs text-gray-500">Ingresa tu contraseña</p>
@@ -188,7 +187,7 @@ export default function RegisterForm() {
 
       <div className="mt-6 text-center text-sm">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="font-medium text-[#1a3c5b] hover:underline">
+        <Link to="/login" className="font-medium text-[#1a3c5b] hover:underline">
           Inicia sesión
         </Link>
       </div>
