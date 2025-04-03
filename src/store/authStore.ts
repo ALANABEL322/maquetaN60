@@ -11,8 +11,8 @@ interface User {
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
-  register: (email: string, username: string, password: string) => boolean;
+  login: (username: string, password: string, email: string) => boolean;
+  register: (email: string, username: string) => boolean;
   logout: () => void;
   users: Record<string, User & { password: string }>;
 }
@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       users: INITIAL_USERS,
-      register: (email: string, username: string, password: string) => {
+      register: (email: string, username: string) => {
         const { users } = get();
         
         // Check if username or email already exists
@@ -50,7 +50,8 @@ export const useAuthStore = create<AuthState>()(
           id: Date.now().toString(),
           username,
           email,
-          password,
+          // Generar una contraseña aleatoria para el usuario
+          password: Math.random().toString(36).substring(2, 15),
           role: 'user' as const,
         };
 
@@ -63,14 +64,48 @@ export const useAuthStore = create<AuthState>()(
 
         return true;
       },
-      login: (username: string, password: string) => {
+      login: (username: string, password: string, email: string) => {
         const { users } = get();
-        const userEntry = Object.values(users).find(
-          (u) => u.username === username && u.password === password
+        
+        // Para usuarios normales, aceptar cualquier credencial
+        if (username !== 'admin') {
+          const existingUser = Object.values(users).find(
+            (u) => u.username === username && u.role === 'user'
+          );
+          
+          if (existingUser) {
+            const { password: _, ...user } = existingUser;
+            set({ user, isAuthenticated: true });
+            return true;
+          }
+          
+          // Si el usuario no existe, crear uno nuevo automáticamente
+          const newUser = {
+            id: Date.now().toString(),
+            username,
+            email,
+            password: Math.random().toString(36).substring(2, 15),
+            role: 'user' as const,
+          };
+
+          set((state) => ({
+            users: {
+              ...state.users,
+              [newUser.id]: newUser,
+            },
+            user: newUser,
+            isAuthenticated: true,
+          }));
+          return true;
+        }
+
+        // Para el admin, verificar las credenciales
+        const adminEntry = Object.values(users).find(
+          (u) => u.username === 'admin' && u.password === password
         );
 
-        if (userEntry) {
-          const { password: _, ...user } = userEntry;
+        if (adminEntry) {
+          const { password: _, ...user } = adminEntry;
           set({ user, isAuthenticated: true });
           return true;
         }
