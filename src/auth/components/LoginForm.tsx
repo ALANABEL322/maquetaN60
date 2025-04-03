@@ -81,6 +81,15 @@ const LoginForm: React.FC = () => {
             >
               {isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </Button>
+
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600">
+                ¿No tienes una cuenta?{' '}
+                <a href="/register" className="text-blue-500 hover:text-blue-700">
+                  Regístrate aquí
+                </a>
+              </p>
+            </div>
           </Form>
         )}
       </Formik>
