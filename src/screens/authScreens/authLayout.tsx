@@ -7,7 +7,6 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left side - Illustration */}
       <div className="flex flex-1 items-center justify-center bg-white p-6 md:p-10">
         <div className="max-w-md">
           <img
@@ -18,7 +17,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
 
-      {/* Right side - Form with coral background */}
       <div className="flex flex-1 items-center justify-center bg-[#e84c3d] p-6 md:p-10">
         <div className="w-full max-w-md">{children}</div>
       </div>

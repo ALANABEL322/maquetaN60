@@ -84,7 +84,8 @@ const config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			background: '#fceae8',
   		},
   		borderRadius: {
   			'4xl': '2rem',
@@ -116,6 +117,7 @@ const config = {
   		},
   		fontFamily: {
   			sans: [
+  				'Inter',
   				'var(--font-sans)',
   				'system-ui',
   				'sans-serif'
@@ -138,7 +140,12 @@ const config = {
   		},
   		screens: {
   			xs: '475px',
-  		}
+  		},
+  		backgroundImage: {
+  			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+  			'gradient-conic':
+  				'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+  		},
   	}
   },
   plugins: [
