@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { ProtectedRoute } from '@/routes/ProtectedRoute'
 
 // Lazy loaded components
 const Login = lazy(() => import('@/pages/Login'))
