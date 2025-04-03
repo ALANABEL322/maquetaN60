@@ -17,7 +17,6 @@ interface AuthState {
   users: Record<string, User & { password: string }>;
 }
 
-// Predefined admin user
 const INITIAL_USERS = {
   admin: {
     id: '1',
@@ -37,7 +36,6 @@ export const useAuthStore = create<AuthState>()(
       register: (email: string, username: string) => {
         const { users } = get();
         
-        // Check if username or email already exists
         const userExists = Object.values(users).some(
           (u) => u.username === username || u.email === email
         );
@@ -50,7 +48,6 @@ export const useAuthStore = create<AuthState>()(
           id: Date.now().toString(),
           username,
           email,
-          // Generar una contraseña aleatoria para el usuario
           password: Math.random().toString(36).substring(2, 15),
           role: 'user' as const,
         };
@@ -67,7 +64,6 @@ export const useAuthStore = create<AuthState>()(
       login: (username: string, password: string, email: string) => {
         const { users } = get();
         
-        // Para usuarios normales, aceptar cualquier credencial
         if (username !== 'admin') {
           const existingUser = Object.values(users).find(
             (u) => u.username === username && u.role === 'user'
@@ -79,7 +75,6 @@ export const useAuthStore = create<AuthState>()(
             return true;
           }
           
-          // Si el usuario no existe, crear uno nuevo automáticamente
           const newUser = {
             id: Date.now().toString(),
             username,
@@ -99,7 +94,6 @@ export const useAuthStore = create<AuthState>()(
           return true;
         }
 
-        // Para el admin, verificar las credenciales
         const adminEntry = Object.values(users).find(
           (u) => u.username === 'admin' && u.password === password
         );
