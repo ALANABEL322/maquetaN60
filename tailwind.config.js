@@ -138,7 +138,6 @@ const config = {
   		},
   		screens: {
   			xs: '475px',
-                ...config.theme.screens
   		}
   	}
   },
