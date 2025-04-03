@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/ui/Button';
 import { loginSchema } from '@/auth/schemas';
+import { Eye, EyeOff } from 'lucide-react';
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -16,42 +17,57 @@ const LoginForm: React.FC = () => {
       
       <Formik
         initialValues={{
-          email: '',
+          username: '',
           password: '',
+          showPassword: false
         }}
         validationSchema={loginSchema}
         onSubmit={async (values, { setSubmitting }) => {
-          const success = login(values.email, values.password);
+          const success = login(values.username, values.password, '');
           
           if (success) {
             navigate('/dashboard');
+          } else {
+            setSubmitting(false);
           }
-          setSubmitting(false);
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <Form className="space-y-4">
             <div>
-              <label className="block text-gray-700">Email</label>
+              <label className="block text-gray-700">Nombre de Usuario</label>
               <Field
-                type="email"
-                name="email"
+                type="text"
+                name="username"
                 className="w-full mt-1 p-2 border rounded-md"
               />
               <ErrorMessage
-                name="email"
+                name="username"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
             </div>
             
-            <div>
+            <div className="relative">
               <label className="block text-gray-700">Contraseña</label>
-              <Field
-                type="password"
-                name="password"
-                className="w-full mt-1 p-2 border rounded-md"
-              />
+              <div className="relative">
+                <Field
+                  type={values.showPassword ? 'text' : 'password'}
+                  name="password"
+                  className="w-full mt-1 p-2 border rounded-md pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  onClick={() => setFieldValue('showPassword', !values.showPassword)}
+                >
+                  {values.showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               <ErrorMessage
                 name="password"
                 component="div"
