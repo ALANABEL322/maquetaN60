@@ -18,23 +18,16 @@ const RegisterForm: React.FC = () => {
         initialValues={{
           username: '',
           email: '',
-          password: '',
-          confirmPassword: '',
         }}
         validationSchema={registerSchema}
-        onSubmit={async (values, { setSubmitting, setErrors }) => {
-          const success = register(values.email, values.username, values.password);
+        onSubmit={async (values, { setSubmitting }) => {
+          const success = register(values.email, values.username);
           
           if (success) {
             navigate('/login', { 
               state: { 
                 message: 'Registro exitoso. Por favor inicia sesión.' 
               }
-            });
-          } else {
-            setErrors({
-              username: 'El nombre de usuario ya existe',
-              email: 'El email ya está registrado'
             });
           }
           setSubmitting(false);
@@ -65,34 +58,6 @@ const RegisterForm: React.FC = () => {
               />
               <ErrorMessage
                 name="email"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-gray-700">Contraseña</label>
-              <Field
-                type="password"
-                name="password"
-                className="w-full mt-1 p-2 border rounded-md"
-              />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-gray-700">Confirmar Contraseña</label>
-              <Field
-                type="password"
-                name="confirmPassword"
-                className="w-full mt-1 p-2 border rounded-md"
-              />
-              <ErrorMessage
-                name="confirmPassword"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
