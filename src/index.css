@@ -81,6 +81,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background font-sans;
+    @apply bg-background;
+    font-family: 'Inter', sans-serif !important;
   }
 }
