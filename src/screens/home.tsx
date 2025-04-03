@@ -4,7 +4,6 @@ import imgAuth from "@/assets/imgAuth.png";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left side - Illustration */}
       <div className="flex flex-1 items-center justify-center bg-white p-6 md:p-10">
         <div className="max-w-md">
           <img
@@ -15,7 +14,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Right side - Content with coral background */}
       <div className="flex flex-1 flex-col items-center justify-center bg-[#e84c3d] p-6 md:p-10 text-white">
         <div className="w-full max-w-md space-y-8 text-center">
           <h1 className="text-4xl font-bold">Welcome to Our App</h1>
