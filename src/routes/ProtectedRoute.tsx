@@ -1,23 +1,21 @@
-import { ReactNode } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
 
 interface ProtectedRouteProps {
-  children: ReactNode
-  requiredRole?: 'user' | 'admin'
+  children: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, user } = useAuthStore()
-  const location = useLocation()
+export default function ProtectedRoute({ children, adminOnly = false }: ProtectedRouteProps) {
+  const { isAuthenticated, isAdmin } = useAuthStore.getState();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {
-    return <Navigate to="/unauthorized" replace />
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
