@@ -7,17 +7,19 @@ export const paths = {
   // Admin routes
   admin: {
     root: '/admin',
-    dashboard: '/admin/dashboard',
-    users: '/admin/users',
-    reports: '/admin/reports',
-    support: '/admin/support',
+    dashboard: '/dashboard',
+    users: '/users',
+    reports: '/reports',
+    support: '/support',
   },
   // User routes
   user: {
     root: '/user',
-    landingPage: '/user/landingPage',
-    createProject: '/user/createProject',
-    projects: '/user/projects',
-    support: '/user/support',
+    landingPage: '/landingPage',
+    createProject: '/createProject',
+    projects: '/projects',
+    support: '/support',
   },
+  // Root route
+  root: '/',
 } as const;
