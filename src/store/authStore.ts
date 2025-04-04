@@ -1,90 +1,109 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+// Credenciales específicas para admin
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin123',
+};
 
 interface User {
-  id: string;
+  id: number;
   username: string;
-  email: string;
-  role: 'user' | 'admin';
+  email?: string;
+  role: 'admin' | 'user';
 }
 
-interface AuthState {
+interface AuthStore {
   user: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string, email: string) => boolean;
-  register: (email: string, username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-  users: Record<string, User & { password: string }>;
+  register: (username: string, email: string, password: string) => Promise<boolean>;
+  isAdmin: () => boolean;
 }
 
-const INITIAL_USERS = {
-  admin: {
-    id: '1',
-    username: 'admin',
-    email: 'admin@example.com',
-    password: 'admin123',
-    role: 'admin' as const,
-  },
-}
-
-export const useAuthStore = create<AuthState>()(
+export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
-      users: INITIAL_USERS,
-      register: (email: string, username: string, password: string) => {
-        const { users } = get();
-        
-        const userExists = Object.values(users).some(
-          (u) => u.username === username || u.email === email
-        );
 
-        if (userExists) {
+      login: async (username: string, password: string) => {
+        try {
+          // Verificar credenciales de admin
+          if (
+            username === ADMIN_CREDENTIALS.username &&
+            password === ADMIN_CREDENTIALS.password
+          ) {
+            set({
+              user: {
+                id: 1,
+                username,
+                role: 'admin'
+              },
+              isAuthenticated: true,
+            });
+            return true;
+          }
+
+          // Para usuarios normales, cualquier username que no sea "admin" es válido
+          if (username.toLowerCase() !== 'admin') {
+            set({
+              user: {
+                id: 2,
+                username,
+                role: 'user'
+              },
+              isAuthenticated: true,
+            });
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          console.error('Login error:', error);
           return false;
         }
-
-        const newUser = {
-          id: Date.now().toString(),
-          username,
-          email,
-          password,
-          role: 'user' as const,
-        };
-
-        set((state) => ({
-          users: {
-            ...state.users,
-            [newUser.id]: newUser,
-          },
-        }));
-
-        return true;
       },
-      login: (username: string, password: string, email: string) => {
-        const { users } = get();
-        
-        const existingUser = Object.values(users).find(
-          (u) => u.username === username && u.password === password
-        );
-        
-        if (!existingUser) {
+
+      register: async (username: string, email: string, password: string) => {
+        try {
+          // No permitir registro de usuarios con username "admin"
+          if (username.toLowerCase() === 'admin') {
+            return false;
+          }
+
+          set({
+            user: {
+              id: 2,
+              username,
+              email,
+              role: 'user'
+            },
+            isAuthenticated: true,
+          });
+          return true;
+        } catch (error) {
+          console.error('Register error:', error);
           return false;
         }
-
-        set({
-          user: existingUser,
-          isAuthenticated: true,
-        });
-
-        return true;
       },
+
       logout: () => {
-        set({ user: null, isAuthenticated: false });
+        set({
+          user: null,
+          isAuthenticated: false,
+        });
+      },
+
+      isAdmin: (): boolean => {
+        const state = useAuthStore.getState();
+        return state.user?.role === 'admin';
       },
     }),
     {
       name: 'auth-storage',
     }
   )
-)
+);
