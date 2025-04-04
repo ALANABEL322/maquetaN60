@@ -1,46 +1,51 @@
-import { useAuthRole } from '@/hooks/use-auth-role';
-import { useMobile } from '@/hooks/use-mobile';
-import NavBar from '../../components/header/Navbar';
+import { useAuthStore } from '@/store/authStore';
+import Navbar from '@/components/header/Navbar';
 import SidebarAdmin from '../header/sidebarAdmin';
 import SidebarAdminMobile from '../header/sidebarAdminMobile';
 import SidebarUser from '../header/sidebarUser';
 import SidebarUserMobile from '../header/sidebarUserMobile';
 import Footer from '../footer';
 
+
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { isAdmin, isUser, isAuthenticated } = useAuthRole();
-  const isMobile = useMobile();
+  const { user, isAuthenticated } = useAuthStore();
+  const isMobile = window.innerWidth < 768;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-
-      <div className="flex-1 flex">
-        {isAuthenticated && (
-          <>
-            {isAdmin && (
+    <div className="flex flex-col min-h-screen">
+      {isAuthenticated && (
+        <>
+          <Navbar />
+          <div className="flex-1 flex">
+            {user?.role === 'admin' && (
               <>
-                {isMobile ? <SidebarAdminMobile /> : <SidebarAdmin />}
+                {isMobile ? (
+                  <SidebarAdminMobile />
+                ) : (
+                  <SidebarAdmin />
+                )}
               </>
             )}
-            {isUser && (
+            {user?.role === 'user' && (
               <>
-                {isMobile ? <SidebarUserMobile /> : <SidebarUser />}
+                {isMobile ? (
+                  <SidebarUserMobile />
+                ) : (
+                  <SidebarUser />
+                )}
               </>
             )}
-          </>
-        )}
-
-        <main className="flex-1 p-4">
-          {children}
-        </main>
-      </div>
-
-      <Footer />
+            <main className="flex-1 p-4">
+              {children}
+            </main>
+          </div>
+          <Footer />
+        </>
+      )}
     </div>
   );
 }

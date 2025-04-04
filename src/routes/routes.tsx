@@ -1,14 +1,14 @@
-import { Navigate, Outlet, RouteObject } from 'react-router-dom';
+import { Outlet, RouteObject } from 'react-router-dom';
 import { paths } from './paths';
 
 // Layouts
-import AdminLayout from '@/layouts/AdminLayout';
-import UserLayout from '@/layouts/UserLayout';
+import Layout from '@/components/layout/Layout';
 import AuthLayout from '@/screens/authScreens/authLayout';
 
 // Auth pages
 import LoginForm from '@/screens/authScreens/loginForm';
 import RegisterForm from '@/screens/authScreens/registerForm';
+import Home from '@/screens/home';
 
 // Admin pages
 import UsersPage from '@/screens/(admin)/users';
@@ -21,15 +21,12 @@ import CreateProject from '@/screens/(user)/createProject';
 import Projects from '@/screens/(user)/projects';
 import UserSupportPage from '@/screens/(user)/support';
 import LandingPage from '@/screens/(user)/landingPage';
-
-
-import RoleRedirect from './roleRedirect/roleRedirect';
 import ProtectedRoute from './ProtectedRoute';
 
 export const publicRoutes: RouteObject[] = [
   {
     path: paths.root,
-    element: <RoleRedirect />
+    element: <Home />
   },
   {
     path: paths.auth.login,
@@ -53,31 +50,27 @@ export const adminRoutes: RouteObject[] = [
   {
     path: paths.admin.root,
     element: (
-      <ProtectedRoute adminOnly>
-        <AdminLayout>
+      <ProtectedRoute>
+        <Layout>
           <Outlet />
-        </AdminLayout>
+        </Layout>
       </ProtectedRoute>
     ),
     children: [
       {
-        index: true,
-        element: <Navigate to={paths.admin.dashboard} replace />
-      },
-      {
-        path: 'dashboard',
+        path: paths.admin.dashboard,
         element: <DashboardAdmin />
       },
       {
-        path: 'users',
+        path: paths.admin.users,
         element: <UsersPage />
       },
       {
-        path: 'reports',
+        path: paths.admin.reports,
         element: <ReportsPage />
       },
       {
-        path: 'support',
+        path: paths.admin.support,
         element: <AdminSupportPage />
       }
     ]
@@ -88,31 +81,27 @@ export const userRoutes: RouteObject[] = [
   {
     path: paths.user.root,
     element: (
-      <ProtectedRoute userOnly>
-        <UserLayout>
+      <ProtectedRoute>
+        <Layout>
           <Outlet />
-        </UserLayout>
+        </Layout>
       </ProtectedRoute>
     ),
     children: [
       {
-        index: true,
-        element: <Navigate to={paths.user.landingPage} replace />
-      },
-      {
-        path: 'landingPage',
+        path: paths.user.landingPage,
         element: <LandingPage />
       },
       {
-        path: 'createProject',
+        path: paths.user.createProject,
         element: <CreateProject />
       },
       {
-        path: 'projects',
+        path: paths.user.projects,
         element: <Projects />
       },
       {
-        path: 'support',
+        path: paths.user.support,
         element: <UserSupportPage />
       }
     ]

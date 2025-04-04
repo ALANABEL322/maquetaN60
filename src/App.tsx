@@ -9,6 +9,7 @@ function App() {
       <AuthProvider>
         <div className="min-h-screen bg-background">
           <Toaster richColors position="top-center" />
+    
           <Router />
         </div>
       </AuthProvider>
