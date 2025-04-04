@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
+import { paths } from '@/routes/paths';
 
 export default function LoginForm() {
   const [username, setUsername] = useState('');
@@ -21,7 +22,8 @@ export default function LoginForm() {
     try {
       const success = await login(username, password);
       if (success) {
-        navigate(isAdmin() ? '/admin' : '/dashboard');
+        // Usar las rutas definidas en paths
+        navigate(isAdmin() ? paths.admin.dashboard : paths.user.landingPage);
       } else {
         setError('Credenciales inválidas');
       }

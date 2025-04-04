@@ -1,28 +1,19 @@
-import { useRoutes, Navigate } from 'react-router-dom';
-import { publicRoutes, adminRoutes, userRoutes } from './routes';
-import { paths } from './paths';
+import { useRoutes, Navigate } from 'react-router-dom'
+import { publicRoutes, adminRoutes, userRoutes } from './routes'
+import { paths } from './paths'
 
 export default function Router() {
   return useRoutes([
-    // Public routes (login, register)
-    ...publicRoutes,
-
-    // Admin routes
-    ...adminRoutes,
-
-    // User routes
-    ...userRoutes,
-
-    // Default redirect
     {
       path: '/',
       element: <Navigate to={paths.auth.login} replace />,
     },
-
-    // Catch all route - 404
+    ...publicRoutes,
+    ...adminRoutes,
+    ...userRoutes,
     {
       path: '*',
       element: <Navigate to={paths.auth.login} replace />,
     },
-  ]);
+  ])
 }
