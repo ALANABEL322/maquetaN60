@@ -1,56 +1,91 @@
-import { useNavigate } from 'react-router-dom'
-import {
-  Folder,
-  Package,
-  LifeBuoy,
-  Users,
-} from 'lucide-react'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from '@/components/ui/sidebar';
+import { Home, Users, FileText, LogOut } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
+import { paths } from '@/routes/paths';
 
 export default function SidebarUser() {
-  const navigate = useNavigate()
+  const { logout } = useAuthStore();
+  const navigate = useNavigate();
 
-  const menuItems = [
-    {
-      icon: Package,
-      label: 'Create Project',
-      path: '/dashboard/createProject'
-    },
-    {
-      icon: Folder,
-      label: 'My Projects',
-      path: '/dashboard/projects'
-    },
-    {
-      icon: LifeBuoy,
-      label: 'Support',
-      path: '/dashboard/support'
-    }
-  ]
+  const handleLogout = () => {
+    logout();
+    navigate(paths.auth.login);
+  };
 
   return (
-    <div className="fixed inset-y-0 left-0 w-64 bg-[#F6EEEE] border-r border-gray-200 flex flex-col">
-      <div className="flex-1 flex flex-col mt-12">
-        <div className="p-6">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-[#DB6B02] rounded-full flex items-center justify-center">
-              <Users className="h-6 w-6 text-white" />
-            </div>
+    <SidebarProvider> 
+    <Sidebar>
+      <SidebarContent>
+        <SidebarHeader>
+          <div className="flex items-center gap-2 mt-20">
+            <Home className="h-5 w-5" />
+            <span className="text-lg font-semibold">Mi Cuenta</span>
           </div>
+        </SidebarHeader>
 
-          <nav className="space-y-1">
-            {menuItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => navigate(item.path)}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+        <SidebarGroup>
+          <SidebarGroupLabel>Mi Espacio</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.root)}
+                  className="w-full"
+                >
+                  <Home className="h-4 w-4" />
+                  <span>Inicio</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.createProject)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Crear Proyecto</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.projects)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Mis Proyectos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.support)}
+                  className="w-full"
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Soporte</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                className="w-full"
               >
-                <item.icon className="h-5 w-5 text-gray-400 mr-3" />
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-    </div>
-  )
+                <LogOut className="h-4 w-4" />
+                <span>Cerrar sesión</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </SidebarContent>
+    </Sidebar>
+    </SidebarProvider>
+  );
 }
