@@ -23,7 +23,7 @@ export default function LoginForm() {
       const success = await login(email, password);
       if (success) {
         if (isAdmin()) {
-          navigate(paths.admin.dashboard);
+          navigate(paths.admin.perfil);
         } else {
           navigate(paths.user.landingPage);
         }
