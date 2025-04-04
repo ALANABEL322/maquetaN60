@@ -27,7 +27,7 @@ export default function ProtectedRoute({
 
   // Admin intentando acceder a ruta de usuario
   if (userOnly && isAdmin) {
-    return <Navigate to={paths.admin.dashboard} replace />;
+    return <Navigate to={paths.admin.perfil} replace />;
   }
 
   // Usuario normal intentando acceder a ruta de admin
@@ -47,7 +47,7 @@ export default function ProtectedRoute({
   }
 
   if (userOnly && isAdmin) {
-    return <Navigate to={paths.admin.dashboard} replace />;
+    return <Navigate to={paths.admin.perfil} replace />;
   }
 
   return <>{children}</>;

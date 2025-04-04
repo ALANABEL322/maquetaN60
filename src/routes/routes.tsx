@@ -11,10 +11,11 @@ import RegisterForm from '@/screens/authScreens/registerForm';
 import Home from '@/screens/home';
 
 // Admin pages
-import UsersPage from '@/screens/(admin)/users';
+// import UsersPage from '@/screens/(admin)/users';
 import ReportsPage from '@/screens/(admin)/reports';
 import AdminSupportPage from '@/screens/(admin)/support';
-import DashboardAdmin from '@/screens/(admin)/dashboard';
+import Perfil from '@/screens/(admin)/perfil';
+import Metricas from '@/screens/(admin)/metricas';
 
 // User pages
 import CreateProject from '@/screens/(user)/createProject';
@@ -58,12 +59,12 @@ export const adminRoutes: RouteObject[] = [
     ),
     children: [
       {
-        path: paths.admin.dashboard,
-        element: <DashboardAdmin />
+        path: paths.admin.perfil,
+        element: <Perfil />
       },
       {
-        path: paths.admin.users,
-        element: <UsersPage />
+        path: paths.admin.metricas,
+        element: <Metricas />
       },
       {
         path: paths.admin.reports,

@@ -30,21 +30,21 @@ export default function SidebarAdmin() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => navigate(paths.admin.dashboard)}
+                  onClick={() => navigate(paths.admin.perfil)}
                   className="w-full"
                 >
                   <BarChart3 className="h-4 w-4" />
-                  <span>Dashboard</span>
+                  <span>Perfil</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => navigate(paths.admin.users)}
+                  onClick={() => navigate(paths.admin.metricas)}
                   className="w-full"
                 >
                   <Users className="h-4 w-4" />
-                  <span>Usuarios</span>
+                  <span>Métricas de la web</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
