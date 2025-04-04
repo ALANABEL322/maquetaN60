@@ -1,20 +1,31 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginSchema, registerSchema } from './schemas';
+import { useUserStore } from '@/store/useUserStore';
 
-interface AuthContextType {
-  user: any | null;
+export interface User {
+  id: number;
+  username: string;
+  email?: string;
+  role: 'admin' | 'user';
+}
+
+export interface AuthContextType {
+  user: User | null;
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  login: async () => false,
+  register: async () => false,
+  logout: () => {},
+});
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, setUser, logout: zustandLogout } = useUserStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,66 +33,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    setLoading(false);
-  }, []);
+  }, [setUser]);
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const _isValid = await loginSchema.validate({ username, password });
-      const user = {
+      await loginSchema.validate({ username, password });
+      
+      // Simulación: si el username contiene "admin", le damos rol de admin
+      const role = username.toLowerCase().includes('admin') ? 'admin' as const : 'user' as const;
+      
+      const newUser: User = {
         id: 1,
         username,
-        email: 'user@example.com',
-        token: 'fake-token-' + Date.now()
+        role
       };
-      
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
       navigate('/dashboard');
       return true;
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      console.error('Login error:', error);
       return false;
     }
   };
 
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     try {
-    
-      const _isValid = await registerSchema.validate({ username, email, password });
+      await registerSchema.validate({ username, email, password });
       
-      const user = {
+      const newUser: User = {
         id: 1,
         username,
         email,
-        token: 'fake-token-' + Date.now()
+        role: 'user'
       };
-      
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
       navigate('/dashboard');
       return true;
     } catch (error) {
-      console.error('Error al registrarse:', error);
+      console.error('Register error:', error);
       return false;
     }
   };
 
   const logout = () => {
+    zustandLogout();
     localStorage.removeItem('user');
-    setUser(null);
-    navigate('/');
+    navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
