@@ -8,7 +8,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { paths } from '@/routes/paths';
 
 export default function LoginForm() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [_error, setError] = useState('');
@@ -20,10 +20,14 @@ export default function LoginForm() {
     setError('');
 
     try {
-      const success = await login(username, password);
+      const success = await login(email, password);
       if (success) {
-        // Usar las rutas definidas en paths
-        navigate(isAdmin() ? paths.admin.dashboard : paths.user.landingPage);
+        // Redirigir según el rol del usuario
+        if (isAdmin()) {
+          navigate(paths.admin.dashboard);
+        } else {
+          navigate(paths.user.landingPage);
+        }
       } else {
         setError('Credenciales inválidas');
       }
@@ -36,77 +40,36 @@ export default function LoginForm() {
     <div className="rounded-lg bg-white p-6 shadow-lg">
       <h2 className="text-2xl font-bold mb-4">Iniciar Sesión</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-1">
-          <Label htmlFor="email" className="text-sm font-medium">
-            Correo electrónico
-          </Label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-            </div>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <p className="text-xs text-gray-500">Ingresa tu correo electrónico</p>
+        <div className="space-y-2">
+          <Label htmlFor="email">email</Label>
+          <Input
+            id="email"
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Ingresa tu email"
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">Ingresa tu email</p>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="password" className="text-sm font-medium">
-            Contraseña
-          </Label>
+        <div className="space-y-2">
+          <Label htmlFor="password">Contraseña</Label>
           <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </div>
             <Input
               id="password"
-              name="password"
               type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ingresa tu contraseña"
+              className="w-full pr-10"
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5 text-gray-400" />
-              ) : (
-                <Eye className="h-5 w-5 text-gray-400" />
-              )}
+              {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
           <p className="text-xs text-gray-500">Ingresa tu contraseña</p>
@@ -118,10 +81,15 @@ export default function LoginForm() {
       </form>
 
       <div className="mt-6 text-center text-sm">
-        ¿No tienes cuenta?{" "}
-        <Link to="/register" className="font-medium text-[#1a3c5b] hover:underline">
-          Regístrate
-        </Link>
+        <p>
+          ¿No tienes cuenta?{' '}
+          <Link
+            to={paths.auth.register}
+            className="text-[#1a3c5b] hover:text-[#15324c] font-medium"
+          >
+            Regístrate aquí
+          </Link>
+        </p>
       </div>
     </div>
   );

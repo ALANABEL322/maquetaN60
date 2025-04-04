@@ -4,10 +4,12 @@ import { paths } from './paths';
 // Layouts
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
+import AuthLayout from '@/screens/authScreens/authLayout';
 
 // Auth pages
 import LoginForm from '@/screens/authScreens/loginForm';
 import RegisterForm from '@/screens/authScreens/registerForm';
+import Home from '@/screens/home';
 
 // Admin pages
 import UsersPage from '@/screens/(admin)/users';
@@ -21,18 +23,31 @@ import Projects from '@/screens/(user)/projects';
 import UserSupportPage from '@/screens/(user)/support';
 import LandingPage from '@/screens/(user)/landingPage';
 import ProtectedRoute from './ProtectedRoute';
+import RoleRedirect from './roleRedirect/roleRedirect';
 
 // Guards
 // import { AuthGuard } from './guards/AuthGuard';
 
 export const publicRoutes: RouteObject[] = [
   {
+    path: paths.root,
+    element: <RoleRedirect />
+  },
+  {
     path: paths.auth.login,
-    element: <LoginForm />
+    element: (
+      <AuthLayout>
+        <LoginForm />
+      </AuthLayout>
+    )
   },
   {
     path: paths.auth.register,
-    element: <RegisterForm />
+    element: (
+      <AuthLayout>
+        <RegisterForm />
+      </AuthLayout>
+    )
   }
 ];
 
@@ -70,7 +85,6 @@ export const adminRoutes: RouteObject[] = [
     ]
   }
 ];
-
 
 export const userRoutes: RouteObject[] = [
   {
