@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import imgAuth from "@/assets/imgAuth.png";
+import { paths } from '@/routes/paths';
 
 export default function Home() {
   return (
@@ -21,13 +22,13 @@ export default function Home() {
 
           <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
             <Link
-              to="/login"
+              to={paths.auth.login}
               className="flex-1 rounded-md bg-white px-6 py-3 font-medium text-[#e84c3d] shadow-lg hover:bg-gray-100 text-center"
             >
               Login
             </Link>
             <Link
-              to="/register"
+              to={paths.auth.register}
               className="flex-1 rounded-md border-2 border-white px-6 py-3 font-medium text-white hover:bg-white/10 text-center"
             >
               Register
@@ -36,5 +37,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }

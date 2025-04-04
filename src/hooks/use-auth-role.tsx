@@ -1,9 +1,9 @@
 import { useContext } from 'react';
-import { AuthContext } from '@/auth/AuthContext';
+import { AuthContext } from '../auth/AuthContext';
 
 export const useAuthRole = () => {
   const auth = useContext(AuthContext);
-
+  
   if (!auth) {
     throw new Error('useAuthRole must be used within an AuthProvider');
   }
@@ -16,6 +16,6 @@ export const useAuthRole = () => {
     isAdmin,
     isUser,
     isAuthenticated,
-    user: auth.user
+    role: auth.user?.role
   };
 };

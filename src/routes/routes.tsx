@@ -1,9 +1,10 @@
-import { RouteObject } from 'react-router-dom';
+import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import { paths } from './paths';
 
 // Layouts
 import AdminLayout from '@/layouts/AdminLayout';
 import UserLayout from '@/layouts/UserLayout';
+import AuthLayout from '@/screens/authScreens/authLayout';
 
 // Auth pages
 import LoginForm from '@/screens/authScreens/loginForm';
@@ -21,36 +22,63 @@ import Projects from '@/screens/(user)/projects';
 import UserSupportPage from '@/screens/(user)/support';
 import LandingPage from '@/screens/(user)/landingPage';
 
-// Guards
-import { AuthGuard } from './guards/AuthGuard';
+
+import RoleRedirect from './roleRedirect/roleRedirect';
+import ProtectedRoute from './ProtectedRoute';
 
 export const publicRoutes: RouteObject[] = [
   {
+    path: paths.root,
+    element: <RoleRedirect />
+  },
+  {
     path: paths.auth.login,
-    element: <LoginForm />
+    element: (
+      <AuthLayout>
+        <LoginForm />
+      </AuthLayout>
+    )
   },
   {
     path: paths.auth.register,
-    element: <RegisterForm />
+    element: (
+      <AuthLayout>
+        <RegisterForm />
+      </AuthLayout>
+    )
   }
 ];
 
 export const adminRoutes: RouteObject[] = [
   {
     path: paths.admin.root,
-    element: <AdminLayout><DashboardAdmin /></AdminLayout>,
+    element: (
+      <ProtectedRoute adminOnly>
+        <AdminLayout>
+          <Outlet />
+        </AdminLayout>
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: paths.admin.users.replace(paths.admin.root, ''),
-        element: <AuthGuard><UsersPage /></AuthGuard>
+        index: true,
+        element: <Navigate to={paths.admin.dashboard} replace />
       },
       {
-        path: paths.admin.reports.replace(paths.admin.root, ''),
-        element: <AuthGuard><ReportsPage /></AuthGuard>
+        path: 'dashboard',
+        element: <DashboardAdmin />
       },
       {
-        path: paths.admin.support.replace(paths.admin.root, ''),
-        element: <AuthGuard><AdminSupportPage /></AuthGuard>
+        path: 'users',
+        element: <UsersPage />
+      },
+      {
+        path: 'reports',
+        element: <ReportsPage />
+      },
+      {
+        path: 'support',
+        element: <AdminSupportPage />
       }
     ]
   }
@@ -59,19 +87,33 @@ export const adminRoutes: RouteObject[] = [
 export const userRoutes: RouteObject[] = [
   {
     path: paths.user.root,
-    element: <UserLayout><LandingPage /></UserLayout>,
+    element: (
+      <ProtectedRoute userOnly>
+        <UserLayout>
+          <Outlet />
+        </UserLayout>
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: paths.user.createProject.replace(paths.user.root, ''),
-        element: <AuthGuard><CreateProject /></AuthGuard>
+        index: true,
+        element: <Navigate to={paths.user.landingPage} replace />
       },
       {
-        path: paths.user.projects.replace(paths.user.root, ''),
-        element: <AuthGuard><Projects /></AuthGuard>
+        path: 'landingPage',
+        element: <LandingPage />
       },
       {
-        path: paths.user.support.replace(paths.user.root, ''),
-        element: <AuthGuard><UserSupportPage /></AuthGuard>
+        path: 'createProject',
+        element: <CreateProject />
+      },
+      {
+        path: 'projects',
+        element: <Projects />
+      },
+      {
+        path: 'support',
+        element: <UserSupportPage />
       }
     ]
   }

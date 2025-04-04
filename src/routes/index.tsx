@@ -1,6 +1,6 @@
-import { useRoutes, Navigate } from 'react-router-dom';
-import { publicRoutes, adminRoutes, userRoutes } from './routes';
-import { paths } from './paths';
+import { useRoutes, Navigate } from 'react-router-dom'
+import { publicRoutes, adminRoutes, userRoutes } from './routes'
+import { paths } from './paths'
 
 export default function Router() {
   return useRoutes([
@@ -15,14 +15,8 @@ export default function Router() {
 
     // Default redirect
     {
-      path: '/',
-      element: <Navigate to={paths.auth.login} replace />,
-    },
-
-    // Catch all route - 404
-    {
       path: '*',
-      element: <Navigate to={paths.auth.login} replace />,
-    },
-  ]);
+      element: <Navigate to={paths.root} replace />
+    }
+  ])
 }

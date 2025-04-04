@@ -1,57 +1,53 @@
-import React, { createContext, useEffect } from 'react';
+import React, { createContext, useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginSchema, registerSchema } from './schemas';
-import { useUserStore } from '@/store/useUserStore';
+import { useAuthStore, User } from '@/store/useUserStore';
+import { paths } from '@/routes/paths';
 
-export interface User {
-  id: number;
-  username: string;
-  email?: string;
-  role: 'admin' | 'user';
-}
 
 export interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  isAdmin: boolean; 
+  isLoading: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  login: async () => false,
-  register: async () => false,
-  logout: () => {},
-});
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, setUser, logout: zustandLogout } = useUserStore();
+  const { 
+    user, 
+    isAuthenticated,
+    login: zustandLogin, 
+    logout: zustandLogout, 
+    register: zustandRegister,
+    isAdmin
+  } = useAuthStore();
+  
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (isAuthenticated && user) {
+      navigate(user.role === 'admin' ? paths.admin.dashboard : paths.user.landingPage);
     }
-  }, [setUser]);
+  }, [isAuthenticated, user, navigate]);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
     try {
-      await loginSchema.validate({ username, password });
+      await loginSchema.validate({ email, password });
+      const success = zustandLogin(email, password);
       
-      // Simulación: si el username contiene "admin", le damos rol de admin
-      const role = username.toLowerCase().includes('admin') ? 'admin' as const : 'user' as const;
-      
-      const newUser: User = {
-        id: 1,
-        username,
-        role
-      };
-
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      navigate('/dashboard');
-      return true;
+      if (success) {
+        const targetPath = isAdmin() ? paths.admin.dashboard : paths.user.landingPage;
+        navigate(targetPath);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -61,18 +57,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     try {
       await registerSchema.validate({ username, email, password });
+      const success = zustandRegister(email, password, username);
       
-      const newUser: User = {
-        id: 1,
-        username,
-        email,
-        role: 'user'
-      };
-
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      navigate('/dashboard');
-      return true;
+      if (success) {
+        navigate(paths.user.landingPage);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('Register error:', error);
       return false;
@@ -81,19 +72,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     zustandLogout();
-    localStorage.removeItem('user');
-    navigate('/login');
+    navigate(paths.auth.login);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAdmin: isAdmin(), isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export function useAuth() {
-  const context = React.useContext(AuthContext);
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
