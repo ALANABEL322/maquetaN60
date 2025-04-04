@@ -7,8 +7,8 @@ export const paths = {
   // Admin routes
   admin: {
     root: '/admin',
-    dashboard: '/admin/dashboard',
-    users: '/admin/users',
+    perfil: '/admin/perfil',
+    metricas: '/admin/metricas',
     reports: '/admin/reports',
     support: '/admin/support',
   },

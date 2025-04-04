@@ -1,46 +1,52 @@
-import { useAuthRole } from '@/hooks/use-auth-role';
-import { useMobile } from '@/hooks/use-mobile';
-import NavBar from '../../components/header/Navbar';
+import { useAuthStore } from '@/store/authStore';
+import Navbar from '@/components/header/Navbar';
 import SidebarAdmin from '../header/sidebarAdmin';
 import SidebarAdminMobile from '../header/sidebarAdminMobile';
 import SidebarUser from '../header/sidebarUser';
 import SidebarUserMobile from '../header/sidebarUserMobile';
 import Footer from '../footer';
+import Container from '@/components/ui/Container';
+import { useFooterProximity } from '@/hooks/useFooterProximity';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { isAdmin, isUser, isAuthenticated } = useAuthRole();
-  const isMobile = useMobile();
+  const { user, isAuthenticated } = useAuthStore();
+  const isMobile = window.innerWidth < 768;
+  const isFooterNear = useFooterProximity();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-
-      <div className="flex-1 flex">
-        {isAuthenticated && (
-          <>
-            {isAdmin && (
-              <>
-                {isMobile ? <SidebarAdminMobile /> : <SidebarAdmin />}
-              </>
-            )}
-            {isUser && (
-              <>
-                {isMobile ? <SidebarUserMobile /> : <SidebarUser />}
-              </>
-            )}
-          </>
-        )}
-
-        <main className="flex-1 p-4">
-          {children}
-        </main>
-      </div>
-
-      <Footer />
-    </div>
+    <>
+      {isAuthenticated && <Navbar />}
+      
+      <Container>
+        <div className="flex-1 flex">
+          {user?.role === 'admin' && (
+            <>
+              {isMobile && !isFooterNear ? (
+                <SidebarAdminMobile />
+              ) : (
+                <SidebarAdmin />
+              )}
+            </>
+          )}
+          {user?.role === 'user' && (
+            <>
+              {isMobile && !isFooterNear ? (
+                <SidebarUserMobile />
+              ) : (
+                <SidebarUser />
+              )}
+            </>
+          )}
+          <main className="flex-1 p-4">
+            {children}
+          </main>
+        </div>
+        <Footer />
+      </Container>
+    </>
   );
 }

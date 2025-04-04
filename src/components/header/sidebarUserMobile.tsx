@@ -1,12 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { 
-  PieChart, 
   LifeBuoy, 
-  Settings, 
   LogOut, 
   Package, 
   Folder, 
-  FileText as ReportIcon
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
