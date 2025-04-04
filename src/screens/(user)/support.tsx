@@ -30,7 +30,6 @@ export default function UserSupportPage() {
       status: 'open',
       createdAt: new Date().toISOString(),
     },
-    // Más tickets mock...
   ]);
 
   const [newTicket, setNewTicket] = useState({
@@ -41,7 +40,6 @@ export default function UserSupportPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica para crear un nuevo ticket
     console.log('Nuevo ticket:', newTicket);
   };
 

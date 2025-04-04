@@ -1,4 +1,4 @@
-import { User } from '@/auth/AuthContext';
+import { User } from '@/store/useUserStore';
 import { DataTable } from '@/components/ui/data-table';
 import { useEffect, useState } from 'react';
 
@@ -6,19 +6,20 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Aquí iría la llamada a la API para obtener usuarios
     const mockUsers: User[] = [
       {
-        id: 1,
+        id: 'user-1',
         username: 'john_doe',
         email: 'john@example.com',
         role: 'user',
+        password: 'password123',
       },
       {
-        id: 2,
+        id: 'user-2',
         username: 'admin_user',
         email: 'admin@example.com',
         role: 'admin',
+        password: 'admin123',
       },
     ];
     setUsers(mockUsers);

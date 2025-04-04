@@ -27,7 +27,6 @@ export default function Projects() {
       startDate: '2024-01-01',
       endDate: '2024-12-31',
     },
-    // Más proyectos mock...
   ]);
 
   const getStatusColor = (status: Project['status']) => {

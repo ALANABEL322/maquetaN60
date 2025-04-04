@@ -22,7 +22,6 @@ export default function LoginForm() {
     try {
       const success = await login(email, password);
       if (success) {
-        // Redirigir según el rol del usuario
         if (isAdmin()) {
           navigate(paths.admin.dashboard);
         } else {

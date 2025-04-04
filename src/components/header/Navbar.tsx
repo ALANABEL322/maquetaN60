@@ -36,32 +36,8 @@ export default function Navbar() {
                   {user.role === 'admin' ? 'Admin' : 'Usuario'}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                onClick={handleLogout}
-                className="text-[#DB6A00] hover:text-[#DB6A00]"
-              >
-                <LogOut className="h-5 w-5 mr-2" />
-                Cerrar sesión
-              </Button>
             </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => navigate(paths.auth.login)}
-                className="text-[#DB6A00] hover:text-[#DB6A00]"
-              >
-                Iniciar sesión
-              </Button>
-              <Button
-                onClick={() => navigate(paths.auth.register)}
-                className="bg-[#DB6A00] text-white hover:bg-[#c45a00]"
-              >
-                Registrarse
-              </Button>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>

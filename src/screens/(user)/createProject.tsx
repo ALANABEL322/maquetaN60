@@ -18,7 +18,6 @@ export default function CreateProject() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica para crear el proyecto
     console.log('Proyecto creado:', formData);
     navigate(paths.user.projects);
   };
