@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Credenciales específicas para admin
 const ADMIN_CREDENTIALS = {
   username: 'admin',
   password: 'admin123',
@@ -10,28 +9,28 @@ const ADMIN_CREDENTIALS = {
 interface User {
   id: number;
   username: string;
-  email?: string;
+  email: string;
   role: 'admin' | 'user';
+  password: string;
 }
 
 interface AuthStore {
   user: User | null;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
   register: (username: string, email: string, password: string) => Promise<boolean>;
+  logout: () => void;
   isAdmin: () => boolean;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
 
       login: async (username: string, password: string) => {
         try {
-          // Verificar credenciales de admin
           if (
             username === ADMIN_CREDENTIALS.username &&
             password === ADMIN_CREDENTIALS.password
@@ -40,20 +39,23 @@ export const useAuthStore = create<AuthStore>()(
               user: {
                 id: 1,
                 username,
-                role: 'admin'
+                email: 'admin@example.com',
+                role: 'admin',
+                password,
               },
               isAuthenticated: true,
             });
             return true;
           }
 
-          // Para usuarios normales, cualquier username que no sea "admin" es válido
           if (username.toLowerCase() !== 'admin') {
             set({
               user: {
                 id: 2,
                 username,
-                role: 'user'
+                email: '',
+                role: 'user',
+                password,
               },
               isAuthenticated: true,
             });
@@ -69,7 +71,6 @@ export const useAuthStore = create<AuthStore>()(
 
       register: async (username: string, email: string, password: string) => {
         try {
-          // No permitir registro de usuarios con username "admin"
           if (username.toLowerCase() === 'admin') {
             return false;
           }
@@ -79,7 +80,8 @@ export const useAuthStore = create<AuthStore>()(
               id: 2,
               username,
               email,
-              role: 'user'
+              role: 'user',
+              password,
             },
             isAuthenticated: true,
           });
@@ -97,13 +99,13 @@ export const useAuthStore = create<AuthStore>()(
         });
       },
 
-      isAdmin: (): boolean => {
-        const state = useAuthStore.getState();
+      isAdmin: () => {
+        const state = get();
         return state.user?.role === 'admin';
       },
     }),
     {
-      name: 'auth-storage',
+      name: 'auth-store',
     }
   )
 );

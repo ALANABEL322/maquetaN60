@@ -10,13 +10,10 @@ export const useMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
 
-    // Check initially
     checkMobile();
 
-    // Add event listener
     window.addEventListener('resize', checkMobile);
 
-    // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 

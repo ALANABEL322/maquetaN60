@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Bar } from 'recharts';
 
 export default function ReportsPage() {
   const mockData = {
