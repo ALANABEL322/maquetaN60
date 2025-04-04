@@ -28,8 +28,8 @@ export default function SidebarAdmin() {
   ]
 
   return (
-    <div className="fixed inset-y-0 left-0 w-64 bg-[#F6EEEE] border-r border-gray-200 flex flex-col">
-      <div className="flex-1 flex flex-col mt-12">
+    <div className="fixed inset-y-0 left-0 w-52 bg-white border-r border-gray-200 flex flex-col">
+      <div className="flex-1 flex flex-col mt-16">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-6">
             <div className="p-2 bg-[#DB6B02] rounded-full flex items-center justify-center">
