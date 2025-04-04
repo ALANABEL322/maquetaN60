@@ -1,22 +1,29 @@
-import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
-import { paths } from '../paths';
+// import { Navigate } from 'react-router-dom';
+// import { useAuthStore } from '@/store/authStore';
+// import { paths } from '../paths';
 
-interface RoleGuardProps {
-  children: React.ReactNode;
-  requireAdmin?: boolean;
-}
+// interface RoleGuardProps {
+//   children: React.ReactNode;
+//   allowedRoles?: ('admin' | 'user')[]; // Más flexible que solo requireAdmin
+// }
 
-export function RoleGuard({ children, requireAdmin = true }: RoleGuardProps) {
-  const isAdmin = useAuthStore(state => state.isAdmin());
+// export function RoleGuard({ children, allowedRoles = ['admin'] }: RoleGuardProps) {
+//   const { isAdmin, isAuthenticated } = useAuthStore(state => ({
+//     isAdmin: state.isAdmin(),
+//     isAuthenticated: state.isAuthenticated
+//   }));
 
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to={paths.user.root} replace />;
-  }
+//   // Primero verificar autenticación (podría combinarse con AuthGuard)
+//   if (!isAuthenticated) {
+//     return <Navigate to={paths.auth.login} replace />;
+//   }
 
-  if (!requireAdmin && isAdmin) {
-    return <Navigate to={paths.admin.root} replace />;
-  }
+//   // Verificar roles permitidos
+//   const hasAccess = allowedRoles.includes(isAdmin ? 'admin' : 'user');
+  
+//   if (!hasAccess) {
+//     return <Navigate to={isAdmin ? paths.admin.dashboard : paths.user.landingPage} replace />;
+//   }
 
-  return <>{children}</>;
-}
+//   return <>{children}</>;
+// }

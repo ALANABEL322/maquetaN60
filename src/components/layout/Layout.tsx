@@ -1,6 +1,6 @@
 import { useAuthRole } from '@/hooks/use-auth-role';
 import { useMobile } from '@/hooks/use-mobile';
-import NavBar from '../header/navBar';
+import NavBar from '../../components/header/Navbar';
 import SidebarAdmin from '../header/sidebarAdmin';
 import SidebarAdminMobile from '../header/sidebarAdminMobile';
 import SidebarUser from '../header/sidebarUser';

@@ -1,4 +1,4 @@
-import { User } from '@/auth/authContext';
+import { User } from '@/auth/AuthContext';
 import { DataTable } from '@/components/ui/data-table';
 import { useEffect, useState } from 'react';
 
