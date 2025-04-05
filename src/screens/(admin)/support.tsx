@@ -16,12 +16,12 @@ interface Ticket {
 }
 
 export default function Support() {
-  const [activeTab, setActiveTab] = useState<"todas" | "solucionado">("todas")
+  const [activeTab, setActiveTab] = useState<"todas" | "historial">("todas")
   const [currentPage, setCurrentPage] = useState(1)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentTicketId, setCurrentTicketId] = useState<number | null>(null)
   const [supportName, setSupportName] = useState("Diseñador gráfico")
-  const [solution, setSolution] = useState("")
+  const [historial, setHistorial] = useState("")
 
   const tickets: Ticket[] = [
     {
@@ -46,7 +46,7 @@ export default function Support() {
     },
   ]
 
-  const handleTabChange = (tab: "todas" | "solucionado") => {
+  const handleTabChange = (tab: "todas" | "historial") => {
     setActiveTab(tab)
     setCurrentPage(1)
   }
@@ -65,13 +65,13 @@ export default function Support() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setCurrentTicketId(null)
-    setSolution("")
+    setHistorial("")
   }
 
   const handleSubmitResponse = () => {
     console.log("Submitting response for ticket:", currentTicketId)
     console.log("Support name:", supportName)
-    console.log("Solution:", solution)
+    console.log("Historial:", historial)
 
     handleCloseModal()
   }
@@ -95,13 +95,13 @@ export default function Support() {
           </button>
           <button
             className={`py-2 px-1 text-sm font-medium ${
-              activeTab === "solucionado"
+              activeTab === "historial"
                 ? "text-red-500 border-b-2 border-red-500"
                 : "text-gray-500 hover:text-gray-700"
             }`}
-            onClick={() => handleTabChange("solucionado")}
+            onClick={() => handleTabChange("historial")}
           >
-            Solucionado
+            Historial
           </button>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function Support() {
               </div>
             </div>
 
-            {activeTab !== "todas" && (
+            {activeTab === "todas" && (
               <div className="flex justify-end">
                 <Button className="bg-[#2c4c6b] hover:bg-[#243e59]" onClick={() => handleOpenModal(ticket.id)}>
                   Responder
@@ -236,14 +236,14 @@ export default function Support() {
               <Input id="supportName" value={supportName} onChange={(e) => setSupportName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <label htmlFor="solution" className="text-sm font-medium">
-                Solución
+              <label htmlFor="historial" className="text-sm font-medium">
+                Historial
               </label>
               <Textarea
-                id="solution"
+                id="historial"
                 placeholder="Escribe algo"
-                value={solution}
-                onChange={(e) => setSolution(e.target.value)}
+                value={historial}
+                onChange={(e) => setHistorial(e.target.value)}
                 rows={4}
               />
             </div>
