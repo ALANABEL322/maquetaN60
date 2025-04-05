@@ -18,6 +18,10 @@ export const paths = {
     landingPage: '/user/landingPage',
     createProject: '/user/createProject',
     projects: '/user/projects',
+    tareas: '/user/tareas',
+    capacitacion: '/user/capacitacion',
+    tutoriales: '/user/tutoriales',
+    monitoreo: '/user/monitoreo',
     support: '/user/support',
   },
   // Root route

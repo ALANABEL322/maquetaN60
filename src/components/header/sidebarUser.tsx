@@ -60,6 +60,48 @@ export default function SidebarUser() {
 
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  onClick={() => navigate(paths.user.tareas)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Mis Tareas</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.capacitacion)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Capacitación</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.tutoriales)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Tutoriales</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate(paths.user.monitoreo)}
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Monitoreo</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
                   onClick={() => navigate(paths.user.support)}
                   className="w-full"
                 >
