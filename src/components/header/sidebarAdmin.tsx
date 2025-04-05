@@ -48,13 +48,14 @@ export default function SidebarAdmin() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
+
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => navigate(paths.admin.reports)}
+                  onClick={() => navigate(paths.admin.users)}
                   className="w-full"
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Reportes</span>
+                  <span>Gestión de usuarios</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

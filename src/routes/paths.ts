@@ -9,7 +9,7 @@ export const paths = {
     root: '/admin',
     perfil: '/admin/perfil',
     metricas: '/admin/metricas',
-    reports: '/admin/reports',
+    users: '/admin/users',
     support: '/admin/support',
   },
   // User routes
