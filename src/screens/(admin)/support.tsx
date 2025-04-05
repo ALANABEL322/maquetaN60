@@ -69,24 +69,20 @@ export default function Support() {
   }
 
   const handleSubmitResponse = () => {
-    // Here you would typically send the response to your backend
     console.log("Submitting response for ticket:", currentTicketId)
     console.log("Support name:", supportName)
     console.log("Solution:", solution)
 
-    // Close the modal after submission
     handleCloseModal()
   }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 space-y-6">
-      {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-gray-900">Soporte</h1>
         <p className="text-sm text-gray-600">Aquí se pueden visualizar tus datos</p>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-gray-200">
         <div className="flex space-x-8">
           <button
@@ -110,7 +106,6 @@ export default function Support() {
         </div>
       </div>
 
-      {/* Tickets List */}
       <div className="space-y-4">
         {tickets.map((ticket) => (
           <div key={ticket.id} className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
@@ -150,8 +145,6 @@ export default function Support() {
           </div>
         ))}
       </div>
-
-      {/* Pagination */}
       <div className="flex items-center justify-between text-sm">
         <div className="text-gray-500">Mostrando 10 de 100</div>
         <div className="flex items-center space-x-1">
@@ -229,7 +222,7 @@ export default function Support() {
         </div>
       </div>
 
-      {/* Response Modal */}
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
