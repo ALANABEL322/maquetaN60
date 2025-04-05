@@ -4,7 +4,6 @@ import type React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Settings, Brain, BarChart3, Flag, GraduationCap, Clock, Award, MessageCircle, ThumbsUp } from "lucide-react"
 import imgBenefits from "../../assets/landingBenefits.png"
-import { Button } from "@/components/ui/button";
 
 const features = [
   {
@@ -104,7 +103,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <Link
-                to="#"
+                to="/user/createProject"
                 className="inline-flex h-10 items-center justify-center rounded-md bg-[#F45B49] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#F45B49]/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               >
                 Comenzar ahora
@@ -197,9 +196,12 @@ export default function LandingPage() {
             Impulsa a tu equipo con las herramientas más avanzadas en gestión ágil e inteligencia artificial. Desde la
             planificación hasta el lanzamiento, todo en un solo lugar.
           </p>
-          <Button className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-8 py-4 h-auto font-medium">
+          <Link
+            to="/user/createProject"
+            className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-8 py-4 h-auto font-medium"
+          >
             Comenzar ahora
-          </Button>
+          </Link>
         </div>
       </div>
     </div>
