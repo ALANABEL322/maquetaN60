@@ -1,8 +1,30 @@
-import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from '@/components/ui/sidebar';
-import { Home, Users, FileText, LogOut } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-import { useNavigate } from 'react-router-dom';
-import { paths } from '@/routes/paths';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
+import {
+  Home,
+  LogOut,
+  Package,
+  Folders,
+  FilePenLine,
+  ImagePlay,
+  MonitorPlay,
+  Cctv,
+  LifeBuoy,
+} from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
+import { paths } from "@/routes/paths";
 
 export default function SidebarUser() {
   const { logout } = useAuthStore();
@@ -14,120 +36,115 @@ export default function SidebarUser() {
   };
 
   return (
-    <SidebarProvider> 
-    <Sidebar>
-      <SidebarContent>
-        <SidebarHeader>
-          <div className="flex items-center gap-2 mt-20">
-            <Home className="h-5 w-5" />
-            <span className="text-lg font-semibold">Mi Cuenta</span>
-          </div>
-        </SidebarHeader>
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarHeader>
+            <div className="flex items-center gap-2 mt-20">
+              <Home className="h-5 w-5" />
+              <span className="text-lg font-semibold">Mi Cuenta</span>
+            </div>
+          </SidebarHeader>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Mi Espacio</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Mi Espacio</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.root)}
+                    className="w-full"
+                  >
+                    <Home className="h-4 w-4" />
+                    <span>Inicio</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.createProject)}
+                    className="w-full"
+                  >
+                    <Package className="h-4 w-4" />
+                    <span>Crear Proyecto</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.projects)}
+                    className="w-full"
+                  >
+                    <Folders className="h-4 w-4" />
+                    <span>Mis Proyectos</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.tareas)}
+                    className="w-full"
+                  >
+                    <FilePenLine className="h-4 w-4" />
+                    <span>Mis Tareas</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.capacitacion)}
+                    className="w-full"
+                  >
+                    <ImagePlay className="h-4 w-4" />
+                    <span>Capacitación</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.tutoriales)}
+                    className="w-full"
+                  >
+                    <MonitorPlay className="h-4 w-4" />
+                    <span>Tutoriales</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.monitoreo)}
+                    className="w-full"
+                  >
+                    <Cctv className="h-4 w-4" />
+                    <span>Monitoreo</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate(paths.user.support)}
+                    className="w-full"
+                  >
+                    <LifeBuoy className="h-4 w-4" />
+                    <span>Soporte</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.root)}
-                  className="w-full"
-                >
-                  <Home className="h-4 w-4" />
-                  <span>Inicio</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.createProject)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Crear Proyecto</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.projects)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Mis Proyectos</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.tareas)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Mis Tareas</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.capacitacion)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Capacitación</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.tutoriales)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Tutoriales</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.monitoreo)}
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Monitoreo</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => navigate(paths.user.support)}
-                  className="w-full"
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Soporte</span>
+                <SidebarMenuButton onClick={handleLogout} className="w-full">
+                  <LogOut className="h-4 w-4" />
+                  <span>Cerrar sesión</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={handleLogout}
-                className="w-full"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Cerrar sesión</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </SidebarContent>
-    </Sidebar>
+          </SidebarFooter>
+        </SidebarContent>
+      </Sidebar>
     </SidebarProvider>
   );
 }
