@@ -1,32 +1,82 @@
-import { useNavigate } from 'react-router-dom';
-import { 
-  LifeBuoy, 
-  LogOut, 
-  Package, 
-  Folder, 
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-
+import { useNavigate } from "react-router-dom";
+import {
+  LifeBuoy,
+  LogOut,
+  Package,
+  Folders,
+  FilePenLine,
+  ImagePlay,
+  MonitorPlay,
+  Cctv,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SidebarUserMobileProps {
   visible?: boolean;
 }
 
-export default function SidebarUserMobile({ visible = true }: SidebarUserMobileProps) {
+export default function SidebarUserMobile({
+  visible = true,
+}: SidebarUserMobileProps) {
   const navigate = useNavigate();
+
   const menuItems = [
-    { icon: Package, path: '/dashboard/createProject', tooltip: 'Crear Proyecto', color: '#E65100' },
-    { icon: Folder, path: '/dashboard/projects', tooltip: 'Proyectos', color: '#26C6DA' },
-    { icon: LifeBuoy, path: '/dashboard/support', tooltip: 'Soporte', color: '#66BB6A' },
-    { icon: LogOut, path: '/login', tooltip: 'Cerrar sesión', color: '#EF5350' },
+    {
+      icon: Package,
+      path: "/dashboard/createProject",
+      tooltip: "Crear Proyecto",
+      color: "#E65100",
+    },
+    {
+      icon: Folders,
+      path: "/dashboard/projects",
+      tooltip: "Proyectos",
+      color: "#26C6DA",
+    },
+    {
+      icon: FilePenLine,
+      path: "/dashboard/tareas",
+      tooltip: "Tareas",
+      color: "#eab217",
+    },
+    {
+      icon: ImagePlay,
+      path: "/dashboard/capacitacion",
+      tooltip: "Capacitación",
+      color: "#3ce086",
+    },
+    {
+      icon: MonitorPlay,
+      path: "/dashboard/tutoriales",
+      tooltip: "Tutoriales",
+      color: "#23499b",
+    },
+    {
+      icon: Cctv,
+      path: "/dashboard/monitoreo",
+      tooltip: "Monitoreo",
+      color: "#f179f7",
+    },
+    {
+      icon: LifeBuoy,
+      path: "/dashboard/support",
+      tooltip: "Soporte",
+      color: "#66BB6A",
+    },
+    {
+      icon: LogOut,
+      path: "/login",
+      tooltip: "Cerrar sesión",
+      color: "#EF5350",
+    },
   ];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ 
+      animate={{
         opacity: visible ? 1 : 0,
-        y: visible ? 0 : 20
+        y: visible ? 0 : 20,
       }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -49,14 +99,14 @@ export default function SidebarUserMobile({ visible = true }: SidebarUserMobileP
           >
             <item.icon className="h-6 w-6" />
           </motion.div>
-          
+
           <motion.div
             className="absolute inset-0 rounded-full opacity-0"
             style={{ backgroundColor: item.color }}
             initial={{ scale: 0.8 }}
-            whileHover={{ 
+            whileHover={{
               opacity: 0.2,
-              scale: 1
+              scale: 1,
             }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           />

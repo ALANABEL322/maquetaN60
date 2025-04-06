@@ -21,7 +21,16 @@ import CreateProject from '@/screens/(user)/createProject';
 import Projects from '@/screens/(user)/projects';
 import UserSupportPage from '@/screens/(user)/support';
 import LandingPage from '@/screens/(user)/landingPage';
+import Tareas from '@/screens/(user)/tareas';
+import Monitoreo from '@/screens/(user)/monitoreo';
+import Tutoriales from '@/screens/(user)/tutoriales';
+import Capacitacion from '@/screens/(user)/capacitacion';
+
+
+
 import ProtectedRoute from './ProtectedRoute';
+
+
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -101,9 +110,25 @@ export const userRoutes: RouteObject[] = [
         element: <Projects />
       },
       {
+        path: paths.user.tareas,
+        element: <Tareas />
+      },
+      {
+        path: paths.user.capacitacion,
+        element: <Capacitacion />
+      },
+      {
+        path: paths.user.tutoriales,
+        element: <Tutoriales />
+      },
+      {
+        path: paths.user.monitoreo,
+        element: <Monitoreo />
+      },
+      {
         path: paths.user.support,
         element: <UserSupportPage />
-      }
+      },
     ]
   }
 ];

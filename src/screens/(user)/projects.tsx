@@ -1,99 +1,119 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { paths } from '@/routes/paths';
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  status: 'active' | 'completed' | 'pending';
-  progress: number;
-  startDate: string;
-  endDate: string;
-}
+import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { MetricsDashboard } from "@/components/metricasUser/metrics-dashboard";
+import { Link } from "react-router-dom";
 
 export default function Projects() {
-  const navigate = useNavigate();
-  const [projects] = useState<Project[]>([
-    {
-      id: '1',
-      name: 'Proyecto Demo',
-      description: 'Este es un proyecto de ejemplo',
-      status: 'active',
-      progress: 75,
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-    },
-  ]);
+  const { projects, getTeamById } = useCreateProjectStore();
 
-  const getStatusColor = (status: Project['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "alta":
+        return "bg-red-100 text-red-800";
+      case "media":
+        return "bg-yellow-100 text-yellow-800";
+      case "baja":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Mis Proyectos</h1>
-        <Button onClick={() => navigate(paths.user.createProject)}>
-          Nuevo Proyecto
-        </Button>
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-800">Proyectos</h1>
+        <p className="text-gray-600 text-sm mt-2 mb-4">
+          Lista de tus proyectos
+        </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project) => (
-          <Card key={project.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{project.name}</CardTitle>
-                <Badge className={getStatusColor(project.status)}>
-                  {project.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-gray-500">{project.description}</p>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progreso</span>
-                    <span>{project.progress}%</span>
+      {projects.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500">No hay proyectos creados aún</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project) => {
+            const team = getTeamById(project.teamId);
+            return (
+              <Card
+                key={project.id}
+                className="hover:shadow-lg transition-shadow"
+              >
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{project.title}</CardTitle>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(
+                        project.priority
+                      )}`}
+                    >
+                      {project.priority}
+                    </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-[#1a3c5b] h-2 rounded-full"
-                      style={{ width: `${project.progress}%` }}
-                    />
+                  <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <CalendarIcon className="h-4 w-4 mr-1" />
+                    {format(new Date(project.startDate), "MMM dd")} -{" "}
+                    {format(new Date(project.endDate), "MMM dd, yyyy")}
                   </div>
-                </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                    {project.description}
+                  </p>
 
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Inicio: {project.startDate}</span>
-                  <span>Fin: {project.endDate}</span>
-                </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-gray-500">Product Owner</p>
+                      <p className="text-sm font-medium">
+                        {project.productOwner}
+                      </p>
+                    </div>
 
-                <div className="pt-4">
-                  <Button variant="outline" className="w-full">
-                    Ver Detalles
+                    <div>
+                      <p className="text-xs text-gray-500">Scrum Master</p>
+                      <p className="text-sm font-medium">
+                        {project.scrumMaster}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Equipo</p>
+                      <p className="text-sm font-medium">{team?.name}</p>
+                      <div className="flex -space-x-2 mt-2">
+                        {team?.members.slice(0, 5).map((member) => (
+                          <div
+                            key={member.id}
+                            className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white"
+                          >
+                            <span className="text-xs">
+                              {member.firstName[0]}
+                              {member.lastName[0]}
+                            </span>
+                          </div>
+                        ))}
+                        {team && team.members.length > 5 && (
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white text-xs">
+                            +{team.members.length - 5}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4">
+                    <Link to={`/projects/${project.id}`}>Asignar tareas</Link>
                   </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+      <MetricsDashboard />
     </div>
   );
 }
