@@ -1,5 +1,5 @@
 import { GuidesList } from "@/components/capacitaciones/guidesList";
-import { Pagination } from "@/components/capacitaciones/pagination";
+import { PaginationComp } from "@/components/capacitaciones/pagination";
 import { ResourceCategories } from "@/components/capacitaciones/resourceCategories";
 import { SearchBar } from "@/components/capacitaciones/searchBar";
 import { TutorialsList } from "@/components/capacitaciones/tutorialsList";
@@ -36,7 +36,7 @@ export default function Capacitacion() {
       </div>
 
       <div className="mt-10 flex justify-around">
-        <Pagination totalPages={40} itemsPerPage={10} totalItems={100} />
+        <PaginationComp totalPages={40} itemsPerPage={10} totalItems={100} />
       </div>
     </div>
   );

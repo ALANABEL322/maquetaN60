@@ -8,7 +8,7 @@ interface PaginationProps {
   totalItems: number;
 }
 
-export function Pagination({
+export function PaginationComp({
   totalPages,
   itemsPerPage,
   totalItems,
