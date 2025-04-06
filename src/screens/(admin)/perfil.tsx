@@ -1,9 +1,9 @@
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Pencil } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Pencil } from "lucide-react";
 
 export default function AdminProfile() {
   const [profileData, setProfileData] = useState({
@@ -14,28 +14,25 @@ export default function AdminProfile() {
     password: "**********",
     newPassword: "**********",
     confirmPassword: "**********",
-  })
+  });
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [_isEditing, setIsEditing] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setProfileData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the data to your backend
-    console.log("Profile data submitted:", profileData)
-    // Reset editing state
-    setIsEditing(false)
-  }
+    e.preventDefault();
+    console.log("Profile data submitted:", profileData);
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    // Reset form data to original values
     setProfileData({
       name: "Juana dominguez",
       email: "ejemplo@gmail.com",
@@ -44,15 +41,15 @@ export default function AdminProfile() {
       password: "**********",
       newPassword: "**********",
       confirmPassword: "**********",
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   return (
     <div className="w-full rounded-lg mx-auto p-6 bg-white my-20">
       <form onSubmit={handleSubmit} className="space-y-8  ">
-          <h1 className="text-4xl font-bold">Tu Perfil</h1>
-          <p className="text-gray-600">aqui puedes visualizar tus datos</p>
+        <h1 className="text-4xl font-bold">Tu Perfil</h1>
+        <p className="text-gray-600">aqui puedes visualizar tus datos</p>
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex flex-col items-center">
             <div className="relative">
@@ -74,16 +71,26 @@ export default function AdminProfile() {
             </div>
           </div>
 
-          {/* Form Fields */}
           <div className="flex-1 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre</Label>
-                <Input id="name" name="name" value={profileData.name} onChange={handleChange} />
+                <Input
+                  id="name"
+                  name="name"
+                  value={profileData.name}
+                  onChange={handleChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Correo electrónico</Label>
-                <Input id="email" name="email" type="email" value={profileData.email} onChange={handleChange} />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={profileData.email}
+                  onChange={handleChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">País</Label>
@@ -153,6 +160,5 @@ export default function AdminProfile() {
         </div>
       </form>
     </div>
-  )
+  );
 }
-
