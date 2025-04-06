@@ -11,14 +11,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function CreateProject() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     priority: "",
-    startDate: "",
-    endDate: "",
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
     objectives: "",
     productOwner: "",
     scrumMaster: "",
@@ -27,7 +35,13 @@ export default function CreateProject() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    // Convertir las fechas a string ISO para enviar al servidor si es necesario
+    const dataToSend = {
+      ...formData,
+      startDate: formData.startDate?.toISOString(),
+      endDate: formData.endDate?.toISOString(),
+    };
+    console.log("Form submitted:", dataToSend);
   };
 
   return (
@@ -97,57 +111,72 @@ export default function CreateProject() {
               </Select>
             </div>
           </div>
-
           <div>
             <h2 className="text-xl font-semibold mb-4">
               Planificación de Sprint
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label
-                  htmlFor="startDate"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Inicio
-                </label>
-                <Select
-                  value={formData.startDate}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, startDate: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2025-04-01">1 Abril 2025</SelectItem>
-                    <SelectItem value="2025-04-15">15 Abril 2025</SelectItem>
-                    <SelectItem value="2025-05-01">1 Mayo 2025</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="block text-sm font-medium mb-1">Inicio</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.startDate ? (
+                        format(formData.startDate, "PPP")
+                      ) : (
+                        <span>Selecciona una fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={formData.startDate}
+                      onSelect={(date) =>
+                        setFormData({ ...formData, startDate: date })
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
-                <label
-                  htmlFor="endDate"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Final
-                </label>
-                <Select
-                  value={formData.endDate}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, endDate: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2025-04-15">15 Abril 2025</SelectItem>
-                    <SelectItem value="2025-04-30">30 Abril 2025</SelectItem>
-                    <SelectItem value="2025-05-15">15 Mayo 2025</SelectItem>
-                  </SelectContent>
-                </Select>
+                <label className="block text-sm font-medium mb-1">Final</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.endDate ? (
+                        format(formData.endDate, "PPP")
+                      ) : (
+                        <span>Selecciona una fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={formData.endDate}
+                      onSelect={(date) =>
+                        setFormData({ ...formData, endDate: date })
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             <div>
@@ -243,4 +272,8 @@ export default function CreateProject() {
       </CardContent>
     </Card>
   );
+}
+
+function cn(...classes: (string | undefined | boolean)[]) {
+  return classes.filter(Boolean).join(" ");
 }
