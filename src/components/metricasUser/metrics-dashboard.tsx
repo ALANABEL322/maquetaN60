@@ -31,7 +31,7 @@ export function MetricsDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">
+      <h1 className="text-2xl font-bold text-gray-800 mt-10">
         Métricas y estadísticas
       </h1>
 
@@ -41,7 +41,9 @@ export function MetricsDashboard() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Activity</p>
-                <h3 className="text-xl font-bold">Desempeño de Pedro</h3>
+                <h3 className="text-xl font-bold">
+                  Desempeño del equipo front-end
+                </h3>
               </div>
               <Select defaultValue="weekly">
                 <SelectTrigger className="w-[120px]">
@@ -63,7 +65,9 @@ export function MetricsDashboard() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Activity</p>
-                <h3 className="text-xl font-bold">Desempeño de Juan</h3>
+                <h3 className="text-xl font-bold">
+                  Desempeño del equipo back-end
+                </h3>
               </div>
               <Select defaultValue="weekly">
                 <SelectTrigger className="w-[120px]">

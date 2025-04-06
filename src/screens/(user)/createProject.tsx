@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+// import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,29 +19,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
 
 export default function CreateProject() {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    priority: "",
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
-    objectives: "",
-    productOwner: "",
-    scrumMaster: "",
-    members: "",
-  });
+  const { submitProject, teams, currentProject, createProject, resetProject } =
+    useCreateProjectStore();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Convertir las fechas a string ISO para enviar al servidor si es necesario
-    const dataToSend = {
-      ...formData,
-      startDate: formData.startDate?.toISOString(),
-      endDate: formData.endDate?.toISOString(),
-    };
-    console.log("Form submitted:", dataToSend);
+    submitProject();
+    console.log("Project to be created:", currentProject);
+    resetProject();
   };
 
   return (
@@ -55,6 +44,7 @@ export default function CreateProject() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Sección de información básica */}
           <div className="space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium mb-1">
@@ -62,11 +52,9 @@ export default function CreateProject() {
               </label>
               <Input
                 id="title"
-                placeholder="Lorem ipsum"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
+                placeholder="Nombre del proyecto"
+                value={currentProject.title}
+                onChange={(e) => createProject({ title: e.target.value })}
               />
             </div>
 
@@ -79,11 +67,9 @@ export default function CreateProject() {
               </label>
               <Textarea
                 id="description"
-                placeholder="Lorem ipsum"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                placeholder="Descripción del proyecto"
+                value={currentProject.description}
+                onChange={(e) => createProject({ description: e.target.value })}
               />
             </div>
 
@@ -95,13 +81,21 @@ export default function CreateProject() {
                 Prioridad
               </label>
               <Select
-                value={formData.priority}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, priority: value })
-                }
+                value={currentProject.priority}
+                onValueChange={(value) => {
+                  // Solo actualiza si el valor es válido
+                  if (
+                    value === "alta" ||
+                    value === "media" ||
+                    value === "baja" ||
+                    value === ""
+                  ) {
+                    createProject({ priority: value });
+                  }
+                }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar" />
+                  <SelectValue placeholder="Seleccionar prioridad" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alta">Alta</SelectItem>
@@ -111,6 +105,8 @@ export default function CreateProject() {
               </Select>
             </div>
           </div>
+
+          {/* Sección de planificación */}
           <div>
             <h2 className="text-xl font-semibold mb-4">
               Planificación de Sprint
@@ -124,12 +120,12 @@ export default function CreateProject() {
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !formData.startDate && "text-muted-foreground"
+                        !currentProject.startDate && "text-muted-foreground"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.startDate ? (
-                        format(formData.startDate, "PPP")
+                      {currentProject.startDate ? (
+                        format(currentProject.startDate, "PPP")
                       ) : (
                         <span>Selecciona una fecha</span>
                       )}
@@ -138,10 +134,8 @@ export default function CreateProject() {
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={formData.startDate}
-                      onSelect={(date) =>
-                        setFormData({ ...formData, startDate: date })
-                      }
+                      selected={currentProject.startDate}
+                      onSelect={(date) => createProject({ startDate: date })}
                       initialFocus
                     />
                   </PopoverContent>
@@ -155,12 +149,12 @@ export default function CreateProject() {
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !formData.endDate && "text-muted-foreground"
+                        !currentProject.endDate && "text-muted-foreground"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.endDate ? (
-                        format(formData.endDate, "PPP")
+                      {currentProject.endDate ? (
+                        format(currentProject.endDate, "PPP")
                       ) : (
                         <span>Selecciona una fecha</span>
                       )}
@@ -169,10 +163,8 @@ export default function CreateProject() {
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={formData.endDate}
-                      onSelect={(date) =>
-                        setFormData({ ...formData, endDate: date })
-                      }
+                      selected={currentProject.endDate}
+                      onSelect={(date) => createProject({ endDate: date })}
                       initialFocus
                     />
                   </PopoverContent>
@@ -188,17 +180,16 @@ export default function CreateProject() {
               </label>
               <Textarea
                 id="objectives"
-                placeholder="Lorem ipsum"
-                value={formData.objectives}
-                onChange={(e) =>
-                  setFormData({ ...formData, objectives: e.target.value })
-                }
+                placeholder="Objetivos del proyecto"
+                value={currentProject.objectives}
+                onChange={(e) => createProject({ objectives: e.target.value })}
               />
             </div>
           </div>
 
+          {/* Sección de roles y equipo */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Papeles</h2>
+            <h2 className="text-xl font-semibold mb-4">Papeles y Equipo</h2>
             <div className="space-y-4">
               <div>
                 <label
@@ -209,10 +200,10 @@ export default function CreateProject() {
                 </label>
                 <Input
                   id="productOwner"
-                  placeholder="Lorem ipsum"
-                  value={formData.productOwner}
+                  placeholder="Nombre del product owner"
+                  value={currentProject.productOwner}
                   onChange={(e) =>
-                    setFormData({ ...formData, productOwner: e.target.value })
+                    createProject({ productOwner: e.target.value })
                   }
                 />
               </div>
@@ -221,59 +212,93 @@ export default function CreateProject() {
                   htmlFor="scrumMaster"
                   className="block text-sm font-medium mb-1"
                 >
-                  Master Scrum
+                  Scrum Master
                 </label>
                 <Input
                   id="scrumMaster"
-                  placeholder="Lorem ipsum"
-                  value={formData.scrumMaster}
+                  placeholder="Nombre del scrum master"
+                  value={currentProject.scrumMaster}
                   onChange={(e) =>
-                    setFormData({ ...formData, scrumMaster: e.target.value })
+                    createProject({ scrumMaster: e.target.value })
                   }
                 />
               </div>
               <div>
-                <label
-                  htmlFor="members"
-                  className="block text-sm font-medium mb-1"
-                >
-                  miembros
+                <label className="block text-sm font-medium mb-1">
+                  Equipo asignado
                 </label>
                 <Select
-                  value={formData.members}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, members: value })
-                  }
+                  value={currentProject.teamId}
+                  onValueChange={(value) => createProject({ teamId: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar" />
+                    <SelectValue placeholder="Seleccionar equipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="team1">Equipo 1</SelectItem>
-                    <SelectItem value="team2">Equipo 2</SelectItem>
-                    <SelectItem value="team3">Equipo 3</SelectItem>
+                    {teams.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Vista previa del equipo seleccionado */}
+              {currentProject.teamId && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">
+                    Miembros del equipo:
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {teams
+                      .find((team) => team.id === currentProject.teamId)
+                      ?.members.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex items-center space-x-2 p-2 border rounded"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs">
+                              {member.firstName[0]}
+                              {member.lastName[0]}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {member.firstName} {member.lastName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {member.email}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Botones de acción */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            <Button variant="outline" type="button" className="w-full">
+            <Button
+              variant="outline"
+              type="button"
+              className="w-full"
+              onClick={resetProject}
+            >
               Cancelar
             </Button>
             <Button
               type="submit"
               className="w-full bg-[#38536E] hover:bg-[#294052] text-white"
             >
-              Crear
+              Crear Proyecto
             </Button>
           </div>
         </form>
       </CardContent>
     </Card>
   );
-}
-
-function cn(...classes: (string | undefined | boolean)[]) {
-  return classes.filter(Boolean).join(" ");
 }

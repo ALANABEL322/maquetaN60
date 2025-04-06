@@ -1,66 +1,130 @@
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface User {
-  id: number
-  name: string
-  email: string
-  role: string
-  phone: string
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  phone: string;
 }
 
 export default function UsersPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 2, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 3, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 4, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 5, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 6, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 7, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 8, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 9, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-    { id: 10, name: "Pedro González", email: "pedrogonzalez@gmail.com", role: "colaborador", phone: "000000000" },
-  ])
+    {
+      id: 1,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 2,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 3,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 4,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 5,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 6,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 7,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 8,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 9,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+    {
+      id: 10,
+      name: "Pedro González",
+      email: "pedrogonzalez@gmail.com",
+      role: "colaborador",
+      phone: "000000000",
+    },
+  ]);
 
-  const totalUsers = 100
-  const usersPerPage = 10
-  const totalPages = Math.ceil(totalUsers / usersPerPage)
+  const totalUsers = 100;
+  const usersPerPage = 10;
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-    setCurrentPage(1)
-  }
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
 
   const handleDeleteUser = (userId: number) => {
-    setUsers(users.filter((user) => user.id !== userId))
-  }
+    setUsers(users.filter((user) => user.id !== userId));
+  };
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
-      setCurrentPage(page)
+      setCurrentPage(page);
     }
-  }
+  };
 
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone.includes(searchQuery),
-  )
+      user.phone.includes(searchQuery)
+  );
 
   return (
     <div className="w-full mx-auto p-4 space-y-6">
       <div className="space-y-1 my-16">
-        <h1 className="text-2xl font-bold text-gray-900">Gestión de usuarios</h1>
-        <p className="text-sm text-gray-600">Aquí se pueden visualizar tus datos</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Gestión de usuarios
+        </h1>
+        <p className="text-sm text-gray-600">
+          Aquí se pueden visualizar tus datos
+        </p>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white p-2">
@@ -85,7 +149,10 @@ export default function UsersPage() {
         {/* Table Body */}
         <div className="divide-y">
           {filteredUsers.map((user) => (
-            <div key={user.id} className="grid grid-cols-5 gap-4 p-4 text-sm items-center">
+            <div
+              key={user.id}
+              className="grid grid-cols-5 gap-4 p-4 text-sm items-center"
+            >
               <div className="truncate">{user.name}</div>
               <div className="truncate">{user.email}</div>
               <div className="truncate">{user.role}</div>
@@ -122,18 +189,18 @@ export default function UsersPage() {
           </Button>
 
           {[...Array(Math.min(5, totalPages))].map((_, index) => {
-            let pageNumber: number
+            let pageNumber: number;
 
             if (totalPages <= 5) {
-              pageNumber = index + 1
+              pageNumber = index + 1;
             } else if (currentPage <= 3) {
-              pageNumber = index + 1
-              if (index === 4) pageNumber = totalPages
+              pageNumber = index + 1;
+              if (index === 4) pageNumber = totalPages;
             } else if (currentPage >= totalPages - 2) {
-              pageNumber = totalPages - 4 + index
+              pageNumber = totalPages - 4 + index;
             } else {
-              pageNumber = currentPage - 2 + index
-              if (index === 4) pageNumber = totalPages
+              pageNumber = currentPage - 2 + index;
+              if (index === 4) pageNumber = totalPages;
             }
 
             return (
@@ -141,14 +208,18 @@ export default function UsersPage() {
                 key={index}
                 variant={currentPage === pageNumber ? "default" : "ghost"}
                 size="icon"
-                className={`w-8 h-8 ${currentPage === pageNumber ? "bg-red-500 hover:bg-red-600" : ""}`}
+                className={`w-8 h-8 ${
+                  currentPage === pageNumber
+                    ? "bg-red-500 hover:bg-red-600"
+                    : ""
+                }`}
                 onClick={() => handlePageChange(pageNumber)}
                 aria-label={`Page ${pageNumber}`}
                 aria-current={currentPage === pageNumber ? "page" : undefined}
               >
                 {pageNumber}
               </Button>
-            )
+            );
           })}
 
           {totalPages > 5 && currentPage < totalPages - 2 && (
@@ -178,5 +249,5 @@ export default function UsersPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
