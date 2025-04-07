@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type Member = {
   id: string;
@@ -34,8 +35,8 @@ interface ProjectForm {
   title: string;
   description: string;
   priority: PriorityLevel | "";
-  startDate: Date | undefined; // Date durante la edición
-  endDate: Date | undefined; // Date durante la edición
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   objectives: string;
   productOwner: string;
   scrumMaster: string;
@@ -230,49 +231,59 @@ const initialProjectForm: ProjectForm = {
   teamId: "",
 };
 
-export const useCreateProjectStore = create<ProjectStore>((set, get) => ({
-  teams: initialTeams,
-  currentProject: initialProjectForm,
-  projects: [],
-
-  createProject: (project) =>
-    set((state) => ({
-      currentProject: { ...state.currentProject, ...project },
-    })),
-
-  submitProject: () => {
-    const { currentProject } = get();
-
-    // Validación de campos requeridos
-    if (
-      !currentProject.title ||
-      !currentProject.teamId ||
-      !currentProject.startDate ||
-      !currentProject.endDate ||
-      !currentProject.priority || // Asegura que priority no esté vacío
-      !["alta", "media", "baja"].includes(currentProject.priority) // Validación explícita
-    ) {
-      console.error("Faltan campos requeridos o prioridad no válida");
-      return;
-    }
-
-    // Crear nuevo proyecto con prioridad validada
-    const newProject: Project = {
-      ...currentProject,
-      priority: currentProject.priority as PriorityLevel, // Conversión segura
-      id: `proj-${Date.now()}`,
-      startDate: currentProject.startDate.toISOString(),
-      endDate: currentProject.endDate.toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-
-    set((state) => ({
-      projects: [...state.projects, newProject],
+export const useCreateProjectStore = create<ProjectStore>()(
+  persist(
+    (set, get) => ({
+      teams: initialTeams,
       currentProject: initialProjectForm,
-    }));
-  },
+      projects: [],
 
-  resetProject: () => set({ currentProject: initialProjectForm }),
+      createProject: (project) =>
+        set((state) => ({
+          currentProject: { ...state.currentProject, ...project },
+        })),
 
-  getTeamById: (id) => get().teams.find((team) => team.id === id),
-}));
+      submitProject: () => {
+        const { currentProject } = get();
+
+        if (
+          !currentProject.title ||
+          !currentProject.teamId ||
+          !currentProject.startDate ||
+          !currentProject.endDate ||
+          !currentProject.priority ||
+          !["alta", "media", "baja"].includes(currentProject.priority)
+        ) {
+          console.error("Faltan campos requeridos o prioridad no válida");
+          return;
+        }
+
+        const newProject: Project = {
+          ...currentProject,
+          priority: currentProject.priority as PriorityLevel,
+          id: `proj-${Date.now()}`,
+          startDate: currentProject.startDate.toISOString(),
+          endDate: currentProject.endDate.toISOString(),
+          createdAt: new Date().toISOString(),
+        };
+
+        set((state) => ({
+          projects: [...state.projects, newProject],
+          currentProject: initialProjectForm,
+        }));
+      },
+
+      resetProject: () => set({ currentProject: initialProjectForm }),
+
+      getTeamById: (id) => get().teams.find((team) => team.id === id),
+    }),
+    {
+      name: "project-storage", // nombre único para el localStorage
+      partialize: (state) => ({
+        projects: state.projects,
+        // Puedes incluir otros estados que quieras persistir
+        // currentProject: state.currentProject,
+      }),
+    }
+  )
+);
