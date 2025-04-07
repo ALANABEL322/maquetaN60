@@ -104,7 +104,7 @@ export default function Projects() {
                       </div>
                     </div>
                   </div>
-                  <Button className="w-full mt-4">
+                  <Button className="w-full mt-4" asChild>
                     <Link to={`/user/tareas/${project.id}`}>
                       Asignar tareas
                     </Link>
