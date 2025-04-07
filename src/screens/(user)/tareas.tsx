@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { Eye, Users, BarChart3 } from "lucide-react";
 
 type Priority = "Alta" | "Media" | "Baja";
@@ -74,8 +74,27 @@ const sampleTasks: Task[] = [
   },
 ];
 
-export default function TaskDashboard() {
-  const [tasks, _setTasks] = useState<Task[]>(sampleTasks);
+export default function Tareas() {
+  const [tasks, setTasks] = useState<Task[]>(sampleTasks);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
+  const handleDrop = (status: Status) => {
+    if (!draggedTaskId) return;
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === draggedTaskId ? { ...task, status } : task
+      )
+    );
+    setDraggedTaskId(null);
+  };
+
+  const handlePriorityChange = (taskId: string, newPriority: Priority) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, priority: newPriority } : task
+      )
+    );
+  };
 
   const todoTasks = tasks.filter((task) => task.status === "por-hacer");
   const inProgressTasks = tasks.filter((task) => task.status === "en-curso");
@@ -105,58 +124,109 @@ export default function TaskDashboard() {
       <h2 className="text-xl font-semibold mb-4">Vistos recientemente</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-4">
-          <div className="bg-red-200 text-red-800 py-2 px-4 rounded-md text-center font-medium">
-            Por Hacer
-          </div>
-          <div className="space-y-4">
-            {todoTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </div>
-        </div>
+        {/* Por Hacer */}
+        <TaskColumn
+          title="Por Hacer"
+          status="por-hacer"
+          tasks={todoTasks}
+          onDrop={handleDrop}
+          setDraggedTaskId={setDraggedTaskId}
+          onPriorityChange={handlePriorityChange}
+        />
 
-        <div className="space-y-4">
-          <div className="bg-amber-200 text-amber-800 py-2 px-4 rounded-md text-center font-medium">
-            En Curso
-          </div>
-          <div className="space-y-4">
-            {inProgressTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </div>
-        </div>
+        {/* En Curso */}
+        <TaskColumn
+          title="En Curso"
+          status="en-curso"
+          tasks={inProgressTasks}
+          onDrop={handleDrop}
+          setDraggedTaskId={setDraggedTaskId}
+          onPriorityChange={handlePriorityChange}
+        />
 
-        <div className="space-y-4">
-          <div className="bg-green-200 text-green-800 py-2 px-4 rounded-md text-center font-medium">
-            Finalizada
-          </div>
-          <div className="space-y-4">
-            {completedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </div>
-        </div>
+        {/* Finalizada */}
+        <TaskColumn
+          title="Finalizada"
+          status="finalizada"
+          tasks={completedTasks}
+          onDrop={handleDrop}
+          setDraggedTaskId={setDraggedTaskId}
+          onPriorityChange={handlePriorityChange}
+        />
       </div>
     </div>
   );
 }
 
-function TaskCard({ task }: { task: Task }) {
+function TaskColumn({
+  title,
+  status,
+  tasks,
+  onDrop,
+  setDraggedTaskId,
+  onPriorityChange,
+}: {
+  title: string;
+  status: Status;
+  tasks: Task[];
+  onDrop: (status: Status) => void;
+  setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
+  onPriorityChange: (taskId: string, newPriority: Priority) => void;
+}) {
+  const statusColors = {
+    "por-hacer": "bg-red-200 text-red-800",
+    "en-curso": "bg-amber-200 text-amber-800",
+    finalizada: "bg-green-200 text-green-800",
+  };
+
+  return (
+    <div
+      className="space-y-4"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={() => onDrop(status)}
+    >
+      <div
+        className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}
+      >
+        {title}
+      </div>
+      <div className="space-y-4">
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            setDraggedTaskId={setDraggedTaskId}
+            onPriorityChange={onPriorityChange}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TaskCard({
+  task,
+  setDraggedTaskId,
+  onPriorityChange,
+}: {
+  task: Task;
+  setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
+  onPriorityChange: (taskId: string, newPriority: Priority) => void;
+}) {
   const statusColors = {
     "por-hacer": "bg-red-50",
     "en-curso": "bg-amber-50",
     finalizada: "bg-green-50",
   };
 
-  const priorityColors = {
-    Alta: "bg-red-200 text-red-800",
-    Media: "bg-amber-200 text-amber-800",
-    Baja: "bg-blue-200 text-blue-800",
-  };
-
   return (
-    <Card className={`${statusColors[task.status]} border-none shadow-sm`}>
+    <Card
+      className={`${
+        statusColors[task.status]
+      } border-none shadow-sm cursor-move`}
+      draggable
+      onDragStart={() => setDraggedTaskId(task.id)}
+    >
       <CardContent className="p-4">
         <h3 className="font-medium text-lg mb-2">{task.name}</h3>
 
@@ -172,13 +242,19 @@ function TaskCard({ task }: { task: Task }) {
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <div>
-            <span className="text-sm text-muted-foreground mr-2">
-              Prioridad
-            </span>
-            <Badge className={`${priorityColors[task.priority]} font-normal`}>
-              {task.priority}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Prioridad:</span>
+            <select
+              className="text-sm bg-transparent border border-gray-300 rounded-md px-2 py-1"
+              value={task.priority}
+              onChange={(e) =>
+                onPriorityChange(task.id, e.target.value as Priority)
+              }
+            >
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
           </div>
 
           <Button
