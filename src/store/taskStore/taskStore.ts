@@ -14,9 +14,22 @@ export interface Task {
   priority: Priority;
   status: Status;
   assignedMembers: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  comments?: string;
 }
 
-// Definimos el tipo Member basado en tu estructura
+export interface TaskInput {
+  projectId: string;
+  name?: string;
+  description?: string;
+  registrationDate?: string;
+  deadline?: string;
+  priority?: Priority;
+  status: Status;
+  assignedMembers?: string[];
+}
+
 export interface Member {
   id: string;
   firstName: string;
@@ -27,13 +40,15 @@ export interface Member {
 
 interface TaskStore {
   tasks: Task[];
-  addTask: (task: Omit<Task, "id">) => void;
+  addTask: (task: TaskInput) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   assignMember: (taskId: string, memberId: string) => void;
   unassignMember: (taskId: string, memberId: string) => void;
   getTasksByProject: (projectId: string) => Task[];
   getTasksByStatus: (projectId: string, status: Status) => Task[];
+  getTaskById: (id: string) => Task | undefined;
+  moveTask: (taskId: string, newStatus: Status) => void;
 }
 
 export const useTaskStore = create<TaskStore>()(
@@ -42,17 +57,40 @@ export const useTaskStore = create<TaskStore>()(
       tasks: [],
 
       addTask: (task) => {
-        const newTask = {
+        const now = new Date().toISOString().split("T")[0]; // Solo fecha
+        const defaultTask = {
+          name: "Nueva Tarea",
+          description: "",
+          registrationDate: now,
+          deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0], // Solo fecha
+          priority: "Media" as Priority,
+          assignedMembers: [],
           ...task,
-          id: Date.now().toString(),
         };
+
+        const newTask: Task = {
+          ...defaultTask,
+          id: Date.now().toString(),
+          createdAt: now,
+          updatedAt: now,
+        };
+
         set((state) => ({ tasks: [...state.tasks, newTask] }));
       },
 
       updateTask: (id, updates) => {
+        const now = new Date().toISOString().split("T")[0]; // Solo fecha
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.id === id ? { ...task, ...updates } : task
+            task.id === id
+              ? {
+                  ...task,
+                  ...updates,
+                  updatedAt: now,
+                }
+              : task
           ),
         }));
       },
@@ -64,19 +102,27 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       assignMember: (taskId, memberId) => {
+        const now = new Date().toISOString();
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === taskId
-              ? {
-                  ...task,
-                  assignedMembers: [...task.assignedMembers, memberId],
-                }
-              : task
-          ),
+          tasks: state.tasks.map((task) => {
+            if (task.id === taskId) {
+              // Verificar límite de 5 miembros y que no esté ya asignado
+              if (task.assignedMembers.length >= 5) return task;
+              if (task.assignedMembers.includes(memberId)) return task;
+
+              return {
+                ...task,
+                assignedMembers: [...task.assignedMembers, memberId],
+                updatedAt: now,
+              };
+            }
+            return task;
+          }),
         }));
       },
 
       unassignMember: (taskId, memberId) => {
+        const now = new Date().toISOString();
         set((state) => ({
           tasks: state.tasks.map((task) =>
             task.id === taskId
@@ -85,6 +131,7 @@ export const useTaskStore = create<TaskStore>()(
                   assignedMembers: task.assignedMembers.filter(
                     (id) => id !== memberId
                   ),
+                  updatedAt: now,
                 }
               : task
           ),
@@ -92,18 +139,40 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       getTasksByProject: (projectId) => {
-        return get().tasks.filter((task) => task.projectId === projectId);
+        return get()
+          .tasks.filter((task) => task.projectId === projectId)
+          .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
       },
 
       getTasksByStatus: (projectId, status) => {
         return get()
-          .tasks.filter((task) => task.projectId === projectId)
+          .getTasksByProject(projectId)
           .filter((task) => task.status === status);
+      },
+
+      getTaskById: (id) => {
+        return get().tasks.find((task) => task.id === id);
+      },
+
+      moveTask: (taskId, newStatus) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === taskId
+              ? { ...task, status: newStatus, updatedAt: now }
+              : task
+          ),
+        }));
       },
     }),
     {
       name: "task-storage",
       partialize: (state) => ({ tasks: state.tasks }),
+      version: 1,
     }
   )
 );
+
+export type { Task as TaskType };
+export type { Member as MemberType };
+export type { TaskInput as TaskInputType };

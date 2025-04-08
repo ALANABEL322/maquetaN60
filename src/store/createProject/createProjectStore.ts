@@ -51,6 +51,7 @@ interface ProjectStore {
   submitProject: () => void;
   resetProject: () => void;
   getTeamById: (id: string) => Team | undefined;
+  deleteProject: (id: string) => void;
 }
 const initialTeams: Team[] = [
   {
@@ -276,7 +277,15 @@ export const useCreateProjectStore = create<ProjectStore>()(
       resetProject: () => set({ currentProject: initialProjectForm }),
 
       getTeamById: (id) => get().teams.find((team) => team.id === id),
+
+      // Nueva función para eliminar proyectos
+      deleteProject: (id) => {
+        set((state) => ({
+          projects: state.projects.filter((project) => project.id !== id),
+        }));
+      },
     }),
+
     {
       name: "project-storage", // nombre único para el localStorage
       partialize: (state) => ({

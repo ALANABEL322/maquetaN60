@@ -18,6 +18,8 @@ import {
   type Priority,
   type Status,
 } from "@/store/taskStore/taskStore";
+import { toast } from "sonner";
+import { TaskDetailsModal } from "@/components/taskModalDetail";
 
 export default function Tareas() {
   const { projectId } = useParams();
@@ -28,8 +30,13 @@ export default function Tareas() {
   const team = project ? getTeamById(project.teamId) : null;
 
   // Usamos el store de tareas
-  const { addTask, updateTask, assignMember, getTasksByStatus } =
-    useTaskStore();
+  const {
+    addTask,
+    assignMember,
+    unassignMember,
+    getTasksByStatus,
+    updateTask,
+  } = useTaskStore();
 
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
@@ -44,16 +51,24 @@ export default function Tareas() {
   };
 
   const addNewTask = (status: Status) => {
-    if (!projectId) return;
+    if (!projectId) {
+      toast.error("No se puede crear la tarea: Proyecto no encontrado");
+      return;
+    }
+
+    if (!project) {
+      toast.error("No se puede crear la tarea: Proyecto inválido");
+      return;
+    }
 
     addTask({
       projectId,
-      name: "Nueva Tarea",
-      description: "Descripción de la tarea",
-      registrationDate: new Date().toLocaleDateString(),
+      name: `Tarea ${getTasksByStatus(projectId, status).length + 1}`,
+      description: "",
+      registrationDate: new Date().toLocaleDateString("es-ES"),
       deadline: new Date(
         Date.now() + 7 * 24 * 60 * 60 * 1000
-      ).toLocaleDateString(),
+      ).toLocaleDateString("es-ES"),
       priority: "Media",
       status,
       assignedMembers: [],
@@ -64,10 +79,31 @@ export default function Tareas() {
     assignMember(taskId, memberId);
   };
 
+  const unassignMemberFromTask = (taskId: string, memberId: string) => {
+    unassignMember(taskId, memberId);
+  };
+
   // Obtenemos tareas filtradas por estado usando selectores del store
-  const todoTasks = getTasksByStatus(projectId!, "por-hacer");
-  const inProgressTasks = getTasksByStatus(projectId!, "en-curso");
-  const completedTasks = getTasksByStatus(projectId!, "finalizada");
+  const todoTasks = projectId ? getTasksByStatus(projectId, "por-hacer") : [];
+  const inProgressTasks = projectId
+    ? getTasksByStatus(projectId, "en-curso")
+    : [];
+  const completedTasks = projectId
+    ? getTasksByStatus(projectId, "finalizada")
+    : [];
+
+  if (!projectId || !project) {
+    return (
+      <div className="container mx-auto p-4 max-w-7xl">
+        <div className="text-center py-10">
+          <h1 className="text-2xl font-bold mb-4">Proyecto no encontrado</h1>
+          <p className="text-muted-foreground">
+            No se ha podido cargar el proyecto solicitado
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -93,7 +129,6 @@ export default function Tareas() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Por Hacer */}
         <TaskColumn
           title="Por Hacer"
           status="por-hacer"
@@ -104,9 +139,10 @@ export default function Tareas() {
           onAddTask={addNewTask}
           teamMembers={team?.members || []}
           onAssignMember={assignMemberToTask}
+          onUnassignMember={unassignMemberFromTask}
+          onUpdateTask={updateTask}
         />
 
-        {/* En Curso */}
         <TaskColumn
           title="En Curso"
           status="en-curso"
@@ -117,9 +153,10 @@ export default function Tareas() {
           onAddTask={addNewTask}
           teamMembers={team?.members || []}
           onAssignMember={assignMemberToTask}
+          onUnassignMember={unassignMemberFromTask}
+          onUpdateTask={updateTask}
         />
 
-        {/* Finalizada */}
         <TaskColumn
           title="Finalizada"
           status="finalizada"
@@ -130,6 +167,8 @@ export default function Tareas() {
           onAddTask={addNewTask}
           teamMembers={team?.members || []}
           onAssignMember={assignMemberToTask}
+          onUnassignMember={unassignMemberFromTask}
+          onUpdateTask={updateTask}
         />
       </div>
     </div>
@@ -146,6 +185,8 @@ function TaskColumn({
   onAddTask,
   teamMembers,
   onAssignMember,
+  onUnassignMember,
+  onUpdateTask,
 }: {
   title: string;
   status: Status;
@@ -156,6 +197,8 @@ function TaskColumn({
   onAddTask: (status: Status) => void;
   teamMembers: Member[];
   onAssignMember: (taskId: string, memberId: string) => void;
+  onUnassignMember: (taskId: string, memberId: string) => void;
+  onUpdateTask: (id: string, updates: Partial<Task>) => void;
 }) {
   const statusColors = {
     "por-hacer": "bg-red-200 text-red-800",
@@ -194,6 +237,7 @@ function TaskColumn({
             onPriorityChange={onPriorityChange}
             teamMembers={teamMembers}
             onAssignMember={onAssignMember}
+            onUnassignMember={onUnassignMember}
           />
         ))}
         {tasks.length === 0 && (
@@ -212,13 +256,33 @@ function TaskCard({
   onPriorityChange,
   teamMembers,
   onAssignMember,
+  onUnassignMember,
 }: {
   task: Task;
   setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
   onPriorityChange: (taskId: string, newPriority: Priority) => void;
   teamMembers: Member[];
   onAssignMember: (taskId: string, memberId: string) => void;
+  onUnassignMember: (taskId: string, memberId: string) => void;
 }) {
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const { updateTask } = useTaskStore();
+
+  const handleSaveDetails = (updatedDetails: {
+    name: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+    comments: string;
+  }) => {
+    updateTask(task.id, {
+      name: updatedDetails.name,
+      description: updatedDetails.description,
+      registrationDate: updatedDetails.startDate,
+      deadline: updatedDetails.endDate,
+    });
+  };
+
   const statusColors = {
     "por-hacer": "bg-red-50",
     "en-curso": "bg-amber-50",
@@ -235,19 +299,51 @@ function TaskCard({
     >
       <CardContent className="p-4">
         <h3 className="font-medium text-lg mb-2">{task.name}</h3>
+        <div className="flex justify-between items-center w-full">
+          <span className="text-sm text-muted-foreground">Prioridad:</span>
+
+          <div className="flex items-center gap-2">
+            <button
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
+                task.priority === "Alta"
+                  ? "bg-red-100 text-red-600"
+                  : "text-red-500 hover:bg-red-50"
+              }`}
+              onClick={() => onPriorityChange(task.id, "Alta")}
+            >
+              Alta
+            </button>
+            <button
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
+                task.priority === "Media"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "text-yellow-600 hover:bg-yellow-50"
+              }`}
+              onClick={() => onPriorityChange(task.id, "Media")}
+            >
+              Media
+            </button>
+            <button
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
+                task.priority === "Baja"
+                  ? "bg-green-100 text-green-600"
+                  : "text-green-500 hover:bg-green-50"
+              }`}
+              onClick={() => onPriorityChange(task.id, "Baja")}
+            >
+              Baja
+            </button>
+          </div>
+        </div>
 
         <div className="grid grid-cols-[auto,1fr] gap-x-2 text-sm mb-4">
-          <span className="text-muted-foreground">Descripción</span>
-          <span className="text-right">{task.description}</span>
-
-          <span className="text-muted-foreground">Fecha de inscripción</span>
+          <span className="text-muted-foreground">Fecha de inicio</span>
           <span className="text-right">{task.registrationDate}</span>
 
           <span className="text-muted-foreground">Fecha límite</span>
           <span className="text-right">{task.deadline}</span>
         </div>
 
-        {/* Miembros asignados */}
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-sm text-muted-foreground">Miembros:</span>
@@ -269,33 +365,33 @@ function TaskCard({
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Prioridad:</span>
-            <select
-              className="text-sm bg-transparent border border-gray-300 rounded-md px-2 py-1"
-              value={task.priority}
-              onChange={(e) =>
-                onPriorityChange(task.id, e.target.value as Priority)
-              }
-            >
-              <option value="Alta">Alta</option>
-              <option value="Media">Media</option>
-              <option value="Baja">Baja</option>
-            </select>
-          </div>
-
-          <div className="flex gap-2">
+          <div>
             <AssignMemberModal
               task={task}
               teamMembers={teamMembers}
               onAssignMember={onAssignMember}
+              onUnassignMember={onUnassignMember}
             />
-            <Button variant="secondary" size="sm">
-              <Eye className="h-4 w-4 mr-1" />
-              Ver
+          </div>
+
+          <div>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={() => setIsDetailsModalOpen(true)}
+            >
+              <Eye className="h-4 w-4" />
+              <span>Ver</span>
             </Button>
           </div>
         </div>
+        <TaskDetailsModal
+          task={task}
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          onSave={handleSaveDetails}
+        />
       </CardContent>
     </Card>
   );
@@ -305,58 +401,80 @@ function AssignMemberModal({
   task,
   teamMembers,
   onAssignMember,
+  onUnassignMember,
 }: {
   task: Task;
   teamMembers: Member[];
   onAssignMember: (taskId: string, memberId: string) => void;
+  onUnassignMember: (taskId: string, memberId: string) => void;
 }) {
+  const MAX_MEMBERS = 5;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <UserPlus className="h-4 w-4 mr-1" />
-          Asignar
+          Miembros ({task.assignedMembers.length}/{MAX_MEMBERS})
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Asignar miembros a: {task.name}</DialogTitle>
+          <DialogTitle>
+            Gestión de miembros: {task.name}
+            <span className="block text-sm font-normal text-muted-foreground">
+              {task.assignedMembers.length}/{MAX_MEMBERS} miembros asignados
+            </span>
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {teamMembers.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                  {member.firstName[0]}
-                  {member.lastName[0]}
+          {teamMembers.map((member) => {
+            const isAssigned = task.assignedMembers.includes(member.id);
+            const isFull =
+              task.assignedMembers.length >= MAX_MEMBERS && !isAssigned;
+
+            return (
+              <div
+                key={member.id}
+                className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    {member.firstName[0]}
+                    {member.lastName[0]}
+                  </div>
+                  <div>
+                    <p className="font-medium">
+                      {member.firstName} {member.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.email}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">
-                    {member.firstName} {member.lastName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {member.email}
-                  </p>
+                <div className="flex gap-2">
+                  {isAssigned ? (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onUnassignMember(task.id, member.id)}
+                    >
+                      Quitar
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => onAssignMember(task.id, member.id)}
+                      disabled={isFull}
+                    >
+                      Asignar
+                    </Button>
+                  )}
                 </div>
               </div>
-              <Button
-                variant={
-                  task.assignedMembers.includes(member.id)
-                    ? "default"
-                    : "outline"
-                }
-                size="sm"
-                onClick={() => onAssignMember(task.id, member.id)}
-              >
-                {task.assignedMembers.includes(member.id)
-                  ? "Asignado"
-                  : "Asignar"}
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </DialogContent>
     </Dialog>
