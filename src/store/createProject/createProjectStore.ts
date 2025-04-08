@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type Member = {
   id: string;
@@ -19,8 +20,8 @@ type Project = {
   title: string;
   description: string;
   priority: PriorityLevel;
-  startDate: string; // ISO string
-  endDate: string; // ISO string
+  startDate: string;
+  endDate: string;
   objectives: string;
   productOwner: string;
   scrumMaster: string;
@@ -34,8 +35,8 @@ interface ProjectForm {
   title: string;
   description: string;
   priority: PriorityLevel | "";
-  startDate: Date | undefined; // Date durante la edición
-  endDate: Date | undefined; // Date durante la edición
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   objectives: string;
   productOwner: string;
   scrumMaster: string;
@@ -50,6 +51,7 @@ interface ProjectStore {
   submitProject: () => void;
   resetProject: () => void;
   getTeamById: (id: string) => Team | undefined;
+  deleteProject: (id: string) => void;
 }
 const initialTeams: Team[] = [
   {
@@ -61,35 +63,36 @@ const initialTeams: Team[] = [
         firstName: "Juan",
         lastName: "Pérez",
         email: "juan.perez@example.com",
-        photo: "/avatars/1.jpg",
+        photo:
+          "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
       },
       {
         id: "m2",
         firstName: "María",
         lastName: "Gómez",
         email: "maria.gomez@example.com",
-        photo: "/avatars/2.jpg",
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
       },
       {
         id: "m3",
         firstName: "Carlos",
         lastName: "López",
         email: "carlos.lopez@example.com",
-        photo: "/avatars/3.jpg",
+        photo: "https://i.pravatar.cc/300?img=5",
       },
       {
         id: "m4",
         firstName: "Ana",
         lastName: "Martínez",
         email: "ana.martinez@example.com",
-        photo: "/avatars/4.jpg",
+        photo: "https://randomuser.me/api/portraits/women/43.jpg ",
       },
       {
         id: "m5",
         firstName: "Luis",
         lastName: "Rodríguez",
         email: "luis.rodriguez@example.com",
-        photo: "/avatars/5.jpg",
+        photo: "https://avataaars.io/?avatarStyle=Circle",
       },
     ],
   },
@@ -102,35 +105,35 @@ const initialTeams: Team[] = [
         firstName: "Pedro",
         lastName: "Sánchez",
         email: "pedro.sanchez@example.com",
-        photo: "/avatars/6.jpg",
+        photo: "https://robohash.org/avatar123",
       },
       {
         id: "m7",
         firstName: "Laura",
         lastName: "Fernández",
         email: "laura.fernandez@example.com",
-        photo: "/avatars/7.jpg",
+        photo: "https://api.dicebear.com/7.x/lorelei/svg?seed=1&radius=50",
       },
       {
         id: "m8",
         firstName: "Diego",
         lastName: "García",
         email: "diego.garcia@example.com",
-        photo: "/avatars/8.jpg",
+        photo: "https://i.pravatar.cc/300?img=20",
       },
       {
         id: "m9",
         firstName: "Sofía",
         lastName: "Díaz",
         email: "sofia.diaz@example.com",
-        photo: "/avatars/9.jpg",
+        photo: "https://i.pravatar.cc/300?u=1",
       },
       {
         id: "m10",
         firstName: "Javier",
         lastName: "Ruiz",
         email: "javier.ruiz@example.com",
-        photo: "/avatars/10.jpg",
+        photo: "https://randomuser.me/api/portraits/thumb/men/3.jpg",
       },
     ],
   },
@@ -143,35 +146,35 @@ const initialTeams: Team[] = [
         firstName: "Elena",
         lastName: "Hernández",
         email: "elena.hernandez@example.com",
-        photo: "/avatars/11.jpg",
+        photo: "https://avataaars.io/?avatarStyle=Circle",
       },
       {
         id: "m12",
         firstName: "Miguel",
         lastName: "Jiménez",
         email: "miguel.jimenez@example.com",
-        photo: "/avatars/12.jpg",
+        photo: "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
       },
       {
         id: "m13",
         firstName: "Isabel",
         lastName: "Moreno",
         email: "isabel.moreno@example.com",
-        photo: "/avatars/13.jpg",
+        photo: "https://api.dicebear.com/7.x/bottts/svg?seed=1",
       },
       {
         id: "m14",
         firstName: "Pablo",
         lastName: "Álvarez",
         email: "pablo.alvarez@example.com",
-        photo: "/avatars/14.jpg",
+        photo: "https://api.dicebear.com/7.x/identicon/svg?seed=1",
       },
       {
         id: "m15",
         firstName: "Teresa",
         lastName: "Romero",
         email: "teresa.romero@example.com",
-        photo: "/avatars/15.jpg",
+        photo: "https://api.dicebear.com/7.x/lorelei/svg?seed=1&radius=50",
       },
     ],
   },
@@ -184,35 +187,37 @@ const initialTeams: Team[] = [
         firstName: "Raúl",
         lastName: "Torres",
         email: "raul.torres@example.com",
-        photo: "/avatars/16.jpg",
+        photo:
+          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=faces&fit=crop&w=200&h=200",
       },
       {
         id: "m17",
         firstName: "Carmen",
         lastName: "Navarro",
         email: "carmen.navarro@example.com",
-        photo: "/avatars/17.jpg",
+        photo: "https://randomuser.me/api/portraits/women/20.jpg",
       },
       {
         id: "m18",
         firstName: "Óscar",
         lastName: "Morales",
         email: "oscar.morales@example.com",
-        photo: "/avatars/18.jpg",
+        photo: "https://thispersondoesnotexist.com",
       },
       {
         id: "m19",
         firstName: "Patricia",
         lastName: "Ortega",
         email: "patricia.ortega@example.com",
-        photo: "/avatars/19.jpg",
+        photo: "https://i.pravatar.cc/300?u=1",
       },
       {
         id: "m20",
         firstName: "Alberto",
         lastName: "Delgado",
         email: "alberto.delgado@example.com",
-        photo: "/avatars/20.jpg",
+        photo:
+          "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
       },
     ],
   },
@@ -230,49 +235,67 @@ const initialProjectForm: ProjectForm = {
   teamId: "",
 };
 
-export const useCreateProjectStore = create<ProjectStore>((set, get) => ({
-  teams: initialTeams,
-  currentProject: initialProjectForm,
-  projects: [],
-
-  createProject: (project) =>
-    set((state) => ({
-      currentProject: { ...state.currentProject, ...project },
-    })),
-
-  submitProject: () => {
-    const { currentProject } = get();
-
-    // Validación de campos requeridos
-    if (
-      !currentProject.title ||
-      !currentProject.teamId ||
-      !currentProject.startDate ||
-      !currentProject.endDate ||
-      !currentProject.priority || // Asegura que priority no esté vacío
-      !["alta", "media", "baja"].includes(currentProject.priority) // Validación explícita
-    ) {
-      console.error("Faltan campos requeridos o prioridad no válida");
-      return;
-    }
-
-    // Crear nuevo proyecto con prioridad validada
-    const newProject: Project = {
-      ...currentProject,
-      priority: currentProject.priority as PriorityLevel, // Conversión segura
-      id: `proj-${Date.now()}`,
-      startDate: currentProject.startDate.toISOString(),
-      endDate: currentProject.endDate.toISOString(),
-      createdAt: new Date().toISOString(),
-    };
-
-    set((state) => ({
-      projects: [...state.projects, newProject],
+export const useCreateProjectStore = create<ProjectStore>()(
+  persist(
+    (set, get) => ({
+      teams: initialTeams,
       currentProject: initialProjectForm,
-    }));
-  },
+      projects: [],
 
-  resetProject: () => set({ currentProject: initialProjectForm }),
+      createProject: (project) =>
+        set((state) => ({
+          currentProject: { ...state.currentProject, ...project },
+        })),
 
-  getTeamById: (id) => get().teams.find((team) => team.id === id),
-}));
+      submitProject: () => {
+        const { currentProject } = get();
+
+        if (
+          !currentProject.title ||
+          !currentProject.teamId ||
+          !currentProject.startDate ||
+          !currentProject.endDate ||
+          !currentProject.priority ||
+          !["alta", "media", "baja"].includes(currentProject.priority)
+        ) {
+          console.error("Faltan campos requeridos o prioridad no válida");
+          return;
+        }
+
+        const newProject: Project = {
+          ...currentProject,
+          priority: currentProject.priority as PriorityLevel,
+          id: `proj-${Date.now()}`,
+          startDate: currentProject.startDate.toISOString(),
+          endDate: currentProject.endDate.toISOString(),
+          createdAt: new Date().toISOString(),
+        };
+
+        set((state) => ({
+          projects: [...state.projects, newProject],
+          currentProject: initialProjectForm,
+        }));
+      },
+
+      resetProject: () => set({ currentProject: initialProjectForm }),
+
+      getTeamById: (id) => get().teams.find((team) => team.id === id),
+
+      // Nueva función para eliminar proyectos
+      deleteProject: (id) => {
+        set((state) => ({
+          projects: state.projects.filter((project) => project.id !== id),
+        }));
+      },
+    }),
+
+    {
+      name: "project-storage", // nombre único para el localStorage
+      partialize: (state) => ({
+        projects: state.projects,
+        // Puedes incluir otros estados que quieras persistir
+        // currentProject: state.currentProject,
+      }),
+    }
+  )
+);

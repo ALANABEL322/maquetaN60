@@ -8,7 +8,7 @@ interface PaginationProps {
   totalItems: number;
 }
 
-export function Pagination({
+export function PaginationComp({
   totalPages,
   itemsPerPage,
   totalItems,
@@ -21,11 +21,9 @@ export function Pagination({
     }
   };
 
-  // Calcular los elementos mostrados
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];
     pages.push(1);
@@ -57,12 +55,10 @@ export function Pagination({
 
   return (
     <div className="flex justify-between items-center w-full">
-      {/* Texto alineado a la izquierda */}
       <div className="text-gray-500 text-sm">
         Mostrando {startItem}-{endItem} de {totalItems}
       </div>
 
-      {/* Paginación alineada a la derecha */}
       <div className="flex items-center space-x-1 border p-1 border-gray-300 rounded-lg">
         <Button
           variant="outline"
