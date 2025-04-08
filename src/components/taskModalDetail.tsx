@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Task, Member, Comment } from "@/store/taskStore/taskStore";
+import {
+  Task,
+  Member,
+  Comment,
+  useTaskStore,
+} from "@/store/taskStore/taskStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/store/useUserStore";
 
@@ -44,6 +49,8 @@ export function TaskDetailsModal({
 }: TaskDetailsModalProps) {
   const currentUser = useCurrentUser();
   console.log({ currentUser });
+
+  const { removeComment, addComment } = useTaskStore();
 
   const toDateOnlyString = (date: Date | undefined): string => {
     if (!date) return "";
@@ -100,24 +107,31 @@ export function TaskDetailsModal({
     }));
   };
 
+  const handleDeleteComment = (commentId: string) => {
+    const updatedComments = comments.filter(
+      (comment) => comment.id !== commentId
+    );
+    _setComments(updatedComments);
+    removeComment(task.id, commentId);
+  };
+
   const handleSubmit = () => {
-    const newComments = Object.entries(memberComments)
+    Object.entries(memberComments)
       .filter(([_, content]) => content.trim() !== "")
-      .flatMap(([memberId, content]) => {
+      .forEach(([memberId, content]) => {
         const existingCount = comments.filter(
           (c) => c.memberId === memberId
         ).length;
-
-        if (existingCount >= 3) return [];
-
-        return [
-          {
+        if (existingCount < 3) {
+          const newComment = {
             id: Date.now().toString() + memberId,
             memberId,
             content,
             createdAt: new Date().toISOString(),
-          },
-        ];
+          };
+          addComment(task.id, newComment);
+          _setComments((prev) => [...prev, newComment]);
+        }
       });
 
     onSave({
@@ -125,7 +139,29 @@ export function TaskDetailsModal({
       startDate: toDateOnlyString(startDate),
       endDate: toDateOnlyString(endDate),
       description,
-      comments: [...comments, ...newComments],
+      comments: [
+        ...comments,
+        ...Object.entries(memberComments)
+          .filter(([_, content]) => content.trim() !== "")
+          .map(([memberId, content]) => ({
+            id: Date.now().toString() + memberId,
+            memberId,
+            content,
+            createdAt: new Date().toISOString(),
+          }))
+          .filter((_, index, arr) => {
+            const memberId = arr[index].memberId;
+            return arr.filter((c) => c.memberId === memberId).length <= 3;
+          }),
+      ],
+    });
+
+    setMemberComments((prev) => {
+      const newState = { ...prev };
+      Object.keys(newState).forEach((key) => {
+        newState[key] = "";
+      });
+      return newState;
     });
 
     onClose();
@@ -237,74 +273,109 @@ export function TaskDetailsModal({
               </div>
             </div>
 
-            {/* Lista de comentarios existentes */}
             <div className="col-span-3 space-y-4">
-              <div className="space-y-2 max-h-40">
-                {comments.map((comment) => {
-                  const commentAuthor = teamMembers.find(
-                    (m) => m.id === comment.memberId
-                  );
-                  return (
-                    <div
-                      key={comment.id}
-                      className="p-2 border rounded flex justify-between items-start"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {commentAuthor?.firstName || "Usuario desconocido"}:
-                        </p>
-                        <p className="text-sm">{comment.content}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                      {/* {currentUser?.id === comment.memberId && (
-                        <div className="pl-2">
+              {/* Sección de comentarios existentes con scroll */}
+              <div className="border rounded p-2 max-h-40 overflow-y-auto">
+                <h4 className="text-sm font-medium mb-2">
+                  Comentarios existentes
+                </h4>
+                {comments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No hay comentarios aún
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {comments.map((comment) => {
+                      const commentAuthor = teamMembers.find(
+                        (m) => m.id === comment.memberId
+                      );
+                      return (
+                        <div
+                          key={comment.id}
+                          className="p-2 border rounded bg-gray-50 relative group"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={commentAuthor?.photo} />
+                              <AvatarFallback>
+                                {commentAuthor?.firstName.charAt(0)}
+                                {commentAuthor?.lastName.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <p className="text-sm font-medium">
+                              {commentAuthor?.firstName ||
+                                "Usuario desconocido"}
+                              :
+                            </p>
+                          </div>
+                          <p className="text-sm">{comment.content}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(comment.createdAt).toLocaleString()}
+                          </p>
                           <Button
-                            onClick={() => handleRemoveComment(comment.id)}
-                            className="text-red-500 hover:text-red-700 cursor-pointer"
                             variant="ghost"
-                            size="icon"
+                            size="sm"
+                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteComment(comment.id)}
                           >
-                            <Trash className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
                         </div>
-                      )} */}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Sección para nuevos comentarios */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium">Nuevos comentarios</h4>
+                {assignedMembers.map((member) => {
+                  const memberCommentCount = comments.filter(
+                    (c) => c.memberId === member.id
+                  ).length;
+                  const isLimitReached = memberCommentCount >= 3;
+
+                  return (
+                    <div key={member.id} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={member.photo} />
+                          <AvatarFallback>
+                            {member.firstName.charAt(0)}
+                            {member.lastName.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <label className="text-sm font-medium">
+                          Comentario para {member.firstName}:
+                        </label>
+                      </div>
+                      <Textarea
+                        value={memberComments[member.id] || ""}
+                        onChange={(e) =>
+                          handleMemberCommentChange(member.id, e.target.value)
+                        }
+                        placeholder={
+                          isLimitReached
+                            ? `Límite de 3 comentarios alcanzado`
+                            : `Escribe un comentario para ${member.firstName}...`
+                        }
+                        rows={2}
+                        disabled={isLimitReached}
+                        className={
+                          isLimitReached ? "opacity-50 cursor-not-allowed" : ""
+                        }
+                      />
+                      {isLimitReached && (
+                        <p className="text-xs text-muted-foreground">
+                          Este miembro ya ha alcanzado el límite de 3
+                          comentarios
+                        </p>
+                      )}
                     </div>
                   );
                 })}
               </div>
-
-              {assignedMembers.map((member) => {
-                const memberCommentCount = comments.filter(
-                  (c) => c.memberId === member.id
-                ).length;
-                const isLimitReached = memberCommentCount >= 3;
-
-                return (
-                  <div key={member.id} className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Comentario para {member.firstName}:
-                    </label>
-                    <Textarea
-                      value={memberComments[member.id] || ""}
-                      onChange={(e) =>
-                        handleMemberCommentChange(member.id, e.target.value)
-                      }
-                      placeholder={
-                        isLimitReached
-                          ? `Límite de 3 comentarios alcanzado`
-                          : `Escribe un comentario para ${member.firstName}...`
-                      }
-                      rows={2}
-                      disabled={isLimitReached}
-                      className={
-                        isLimitReached ? "opacity-50 cursor-not-allowed" : ""
-                      }
-                    />
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
