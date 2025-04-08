@@ -1,250 +1,314 @@
-import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+// components/admin/AdminSupportPage.tsx
+import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSupportStore } from "@/store/support/supportStore";
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 
-interface Ticket {
-  id: number
-  userName: string
-  userRole: string
-  query: string
-  response: string
-  responseNumber: number
-}
+export default function AdminSupportPage() {
+  const { user: admin } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<"open" | "closed">("open");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
+  const [response, setResponse] = useState("");
 
-export default function Support() {
-  const [activeTab, setActiveTab] = useState<"todas" | "historial">("todas")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentTicketId, setCurrentTicketId] = useState<number | null>(null)
-  const [supportName, setSupportName] = useState("Diseñador gráfico")
-  const [historial, setHistorial] = useState("")
+  const { tickets, respondToTicket, clearClosedTickets } = useSupportStore();
 
-  const tickets: Ticket[] = [
-    {
-      id: 1,
-      userName: "Nombre del Usuario",
-      userRole: "Rol del usuario",
-      query:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      response:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      responseNumber: 1,
-    },
-    {
-      id: 2,
-      userName: "Nombre del Usuario",
-      userRole: "Rol del usuario",
-      query:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      response:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      responseNumber: 1,
-    },
-  ]
+  const filteredTickets = tickets.filter((ticket) =>
+    activeTab === "open" ? ticket.status === "open" : ticket.status === "closed"
+  );
 
-  const handleTabChange = (tab: "todas" | "historial") => {
-    setActiveTab(tab)
-    setCurrentPage(1)
-  }
+  const ticketsPerPage = 10;
+  const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
+  const paginatedTickets = filteredTickets.slice(
+    (currentPage - 1) * ticketsPerPage,
+    currentPage * ticketsPerPage
+  );
+
+  const handleTabChange = (tab: "open" | "closed") => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
 
   const handlePageChange = (page: number) => {
-    if (page > 0 && page <= 40) {
-      setCurrentPage(page)
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
     }
-  }
+  };
 
-  const handleOpenModal = (ticketId: number) => {
-    setCurrentTicketId(ticketId)
-    setIsModalOpen(true)
-  }
+  const handleOpenModal = (ticketId: string) => {
+    setCurrentTicketId(ticketId);
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setCurrentTicketId(null)
-    setHistorial("")
-  }
+    setIsModalOpen(false);
+    setCurrentTicketId(null);
+    setResponse("");
+  };
 
   const handleSubmitResponse = () => {
-    console.log("Submitting response for ticket:", currentTicketId)
-    console.log("Support name:", supportName)
-    console.log("Historial:", historial)
+    if (currentTicketId && admin) {
+      respondToTicket(
+        currentTicketId,
+        response,
+        String(admin.id),
+        admin.username,
+        admin.email
+      );
+      handleCloseModal();
+    }
+  };
 
-    handleCloseModal()
-  }
+  const handleClearClosedTickets = () => {
+    toast(
+      <div className="flex flex-col gap-2">
+        <h3 className="font-semibold">¿Eliminar todos los tickets cerrados?</h3>
+        <p className="text-sm">
+          Se eliminarán {tickets.filter((t) => t.status === "closed").length}{" "}
+          tickets
+        </p>
+        <div className="flex gap-2 justify-end mt-2">
+          <Button variant="outline" size="sm" onClick={() => toast.dismiss()}>
+            Cancelar
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              clearClosedTickets();
+              toast.success("Tickets cerrados eliminados");
+              toast.dismiss();
+            }}
+          >
+            Eliminar todos
+          </Button>
+        </div>
+      </div>,
+      {
+        duration: Infinity,
+      }
+    );
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-gray-900">Soporte</h1>
-        <p className="text-sm text-gray-600">Aquí se pueden visualizar tus datos</p>
+        <p className="text-sm text-gray-600">Gestión de tickets de soporte</p>
       </div>
-
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          onClick={handleClearClosedTickets}
+          disabled={!tickets.some((t) => t.status === "closed")}
+        >
+          Limpiar tickets cerrados
+        </Button>
+      </div>
       <div className="border-b border-gray-200">
         <div className="flex space-x-8">
           <button
             className={`py-2 px-1 text-sm font-medium ${
-              activeTab === "todas" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500 hover:text-gray-700"
-            }`}
-            onClick={() => handleTabChange("todas")}
-          >
-            Todas
-          </button>
-          <button
-            className={`py-2 px-1 text-sm font-medium ${
-              activeTab === "historial"
+              activeTab === "open"
                 ? "text-red-500 border-b-2 border-red-500"
                 : "text-gray-500 hover:text-gray-700"
             }`}
-            onClick={() => handleTabChange("historial")}
+            onClick={() => handleTabChange("open")}
           >
-            Historial
+            Tickets Abiertos
+          </button>
+          <button
+            className={`py-2 px-1 text-sm font-medium ${
+              activeTab === "closed"
+                ? "text-red-500 border-b-2 border-red-500"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => handleTabChange("closed")}
+          >
+            Tickets Cerrados
           </button>
         </div>
       </div>
 
       <div className="space-y-4">
-        {tickets.map((ticket) => (
-          <div key={ticket.id} className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src="/placeholder.svg?height=40&width=40" alt={ticket.userName} />
-                <AvatarFallback>NU</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-medium text-gray-900">{ticket.userName}</h3>
-                <p className="text-xs text-gray-500">{ticket.userRole}</p>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <h4 className="font-medium text-sm">Consulta del usuario</h4>
-              <p className="text-sm text-gray-600">{ticket.query}</p>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm">Respuesta proporcionada</h4>
-              <div className="flex space-x-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center text-sm font-medium text-gray-500">
-                  {ticket.responseNumber}
+        {paginatedTickets.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No hay tickets {activeTab === "open" ? "abiertos" : "cerrados"}
+          </p>
+        ) : (
+          paginatedTickets.map((ticket) => (
+            <div
+              key={ticket.id}
+              className="bg-white rounded-lg border border-gray-200 p-6 space-y-4"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>
+                      {ticket.userName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium text-gray-900">
+                      {ticket.userName}
+                    </h3>
+                    <p className="text-xs text-gray-500">{ticket.userEmail}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600">{ticket.response}</p>
+                <div className="flex space-x-2">
+                  <span
+                    className={`inline-block px-2 py-1 text-xs rounded-full ${
+                      ticket.priority === "alto"
+                        ? "bg-red-100 text-red-800"
+                        : ticket.priority === "medio"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {ticket.priority}
+                  </span>
+                  <span
+                    className={`inline-block px-2 py-1 text-xs rounded-full ${
+                      ticket.status === "open"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {ticket.status}
+                  </span>
+                </div>
               </div>
+
+              <div className="space-y-1">
+                <h4 className="font-medium text-sm">
+                  Asunto: {ticket.subject}
+                </h4>
+                <p className="text-sm text-gray-600">{ticket.description}</p>
+              </div>
+
+              {ticket.response && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm">
+                    Respuesta proporcionada por {ticket.adminName} (
+                    {ticket.adminEmail})
+                  </h4>
+                  <div className="flex space-x-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center text-sm font-medium text-gray-500">
+                      1
+                    </div>
+                    <p className="text-sm text-gray-600">{ticket.response}</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "open" && (
+                <div className="flex justify-end">
+                  <Button
+                    className="bg-[#2c4c6b] hover:bg-[#243e59]"
+                    onClick={() => handleOpenModal(ticket.id)}
+                  >
+                    Responder
+                  </Button>
+                </div>
+              )}
             </div>
+          ))
+        )}
+      </div>
 
-            {activeTab === "todas" && (
-              <div className="flex justify-end">
-                <Button className="bg-[#2c4c6b] hover:bg-[#243e59]" onClick={() => handleOpenModal(ticket.id)}>
-                  Responder
-                </Button>
-              </div>
-            )}
+      {filteredTickets.length > 0 && (
+        <div className="flex items-center justify-between text-sm">
+          <div className="text-gray-500">
+            Mostrando {paginatedTickets.length} de {filteredTickets.length}
           </div>
-        ))}
-      </div>
-      <div className="flex items-center justify-between text-sm">
-        <div className="text-gray-500">Mostrando 10 de 100</div>
-        <div className="flex items-center space-x-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-          <Button
-            variant="default"
-            size="icon"
-            className="w-8 h-8 bg-red-500 hover:bg-red-600"
-            aria-label="Page 1"
-            aria-current={currentPage === 1 ? "page" : undefined}
-          >
-            1
-          </Button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const pageNumber = i + 1;
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={currentPage === pageNumber ? "default" : "ghost"}
+                  size="icon"
+                  className={`w-8 h-8 ${
+                    currentPage === pageNumber
+                      ? "bg-red-500 hover:bg-red-600"
+                      : ""
+                  }`}
+                  onClick={() => handlePageChange(pageNumber)}
+                  aria-label={`Page ${pageNumber}`}
+                >
+                  {pageNumber}
+                </Button>
+              );
+            })}
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8"
-            onClick={() => handlePageChange(2)}
-            aria-label="Page 2"
-          >
-            2
-          </Button>
+            {totalPages > 5 && (
+              <>
+                <span className="px-2">...</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  onClick={() => handlePageChange(totalPages)}
+                  aria-label={`Page ${totalPages}`}
+                >
+                  {totalPages}
+                </Button>
+              </>
+            )}
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8"
-            onClick={() => handlePageChange(3)}
-            aria-label="Page 3"
-          >
-            3
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8"
-            onClick={() => handlePageChange(4)}
-            aria-label="Page 4"
-          >
-            4
-          </Button>
-
-          <span className="px-2">...</span>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8"
-            onClick={() => handlePageChange(40)}
-            aria-label="Page 40"
-          >
-            40
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === 40}
-            aria-label="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-
+      )}
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Responder incidencia</DialogTitle>
+            <DialogTitle>Responder ticket</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="supportName" className="text-sm font-medium">
-                Nombre soporte
-              </label>
-              <Input id="supportName" value={supportName} onChange={(e) => setSupportName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="historial" className="text-sm font-medium">
-                Historial
+              <label htmlFor="response" className="text-sm font-medium">
+                Respuesta
               </label>
               <Textarea
-                id="historial"
-                placeholder="Escribe algo"
-                value={historial}
-                onChange={(e) => setHistorial(e.target.value)}
+                id="response"
+                placeholder="Escribe tu respuesta aquí"
+                value={response}
+                onChange={(e) => setResponse(e.target.value)}
                 rows={4}
+                required
               />
             </div>
           </div>
@@ -252,12 +316,17 @@ export default function Support() {
             <Button type="button" variant="outline" onClick={handleCloseModal}>
               Cancelar
             </Button>
-            <Button type="button" className="bg-[#2c4c6b] hover:bg-[#243e59]" onClick={handleSubmitResponse}>
+            <Button
+              type="button"
+              className="bg-[#2c4c6b] hover:bg-[#243e59]"
+              onClick={handleSubmitResponse}
+              disabled={!response.trim()}
+            >
               Responder
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
