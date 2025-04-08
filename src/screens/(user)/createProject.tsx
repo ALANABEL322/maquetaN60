@@ -44,7 +44,6 @@ export default function CreateProject() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Sección de información básica */}
           <div className="space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium mb-1">
@@ -83,7 +82,6 @@ export default function CreateProject() {
               <Select
                 value={currentProject.priority}
                 onValueChange={(value) => {
-                  // Solo actualiza si el valor es válido
                   if (
                     value === "alta" ||
                     value === "media" ||
@@ -106,7 +104,6 @@ export default function CreateProject() {
             </div>
           </div>
 
-          {/* Sección de planificación */}
           <div>
             <h2 className="text-xl font-semibold mb-4">
               Planificación de Sprint
@@ -187,7 +184,6 @@ export default function CreateProject() {
             </div>
           </div>
 
-          {/* Sección de roles y equipo */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Papeles y Equipo</h2>
             <div className="space-y-4">
@@ -244,7 +240,6 @@ export default function CreateProject() {
                 </Select>
               </div>
 
-              {/* Vista previa del equipo seleccionado */}
               {currentProject.teamId && (
                 <div>
                   <h3 className="text-sm font-medium mb-2">
@@ -258,11 +253,12 @@ export default function CreateProject() {
                           key={member.id}
                           className="flex items-center space-x-2 p-2 border rounded"
                         >
-                          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-xs">
-                              {member.firstName[0]}
-                              {member.lastName[0]}
-                            </span>
+                          <div className="w-8 h-8 rounded-full overflow-hidden">
+                            <img
+                              src={member.photo}
+                              alt={`${member.firstName} ${member.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                           <div>
                             <p className="text-sm font-medium">
@@ -280,7 +276,6 @@ export default function CreateProject() {
             </div>
           </div>
 
-          {/* Botones de acción */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
             <Button
               variant="outline"

@@ -17,6 +17,7 @@ import {
   useTaskStore,
   type Priority,
   type Status,
+  type Comment,
 } from "@/store/taskStore/taskStore";
 import { toast } from "sonner";
 import { TaskDetailsModal } from "@/components/taskModalDetail";
@@ -28,8 +29,6 @@ export default function Tareas() {
     state.projects.find((p) => p.id === projectId)
   );
   const team = project ? getTeamById(project.teamId) : null;
-
-  // Usamos el store de tareas
   const {
     addTask,
     assignMember,
@@ -83,7 +82,6 @@ export default function Tareas() {
     unassignMember(taskId, memberId);
   };
 
-  // Obtenemos tareas filtradas por estado usando selectores del store
   const todoTasks = projectId ? getTasksByStatus(projectId, "por-hacer") : [];
   const inProgressTasks = projectId
     ? getTasksByStatus(projectId, "en-curso")
@@ -186,7 +184,7 @@ function TaskColumn({
   teamMembers,
   onAssignMember,
   onUnassignMember,
-  onUpdateTask,
+  currentMemberId,
 }: {
   title: string;
   status: Status;
@@ -199,6 +197,7 @@ function TaskColumn({
   onAssignMember: (taskId: string, memberId: string) => void;
   onUnassignMember: (taskId: string, memberId: string) => void;
   onUpdateTask: (id: string, updates: Partial<Task>) => void;
+  currentMemberId?: string;
 }) {
   const statusColors = {
     "por-hacer": "bg-red-200 text-red-800",
@@ -238,6 +237,7 @@ function TaskColumn({
             teamMembers={teamMembers}
             onAssignMember={onAssignMember}
             onUnassignMember={onUnassignMember}
+            currentMemberId={currentMemberId}
           />
         ))}
         {tasks.length === 0 && (
@@ -257,6 +257,7 @@ function TaskCard({
   teamMembers,
   onAssignMember,
   onUnassignMember,
+  currentMemberId,
 }: {
   task: Task;
   setDraggedTaskId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -264,6 +265,7 @@ function TaskCard({
   teamMembers: Member[];
   onAssignMember: (taskId: string, memberId: string) => void;
   onUnassignMember: (taskId: string, memberId: string) => void;
+  currentMemberId?: string;
 }) {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { updateTask } = useTaskStore();
@@ -273,13 +275,14 @@ function TaskCard({
     startDate: string;
     endDate: string;
     description: string;
-    comments: string;
+    comments: Comment[];
   }) => {
     updateTask(task.id, {
       name: updatedDetails.name,
       description: updatedDetails.description,
       registrationDate: updatedDetails.startDate,
       deadline: updatedDetails.endDate,
+      comments: updatedDetails.comments,
     });
   };
 
@@ -352,13 +355,12 @@ function TaskCard({
                 .map((memberId) => teamMembers.find((m) => m.id === memberId))
                 .filter(Boolean)
                 .map((member) => (
-                  <div
+                  <img
                     key={member!.id}
-                    className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white text-xs"
-                  >
-                    {member!.firstName[0]}
-                    {member!.lastName[0]}
-                  </div>
+                    src={member!.photo}
+                    alt={`${member!.firstName} ${member!.lastName}`}
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  />
                 ))}
             </div>
           </div>
@@ -391,6 +393,8 @@ function TaskCard({
           isOpen={isDetailsModalOpen}
           onClose={() => setIsDetailsModalOpen(false)}
           onSave={handleSaveDetails}
+          currentMemberId={currentMemberId}
+          teamMembers={teamMembers}
         />
       </CardContent>
     </Card>
@@ -439,9 +443,22 @@ function AssignMemberModal({
                 className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    {member.firstName[0]}
-                    {member.lastName[0]}
+                  <div className="w-10 h-10 rounded-full overflow-hidden">
+                    <img
+                      src={member.photo}
+                      alt={`${member.firstName} ${member.lastName}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = "";
+                        target.parentElement!.innerHTML = `
+                          <span class="w-full h-full flex items-center justify-center bg-gray-200 text-xs">
+                            ${member.firstName[0]}${member.lastName[0]}
+                          </span>
+                        `;
+                      }}
+                    />
                   </div>
                   <div>
                     <p className="font-medium">
