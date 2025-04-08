@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,9 +6,10 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { MetricsDashboard } from "@/components/metricasUser/metrics-dashboard";
 import { Link } from "react-router-dom";
+import { toast } from "sonner"; // Para mostrar notificaciones
 
 export default function Projects() {
-  const { projects, getTeamById } = useCreateProjectStore();
+  const { projects, getTeamById, deleteProject } = useCreateProjectStore();
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -20,6 +22,23 @@ export default function Projects() {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    // Mostrar confirmación antes de eliminar
+    toast("¿Estás seguro de eliminar este proyecto?", {
+      action: {
+        label: "Eliminar",
+        onClick: () => {
+          deleteProject(projectId);
+          toast.success("Proyecto eliminado correctamente");
+        },
+      },
+      cancel: {
+        label: "Cancelar",
+        onClick: () => {},
+      },
+    });
   };
 
   return (
@@ -42,10 +61,19 @@ export default function Projects() {
             return (
               <Card
                 key={project.id}
-                className="hover:shadow-lg transition-shadow"
+                className="hover:shadow-lg transition-shadow relative" // Added relative for absolute positioning
               >
+                {/* Botón de eliminar */}
+                <button
+                  onClick={() => handleDeleteProject(project.id)}
+                  className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Eliminar proyecto"
+                >
+                  <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 mt-3" />
+                </button>
+
                 <CardHeader>
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start mr-4">
                     <CardTitle className="text-lg">{project.title}</CardTitle>
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(
