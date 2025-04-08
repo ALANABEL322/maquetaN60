@@ -16,7 +16,14 @@ export interface Task {
   assignedMembers: string[];
   createdAt?: string;
   updatedAt?: string;
-  comments?: string;
+  comments: Comment[];
+}
+
+export interface Comment {
+  id: string;
+  memberId: string;
+  content: string;
+  createdAt: string;
 }
 
 export interface TaskInput {
@@ -49,6 +56,8 @@ interface TaskStore {
   getTasksByStatus: (projectId: string, status: Status) => Task[];
   getTaskById: (id: string) => Task | undefined;
   moveTask: (taskId: string, newStatus: Status) => void;
+  addComment: (taskId: string, comment: Comment) => void;
+  removeComment: (taskId: string, commentId: string) => void;
 }
 
 export const useTaskStore = create<TaskStore>()(
@@ -57,14 +66,14 @@ export const useTaskStore = create<TaskStore>()(
       tasks: [],
 
       addTask: (task) => {
-        const now = new Date().toISOString().split("T")[0]; // Solo fecha
+        const now = new Date().toISOString().split("T")[0];
         const defaultTask = {
           name: "Nueva Tarea",
           description: "",
           registrationDate: now,
           deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             .toISOString()
-            .split("T")[0], // Solo fecha
+            .split("T")[0],
           priority: "Media" as Priority,
           assignedMembers: [],
           ...task,
@@ -75,13 +84,14 @@ export const useTaskStore = create<TaskStore>()(
           id: Date.now().toString(),
           createdAt: now,
           updatedAt: now,
+          comments: [],
         };
 
         set((state) => ({ tasks: [...state.tasks, newTask] }));
       },
 
       updateTask: (id, updates) => {
-        const now = new Date().toISOString().split("T")[0]; // Solo fecha
+        const now = new Date().toISOString().split("T")[0];
         set((state) => ({
           tasks: state.tasks.map((task) =>
             task.id === id
@@ -106,7 +116,6 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => ({
           tasks: state.tasks.map((task) => {
             if (task.id === taskId) {
-              // Verificar límite de 5 miembros y que no esté ya asignado
               if (task.assignedMembers.length >= 5) return task;
               if (task.assignedMembers.includes(memberId)) return task;
 
@@ -162,6 +171,42 @@ export const useTaskStore = create<TaskStore>()(
               ? { ...task, status: newStatus, updatedAt: now }
               : task
           ),
+        }));
+      },
+
+      addComment: (taskId, comment) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          tasks: state.tasks.map((task) => {
+            if (task.id === taskId) {
+              if (task.comments?.length >= 5) return task;
+
+              return {
+                ...task,
+                comments: [...(task.comments || []), comment],
+                updatedAt: now,
+              };
+            }
+            return task;
+          }),
+        }));
+      },
+
+      removeComment: (taskId, commentId) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          tasks: state.tasks.map((task) => {
+            if (task.id === taskId) {
+              return {
+                ...task,
+                comments: (task.comments || []).filter(
+                  (c) => c.id !== commentId
+                ),
+                updatedAt: now,
+              };
+            }
+            return task;
+          }),
         }));
       },
     }),

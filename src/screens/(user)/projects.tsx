@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { MetricsDashboard } from "@/components/metricasUser/metrics-dashboard";
 import { Link } from "react-router-dom";
-import { toast } from "sonner"; // Para mostrar notificaciones
+import { toast } from "sonner";
 
 export default function Projects() {
   const { projects, getTeamById, deleteProject } = useCreateProjectStore();
@@ -25,7 +25,6 @@ export default function Projects() {
   };
 
   const handleDeleteProject = (projectId: string) => {
-    // Mostrar confirmación antes de eliminar
     toast("¿Estás seguro de eliminar este proyecto?", {
       action: {
         label: "Eliminar",
@@ -38,6 +37,14 @@ export default function Projects() {
         label: "Cancelar",
         onClick: () => {},
       },
+      cancelButtonStyle: {
+        color: "#000",
+        backgroundColor: "#FAFAFA",
+      },
+      actionButtonStyle: {
+        backgroundColor: "#F08B7B",
+      },
+      className: "bg-white",
     });
   };
 
@@ -61,12 +68,12 @@ export default function Projects() {
             return (
               <Card
                 key={project.id}
-                className="hover:shadow-lg transition-shadow relative" // Added relative for absolute positioning
+                className="hover:shadow-lg transition-shadow relative"
               >
                 {/* Botón de eliminar */}
                 <button
                   onClick={() => handleDeleteProject(project.id)}
-                  className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="absolute top-2 right-2 p-2 rounded-full transition-colors"
                   aria-label="Eliminar proyecto"
                 >
                   <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500 mt-3" />
@@ -116,12 +123,19 @@ export default function Projects() {
                         {team?.members.slice(0, 5).map((member) => (
                           <div
                             key={member.id}
-                            className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white"
+                            className="w-8 h-8 rounded-full overflow-hidden border-2 border-white"
                           >
-                            <span className="text-xs">
-                              {member.firstName[0]}
-                              {member.lastName[0]}
-                            </span>
+                            <img
+                              src={member.photo}
+                              alt={`${member.firstName} ${member.lastName}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.src =
+                                  "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2080%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18d6f7e8d4a%20text%20%7B%20fill%3A%23AAAAAA%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18d6f7e8d4a%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23EEEEEE%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2226.5%22%20y%3D%2242%22%3E80x80%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E";
+                              }}
+                            />
                           </div>
                         ))}
                         {team && team.members.length > 5 && (
