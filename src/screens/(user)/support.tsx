@@ -1,46 +1,83 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+// components/user/UserSupportPage.tsx
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-
-interface Ticket {
-  id: string;
-  subject: string;
-  description: string;
-  status: 'open' | 'closed';
-  response?: string;
-  createdAt: string;
-}
+} from "@/components/ui/select";
+import { useSupportStore } from "@/store/support/supportStore";
+import { useAuthStore } from "@/store/authStore";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UserSupportPage() {
-  const [tickets] = useState<Ticket[]>([
-    {
-      id: '1',
-      subject: 'Problema con la creación de proyecto',
-      description: 'No puedo crear un nuevo proyecto...',
-      status: 'open',
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-
+  const { user } = useAuthStore();
   const [newTicket, setNewTicket] = useState({
-    subject: '',
-    description: '',
-    priority: 'medium',
+    subject: "",
+    description: "",
+    priority: "medio" as "baja" | "medio" | "alto",
   });
+
+  const { tickets, addTicket, deleteTicket } = useSupportStore();
+
+  // Filtrar tickets del usuario actual
+  const userTickets = tickets.filter((ticket) => ticket.userId === user?.id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Nuevo ticket:', newTicket);
+    if (!user) return;
+
+    addTicket({
+      userId: String(user.id),
+      userEmail: user.email,
+      userName: user.username,
+      subject: newTicket.subject,
+      description: newTicket.description,
+      priority: newTicket.priority,
+    });
+
+    setNewTicket({
+      subject: "",
+      description: "",
+      priority: "medio",
+    });
+  };
+
+  const handleDeleteTicket = (ticketId: string) => {
+    toast.custom((t) => (
+      <div className="bg-[#FCEAE8]  p-4 rounded-lg shadow-lg border">
+        <div className="flex flex-col gap-2">
+          <p>¿Estás seguro de eliminar este ticket?</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toast.dismiss(t)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                deleteTicket(ticketId);
+                toast.dismiss(t);
+                toast.success("Ticket eliminado");
+              }}
+            >
+              Confirmar
+            </Button>
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -58,7 +95,10 @@ export default function UserSupportPage() {
                   id="subject"
                   value={newTicket.subject}
                   onChange={(e) =>
-                    setNewTicket((prev) => ({ ...prev, subject: e.target.value }))
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      subject: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -68,7 +108,7 @@ export default function UserSupportPage() {
                 <Label htmlFor="priority">Prioridad</Label>
                 <Select
                   value={newTicket.priority}
-                  onValueChange={(value) =>
+                  onValueChange={(value: "baja" | "medio" | "alto") =>
                     setNewTicket((prev) => ({ ...prev, priority: value }))
                   }
                 >
@@ -76,9 +116,9 @@ export default function UserSupportPage() {
                     <SelectValue placeholder="Selecciona la prioridad" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Baja</SelectItem>
-                    <SelectItem value="medium">Media</SelectItem>
-                    <SelectItem value="high">Alta</SelectItem>
+                    <SelectItem value="baja">Baja</SelectItem>
+                    <SelectItem value="medio">Media</SelectItem>
+                    <SelectItem value="alto">Alta</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -108,43 +148,84 @@ export default function UserSupportPage() {
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Mis Tickets</h2>
-          {tickets.map((ticket) => (
-            <Card key={ticket.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{ticket.subject}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Estado:{' '}
-                      <span
-                        className={`inline-block px-2 py-1 text-xs rounded-full ${
-                          ticket.status === 'open'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {ticket.status}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Creado: {new Date(ticket.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <p className="text-sm">{ticket.description}</p>
-
-                  {ticket.response && (
-                    <div className="bg-gray-50 p-4 rounded-md">
-                      <p className="text-sm font-medium">Respuesta:</p>
-                      <p className="text-sm text-gray-600">{ticket.response}</p>
+          {userTickets.length === 0 ? (
+            <p className="text-sm text-gray-500">No hay tickets creados</p>
+          ) : (
+            userTickets.map((ticket) => (
+              <Card key={ticket.id}>
+                <CardHeader className="flex flex-row justify-between items-start">
+                  <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                  <button
+                    onClick={() => handleDeleteTicket(ticket.id)}
+                    className="text-gray-500 hover:text-red-500 transition-colors"
+                    aria-label="Eliminar ticket"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">
+                          Estado:{" "}
+                          <span
+                            className={`inline-block px-2 py-1 text-xs rounded-full ${
+                              ticket.status === "open"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {ticket.status}
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-500 mt-4">
+                          Prioridad:{" "}
+                          <span
+                            className={`inline-block px-2 py-1 text-xs rounded-full ${
+                              ticket.priority === "alto"
+                                ? "bg-red-100 text-red-800"
+                                : ticket.priority === "medio"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {ticket.priority}
+                          </span>
+                        </p>
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        Creado:{" "}
+                        {new Date(ticket.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Tu mensaje:</p>
+                      <p className="text-sm text-gray-600">
+                        {ticket.description}
+                      </p>
+                    </div>
+
+                    {ticket.response && (
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="text-sm font-medium">
+                          Respuesta de {ticket.adminName} ({ticket.adminEmail}):
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {ticket.response}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Actualizado:{" "}
+                          {new Date(ticket.updatedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </div>
