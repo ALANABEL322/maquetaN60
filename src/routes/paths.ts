@@ -21,8 +21,8 @@ export const paths = {
     tareas: "/user/tareas/:projectId",
     capacitacion: "/user/capacitacion",
     tutoriales: "/user/tutoriales",
-    monitoreo: "/user/monitoreo",
-    monitoreoIA: "/user/monitoreoIA",
+    monitoreo: "/user/monitoreo/:projectId",
+    monitoreoIA: "/user/monitoreoIA/:projectId",
     support: "/user/support",
   },
   // Root route

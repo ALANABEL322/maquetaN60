@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
 import {
   Member,
@@ -38,7 +38,7 @@ export default function Tareas() {
   } = useTaskStore();
 
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const handleDrop = (status: Status) => {
     if (!draggedTaskId) return;
     updateTask(draggedTaskId, { status });
@@ -119,7 +119,11 @@ export default function Tareas() {
             <Users className="h-4 w-4" />
             <span>Miembros</span>
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/user/monitoreo/${projectId}`)}
+          >
             <BarChart3 className="h-4 w-4" />
             <span>Monitoreo</span>
           </Button>
