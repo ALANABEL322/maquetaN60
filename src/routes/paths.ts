@@ -19,7 +19,6 @@ export const paths = {
     createProject: "/user/createProject",
     projects: "/user/projects",
     tareas: "/user/tareas/:projectId",
-    // tareasId: "/user/tareas/:projectId",
     capacitacion: "/user/capacitacion",
     tutoriales: "/user/tutoriales",
     monitoreo: "/user/monitoreo",
