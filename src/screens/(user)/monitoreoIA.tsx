@@ -13,6 +13,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activity, GanttChartSquare } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { RecommendationCard } from "@/components/recomendationCard";
+import { AiRecommendationLoader } from "@/components/IARecomendationLoader";
+
+// Agrega este tipo para las recomendaciones
+type AIRecommendation = {
+  id: string;
+  title: string;
+  description: string;
+  type: "improvement" | "new-task" | "reallocation";
+};
 
 type TaskStatus = "completed" | "incomplete" | "not-started";
 
@@ -42,16 +59,22 @@ export default function MonitoreoIA() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMobile();
+  const [isRecommendationModalOpen, setIsRecommendationModalOpen] =
+    useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState<
+    AIRecommendation[]
+  >([]);
+  const [isGeneratingRecommendations, setIsGeneratingRecommendations] =
+    useState(false);
+
   const activeTab = location.pathname.includes("monitoreoIA") ? "gantt" : "kpi";
 
-  // Obtener datos del proyecto real
   const project = useCreateProjectStore((state) =>
     projectId ? state.projects.find((p) => p.id === projectId) : null
   );
   const getTeamById = useCreateProjectStore((state) => state.getTeamById);
   const team = project ? getTeamById(project.teamId) : null;
 
-  // Obtener datos de tareas para calcular progreso
   const { getTasksByProject } = useTaskStore();
   const tasks = projectId ? getTasksByProject(projectId) : [];
   const totalTasks = tasks.length;
@@ -59,7 +82,6 @@ export default function MonitoreoIA() {
   const progress =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  // Datos de ejemplo para el diagrama de Gantt
   const [ganttProject, _setGanttProject] = useState<Project>({
     id: projectId || "1",
     name: project?.title || "Nombre del proyecto",
@@ -124,6 +146,23 @@ export default function MonitoreoIA() {
     ],
   });
 
+  const generateAIRecommendations = () => {
+    if (!projectId) return;
+
+    const recommendations = useTaskStore
+      .getState()
+      .generateAIRecommendations(projectId);
+    setAiRecommendations(recommendations);
+    setIsRecommendationModalOpen(true);
+  };
+
+  const handleApplyRecommendation = (recommendationId: string) => {
+    if (!projectId) return;
+
+    useTaskStore.getState().applyRecommendation(projectId, recommendationId);
+    // Aquí podrías añadir lógica adicional basada en el tipo de recomendación
+  };
+
   const handleTabChange = (value: string) => {
     if (value === "gantt") {
       navigate(`/user/monitoreoIA/${projectId}`);
@@ -137,6 +176,26 @@ export default function MonitoreoIA() {
   for (let i = 1; i < totalWeeks; i += 2) {
     weekColumns.push(`Semana ${i}-${i + 1}`);
   }
+
+  // Función para simular recomendaciones de IA
+  const generateAI = () => {
+    setIsGeneratingRecommendations(true);
+
+    // Esto se ejecutará después de que termine el loader (15 segundos)
+    const onComplete = () => {
+      if (!projectId) return;
+
+      const recommendations = useTaskStore
+        .getState()
+        .generateAIRecommendations(projectId);
+      setAiRecommendations(recommendations);
+      setIsRecommendationModalOpen(true);
+      setIsGeneratingRecommendations(false);
+    };
+
+    // Solo para demostración - en producción esto sería manejado por el loader
+    setTimeout(onComplete, 22000);
+  };
 
   if (!project) {
     return (
@@ -412,10 +471,53 @@ export default function MonitoreoIA() {
         >
           Ir Atrás
         </Button>
-        <Button className="bg-slate-700 hover:bg-slate-800">
-          Recomendaciones de IA
+        <Button
+          className="bg-[#38536E] hover:bg-[#2a4058] text-white"
+          onClick={generateAI}
+          disabled={isGeneratingRecommendations}
+        >
+          {isGeneratingRecommendations
+            ? "Generando..."
+            : "Recomendaciones de IA"}
         </Button>
       </div>
+      <Dialog
+        open={isRecommendationModalOpen}
+        onOpenChange={setIsRecommendationModalOpen}
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Recomendaciones de IA</DialogTitle>
+            <DialogDescription>
+              Basado en el análisis de tu proyecto, la IA te sugeriría las
+              siguientes acciones:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {aiRecommendations.map((recommendation) => (
+              <RecommendationCard
+                key={recommendation.id}
+                recommendation={recommendation}
+                projectId={projectId || ""}
+                onClose={() => setIsRecommendationModalOpen(false)}
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+      {isGeneratingRecommendations && (
+        <AiRecommendationLoader
+          onComplete={() => {
+            if (!projectId) return;
+            const recommendations = useTaskStore
+              .getState()
+              .generateAIRecommendations(projectId);
+            setAiRecommendations(recommendations);
+            setIsRecommendationModalOpen(true);
+            setIsGeneratingRecommendations(false);
+          }}
+        />
+      )}
     </div>
   );
 }
