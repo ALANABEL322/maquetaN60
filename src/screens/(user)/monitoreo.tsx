@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { CloudIcon, Activity, GanttChartSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
 import { useTaskStore } from "@/store/taskStore/taskStore";
 import { useEffect, useState } from "react";
@@ -234,83 +234,62 @@ export default function Monitoreo() {
           <TabsList className="bg-transparent h-auto p-0 w-full justify-around">
             <TabsTrigger
               value="kpi"
-              asChild
               className={cn(
                 "relative w-1/2 rounded-none px-4 py-2 data-[state=active]:shadow-none",
                 "text-slate-600 hover:text-primary transition-colors duration-200"
               )}
             >
-              <Link to={`/user/monitoreo/${projectId}`}>
-                Indicadores KPI
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
-                    activeTab === "kpi" ? "bg-blue-500" : "bg-gray-300"
-                  )}
-                ></div>
-              </Link>
+              Indicadores KPI
+              <div
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
+                  activeTab === "kpi" ? "bg-blue-500" : "bg-gray-300"
+                )}
+              ></div>
             </TabsTrigger>
             <TabsTrigger
               value="gantt"
-              asChild
               className={cn(
                 "relative w-1/2 rounded-none px-4 py-2 data-[state=active]:shadow-none",
                 "text-slate-600 hover:text-primary transition-colors duration-200"
               )}
             >
-              <Link to={`/user/monitoreoIA/${projectId}`}>
-                Vista de Gantt
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
-                    activeTab === "gantt" ? "bg-blue-500" : "bg-gray-300"
-                  )}
-                ></div>
-              </Link>
+              Vista de Gantt
+              <div
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
+                  activeTab === "gantt" ? "bg-blue-500" : "bg-gray-300"
+                )}
+              ></div>
             </TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="kpi" className="mt-6">
-          {!location.pathname.includes("monitoreoIA") && (
-            <div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {kpiData.map((kpi, index) => (
-                  <KpiCard
-                    key={index}
-                    title={kpi.title}
-                    value={kpi.value}
-                    description={kpi.description}
-                  />
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                <ActivityChart
-                  title="Actividad de Tareas"
-                  data={weeklyActivity.tasks}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {kpiData.map((kpi, index) => (
+                <KpiCard
+                  key={index}
+                  title={kpi.title}
+                  value={kpi.value}
+                  description={kpi.description}
                 />
-                <ActivityChart
-                  title="Horas Trabajadas"
-                  data={weeklyActivity.hours}
-                />
-              </div>
+              ))}
             </div>
-          )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              <ActivityChart
+                title="Actividad de Tareas"
+                data={weeklyActivity.tasks}
+              />
+              <ActivityChart
+                title="Horas Trabajadas"
+                data={weeklyActivity.hours}
+              />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
-
-      <div className="flex justify-end gap-3 mt-8">
-        <Button
-          variant="outline"
-          className="w-full md:w-auto"
-          onClick={() => navigate(`/user/tareas/${projectId}`)}
-        >
-          Ir Atrás
-        </Button>
-        <Button className="w-full md:w-auto bg-slate-700 hover:bg-slate-800">
-          Recomendaciones de IA
-        </Button>
-      </div>
     </div>
   );
 }
