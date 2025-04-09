@@ -2,15 +2,16 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   Priority,
-  Status,
-  TaskStatus,
   AIRecommendationType,
   Task,
   Comment,
   TaskInput,
   Member,
   AIRecommendation,
+  Status,
+  TaskStatus,
 } from "@/types/typesTask";
+import { statusToGanttStatus } from "@/types/typesTask";
 
 interface TaskStore {
   tasks: Task[];
@@ -146,13 +147,7 @@ export const useTaskStore = create<TaskStore>()(
                   ...task,
                   status: newStatus,
                   updatedAt: now,
-                  // Actualizar estado en Gantt si corresponde
-                  ganttStatus:
-                    newStatus === "finalizada"
-                      ? "completed"
-                      : newStatus === "en-curso"
-                      ? "incomplete"
-                      : "not-started",
+                  ganttStatus: statusToGanttStatus[newStatus],
                 }
               : task
           ),
@@ -351,3 +346,4 @@ export type { Task as TaskType };
 export type { Member as MemberType };
 export type { TaskInput as TaskInputType };
 export type { AIRecommendation as AIRecommendationType };
+export type { Comment as CommentType };

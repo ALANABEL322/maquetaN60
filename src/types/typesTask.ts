@@ -1,7 +1,13 @@
 export type Priority = "Alta" | "Media" | "Baja";
+
 export type Status = "por-hacer" | "en-curso" | "finalizada";
 export type TaskStatus = "completed" | "incomplete" | "not-started";
-export type AIRecommendationType = "improvement" | "new-task" | "reallocation";
+
+export const statusToGanttStatus: Record<Status, TaskStatus> = {
+  "por-hacer": "not-started",
+  "en-curso": "incomplete",
+  finalizada: "completed",
+};
 
 export interface Task {
   id: string;
@@ -58,6 +64,8 @@ export interface AIRecommendation {
   relatedTaskId?: string;
   applied?: boolean;
 }
+
+export type AIRecommendationType = "improvement" | "new-task" | "reallocation";
 
 export interface Project {
   id: string;

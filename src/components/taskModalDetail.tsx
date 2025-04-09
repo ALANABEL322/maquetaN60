@@ -16,14 +16,10 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import {
-  Task,
-  Member,
-  Comment,
-  useTaskStore,
-} from "@/store/taskStore/taskStore";
+import { useTaskStore } from "@/store/taskStore/taskStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/store/useUserStore";
+import { Task, Member, Comment } from "@/types/typesTask";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -88,7 +84,7 @@ export function TaskDetailsModal({
   const [memberComments, setMemberComments] = useState<Record<string, string>>(
     () => {
       const initialComments: Record<string, string> = {};
-      task.assignedMembers.forEach((memberId) => {
+      task.assignedMembers.forEach((memberId: string | number) => {
         initialComments[memberId] = "";
       });
       return initialComments;
@@ -327,7 +323,6 @@ export function TaskDetailsModal({
                 )}
               </div>
 
-              {/* Sección para nuevos comentarios */}
               <div className="space-y-4">
                 <h4 className="text-sm font-medium">Nuevos comentarios</h4>
                 {assignedMembers.map((member) => {
