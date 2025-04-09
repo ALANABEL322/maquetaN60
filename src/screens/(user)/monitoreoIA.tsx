@@ -23,7 +23,6 @@ import {
 import { RecommendationCard } from "@/components/recomendationCard";
 import { AiRecommendationLoader } from "@/components/IARecomendationLoader";
 
-// Agrega este tipo para las recomendaciones
 type AIRecommendation = {
   id: string;
   title: string;
@@ -177,11 +176,9 @@ export default function MonitoreoIA() {
     weekColumns.push(`Semana ${i}-${i + 1}`);
   }
 
-  // Función para simular recomendaciones de IA
   const generateAI = () => {
     setIsGeneratingRecommendations(true);
 
-    // Esto se ejecutará después de que termine el loader (15 segundos)
     const onComplete = () => {
       if (!projectId) return;
 
@@ -193,7 +190,6 @@ export default function MonitoreoIA() {
       setIsGeneratingRecommendations(false);
     };
 
-    // Solo para demostración - en producción esto sería manejado por el loader
     setTimeout(onComplete, 22000);
   };
 

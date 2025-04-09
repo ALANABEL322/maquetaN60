@@ -19,6 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import MonitoreoSteps from "@/components/monitoreoSteps";
 
 export default function Monitoreo() {
   const { projectId } = useParams();
@@ -124,16 +125,7 @@ export default function Monitoreo() {
   ];
 
   if (!project) {
-    return (
-      <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
-        <div className="text-center py-10">
-          <h1 className="text-2xl font-bold mb-4">Proyecto no encontrado</h1>
-          <p className="text-muted-foreground">
-            No se ha podido cargar el proyecto solicitado
-          </p>
-        </div>
-      </div>
-    );
+    return <MonitoreoSteps />;
   }
 
   return (

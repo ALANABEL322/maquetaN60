@@ -1,4 +1,3 @@
-// components/AiRecommendationLoader.tsx
 import { useEffect, useState } from "react";
 
 const analysisPhrases = [

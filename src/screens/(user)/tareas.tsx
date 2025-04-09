@@ -15,6 +15,9 @@ import { useTaskStore } from "@/store/taskStore/taskStore";
 import { Priority, Status, Comment, Member, Task } from "@/types/typesTask";
 import { toast } from "sonner";
 import { TaskDetailsModal } from "@/components/taskModalDetail";
+import ProjectSteps from "@/components/taskSteps";
+import projects from "./projects";
+import ProjectStepsSkeleton from "@/components/taskSteps";
 
 export default function Tareas() {
   const { projectId } = useParams();
@@ -34,6 +37,20 @@ export default function Tareas() {
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
   const navigate = useNavigate();
+
+  if (!projectId || !project) {
+    return (
+      <div className="container mx-auto p-4 max-w-7xl">
+        <div className="text-center py-10">
+          <h1 className="text-2xl font-bold mb-4">Proyecto no encontrado</h1>
+          <p className="text-muted-foreground mb-6">
+            No se ha podido cargar el proyecto solicitado
+          </p>
+          <ProjectStepsSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   const handleDrop = (status: Status) => {
     if (!draggedTaskId) return;
@@ -110,6 +127,7 @@ export default function Tareas() {
             Gestiona las tareas de tu equipo
           </p>
         </div>
+
         <div className="flex gap-2 mt-4 md:mt-0">
           <Button variant="outline" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
