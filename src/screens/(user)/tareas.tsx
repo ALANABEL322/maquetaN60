@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Users, BarChart3, Plus, UserPlus } from "lucide-react";
+import { Eye, BarChart3, Plus, UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,13 +15,12 @@ import { useTaskStore } from "@/store/taskStore/taskStore";
 import { Priority, Status, Comment, Member, Task } from "@/types/typesTask";
 import { toast } from "sonner";
 import { TaskDetailsModal } from "@/components/taskModalDetail";
-import ProjectSteps from "@/components/taskSteps";
-import projects from "./projects";
 import ProjectStepsSkeleton from "@/components/taskSteps";
+import ManageReinforcements from "@/components/manageReinforcements";
 
 export default function Tareas() {
   const { projectId } = useParams();
-  const { getTeamById } = useCreateProjectStore();
+  const { getTeamById, reinforcements } = useCreateProjectStore();
   const project = useCreateProjectStore((state) =>
     state.projects.find((p) => p.id === projectId)
   );
@@ -33,6 +32,9 @@ export default function Tareas() {
     getTasksByStatus,
     updateTask,
   } = useTaskStore();
+
+  // Combinamos miembros del equipo con refuerzos
+  const allAvailableMembers = [...(team?.members || []), ...reinforcements];
 
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
@@ -129,10 +131,7 @@ export default function Tareas() {
         </div>
 
         <div className="flex gap-2 mt-4 md:mt-0">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span>Miembros</span>
-          </Button>
+          <ManageReinforcements />
           <Button
             variant="outline"
             className="flex items-center gap-2"
@@ -153,7 +152,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -167,7 +167,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -181,7 +182,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -367,7 +369,7 @@ function TaskCard({
 
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm text-muted-foreground">Miembros:</span>
+            {/* <ManageReinforcements />{" "} */}
             <div className="flex -space-x-2">
               {task.assignedMembers
                 .map((memberId) => teamMembers.find((m) => m.id === memberId))
