@@ -11,14 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
-import {
-  Member,
-  Task,
-  useTaskStore,
-  type Priority,
-  type Status,
-  type Comment,
-} from "@/store/taskStore/taskStore";
+import { useTaskStore } from "@/store/taskStore/taskStore";
+import { Priority, Status, Comment, Member, Task } from "@/types/typesTask";
 import { toast } from "sonner";
 import { TaskDetailsModal } from "@/components/taskModalDetail";
 
@@ -38,7 +32,9 @@ export default function Tareas() {
   } = useTaskStore();
 
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
   const navigate = useNavigate();
+
   const handleDrop = (status: Status) => {
     if (!draggedTaskId) return;
     updateTask(draggedTaskId, { status });
