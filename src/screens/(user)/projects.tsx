@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { MetricsDashboard } from "@/components/metricasUser/metrics-dashboard";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import ProjectSteps from "@/components/projectSteps";
 
 export default function Projects() {
   const { projects, getTeamById, deleteProject } = useCreateProjectStore();
@@ -58,8 +59,8 @@ export default function Projects() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-gray-500">No hay proyectos creados aún</p>
+        <div className="py-10">
+          <ProjectSteps />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -70,7 +71,6 @@ export default function Projects() {
                 key={project.id}
                 className="hover:shadow-lg transition-shadow relative"
               >
-                {/* Botón de eliminar */}
                 <button
                   onClick={() => handleDeleteProject(project.id)}
                   className="absolute top-2 right-2 p-2 rounded-full transition-colors"

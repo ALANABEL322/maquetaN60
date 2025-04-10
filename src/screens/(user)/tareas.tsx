@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Users, BarChart3, Plus, UserPlus } from "lucide-react";
+import { Eye, BarChart3, Plus, UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,22 +9,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
-import {
-  Member,
-  Task,
-  useTaskStore,
-  type Priority,
-  type Status,
-  type Comment,
-} from "@/store/taskStore/taskStore";
+import { useTaskStore } from "@/store/taskStore/taskStore";
+import { Priority, Status, Comment, Member, Task } from "@/types/typesTask";
 import { toast } from "sonner";
 import { TaskDetailsModal } from "@/components/taskModalDetail";
+import ProjectStepsSkeleton from "@/components/taskSteps";
+import ManageReinforcements from "@/components/manageReinforcements";
+import { cn } from "@/lib/utils";
 
 export default function Tareas() {
+  const location = useLocation();
+  const [focusArea, setFocusArea] = useState<string | null>(null);
   const { projectId } = useParams();
-  const { getTeamById } = useCreateProjectStore();
+  const { getTeamById, reinforcements } = useCreateProjectStore();
   const project = useCreateProjectStore((state) =>
     state.projects.find((p) => p.id === projectId)
   );
@@ -37,7 +36,38 @@ export default function Tareas() {
     updateTask,
   } = useTaskStore();
 
+  const allAvailableMembers = [...(team?.members || []), ...reinforcements];
+
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.focus) {
+      setFocusArea(location.state.focus);
+
+      switch (location.state.focus) {
+        case "assign-members":
+          break;
+        case "complete-fields":
+          break;
+      }
+    }
+  }, [location.state]);
+
+  if (!projectId || !project) {
+    return (
+      <div className="container mx-auto p-4 max-w-7xl">
+        <div className="text-center py-10">
+          <h1 className="text-2xl font-bold mb-4">Proyecto no encontrado</h1>
+          <p className="text-muted-foreground mb-6">
+            No se ha podido cargar el proyecto solicitado
+          </p>
+          <ProjectStepsSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   const handleDrop = (status: Status) => {
     if (!draggedTaskId) return;
@@ -68,7 +98,7 @@ export default function Tareas() {
       deadline: new Date(
         Date.now() + 7 * 24 * 60 * 60 * 1000
       ).toLocaleDateString("es-ES"),
-      priority: "Media",
+      priority: "media",
       status,
       assignedMembers: [],
     });
@@ -114,12 +144,14 @@ export default function Tareas() {
             Gestiona las tareas de tu equipo
           </p>
         </div>
+
         <div className="flex gap-2 mt-4 md:mt-0">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span>Miembros</span>
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <ManageReinforcements />
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/user/monitoreo/${projectId}`)}
+          >
             <BarChart3 className="h-4 w-4" />
             <span>Monitoreo</span>
           </Button>
@@ -135,7 +167,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -149,7 +182,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -163,7 +197,8 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          teamMembers={team?.members || []}
+          // teamMembers={team?.members || []}
+          teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
           onUpdateTask={updateTask}
@@ -185,6 +220,7 @@ function TaskColumn({
   onAssignMember,
   onUnassignMember,
   currentMemberId,
+  focusArea,
 }: {
   title: string;
   status: Status;
@@ -198,6 +234,7 @@ function TaskColumn({
   onUnassignMember: (taskId: string, memberId: string) => void;
   onUpdateTask: (id: string, updates: Partial<Task>) => void;
   currentMemberId?: string;
+  focusArea?: string | null;
 }) {
   const statusColors = {
     "por-hacer": "bg-red-200 text-red-800",
@@ -207,44 +244,53 @@ function TaskColumn({
 
   return (
     <div
-      className="space-y-4"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={() => onDrop(status)}
+      className={cn(
+        "space-y-4",
+        focusArea === "assign-members" && status === "por-hacer"
+          ? "ring-2 ring-blue-500 rounded-lg p-1"
+          : ""
+      )}
     >
-      <div className="flex items-center justify-between">
-        <div
-          className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}
-        >
-          {title}
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={() => onAddTask(status)}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Agregar
-        </Button>
-      </div>
-      <div className="space-y-4">
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            setDraggedTaskId={setDraggedTaskId}
-            onPriorityChange={onPriorityChange}
-            teamMembers={teamMembers}
-            onAssignMember={onAssignMember}
-            onUnassignMember={onUnassignMember}
-            currentMemberId={currentMemberId}
-          />
-        ))}
-        {tasks.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            No hay tareas en esta sección
+      <div
+        className="space-y-4"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => onDrop(status)}
+      >
+        <div className="flex items-center justify-between">
+          <div
+            className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}
+          >
+            {title}
           </div>
-        )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() => onAddTask(status)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Agregar
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              setDraggedTaskId={setDraggedTaskId}
+              onPriorityChange={onPriorityChange}
+              teamMembers={teamMembers}
+              onAssignMember={onAssignMember}
+              onUnassignMember={onUnassignMember}
+              currentMemberId={currentMemberId}
+            />
+          ))}
+          {tasks.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              No hay tareas en esta sección
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -307,34 +353,34 @@ function TaskCard({
 
           <div className="flex items-center gap-2">
             <button
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
-                task.priority === "Alta"
+              className={`px-3 py-1 rounded-full text-sm font-light transition-colors duration-200 ${
+                task.priority === "alta"
                   ? "bg-red-100 text-red-600"
-                  : "text-red-500 hover:bg-red-50"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
-              onClick={() => onPriorityChange(task.id, "Alta")}
+              onClick={() => onPriorityChange(task.id, "alta")}
             >
-              Alta
+              alta
             </button>
             <button
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
-                task.priority === "Media"
+              className={`px-3 py-1 rounded-full text-sm font-light transition-colors duration-200 ${
+                task.priority === "media"
                   ? "bg-yellow-100 text-yellow-700"
-                  : "text-yellow-600 hover:bg-yellow-50"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
-              onClick={() => onPriorityChange(task.id, "Media")}
+              onClick={() => onPriorityChange(task.id, "media")}
             >
-              Media
+              media
             </button>
             <button
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
-                task.priority === "Baja"
+              className={`px-3 py-1 rounded-full text-sm font-light transition-colors duration-200 ${
+                task.priority === "baja"
                   ? "bg-green-100 text-green-600"
-                  : "text-green-500 hover:bg-green-50"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
-              onClick={() => onPriorityChange(task.id, "Baja")}
+              onClick={() => onPriorityChange(task.id, "baja")}
             >
-              Baja
+              baja
             </button>
           </div>
         </div>
@@ -349,7 +395,7 @@ function TaskCard({
 
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm text-muted-foreground">Miembros:</span>
+            {/* <ManageReinforcements />{" "} */}
             <div className="flex -space-x-2">
               {task.assignedMembers
                 .map((memberId) => teamMembers.find((m) => m.id === memberId))

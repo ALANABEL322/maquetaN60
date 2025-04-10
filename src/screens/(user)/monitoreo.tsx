@@ -10,44 +10,207 @@ import {
 } from "@/components/ui/select";
 import { CloudIcon, Activity, GanttChartSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCreateProjectStore } from "@/store/createProject/createProjectStore";
+import { useTaskStore } from "@/store/taskStore/taskStore";
+import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import MonitoreoSteps from "@/components/monitoreoSteps";
 
 export default function Monitoreo() {
+  const { projectId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
+  const project = useCreateProjectStore((state) =>
+    projectId ? state.projects.find((p) => p.id === projectId) : null
+  );
+  const getTeamById = useCreateProjectStore((state) => state.getTeamById);
+  const team = project ? getTeamById(project.teamId) : null;
+
+  const { getTasksByProject } = useTaskStore();
+  const tasks = projectId ? getTasksByProject(projectId) : [];
+
+  const [weeklyActivity, setWeeklyActivity] = useState({
+    tasks: Array(7).fill(0),
+    hours: Array(7).fill(0),
+  });
+
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.status === "finalizada").length;
+  const inProgressTasks = tasks.filter((t) => t.status === "en-curso").length;
+  const todoTasks = tasks.filter((t) => t.status === "por-hacer").length;
+
+  const progress =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const risksCount = tasks.filter(
+    (t) =>
+      t.priority === "alta" &&
+      (t.status === "por-hacer" || t.status === "en-curso")
+  ).length;
+
+  const budgetUsage = Math.min(progress + 15, 100);
+
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const now = new Date();
+      const currentDay = now.getDay();
+
+      const newTaskActivity = Array(7).fill(0);
+      const newHoursActivity = Array(7).fill(0);
+
+      tasks.forEach((task) => {
+        const taskDay = new Date(task.registrationDate).getDay();
+        const dayIndex = (taskDay + 6) % 7;
+
+        newTaskActivity[dayIndex] += 1;
+        newHoursActivity[dayIndex] += task.status === "finalizada" ? 8 : 4;
+      });
+
+      if (currentDay >= 0 && currentDay < 7) {
+        const todayIndex = (currentDay + 6) % 7;
+        newTaskActivity[todayIndex] = Math.max(
+          newTaskActivity[todayIndex],
+          tasks.length / 7
+        );
+        newHoursActivity[todayIndex] = Math.max(
+          newHoursActivity[todayIndex],
+          tasks.length * 2
+        );
+      }
+
+      setWeeklyActivity({
+        tasks: newTaskActivity,
+        hours: newHoursActivity,
+      });
+    }
+  }, [tasks]);
+
   const handleTabChange = (value: string) => {
     if (value === "gantt") {
-      navigate("/user/monitoreoIA");
+      navigate(`/user/monitoreoIA/${projectId}`);
     } else {
-      navigate("/user/monitoreo");
+      navigate(`/user/monitoreo/${projectId}`);
     }
   };
+
   const activeTab = location.pathname.includes("monitoreoIA") ? "gantt" : "kpi";
 
   const kpiData = [
-    { title: "Progreso", value: "71%", description: "Completado del proyecto" },
-    { title: "Tareas", value: "32/45", description: "Tareas completadas" },
-    { title: "Riesgos", value: "3", description: "Riesgos identificados" },
-    { title: "Presupuesto", value: "85%", description: "Utilizado del total" },
+    {
+      title: "Progreso",
+      value: `${progress}%`,
+      description: "Completado del proyecto",
+    },
+    {
+      title: "Tareas",
+      value: `${completedTasks}/${totalTasks}`,
+      description: "Tareas completadas",
+    },
+    {
+      title: "Riesgos",
+      value: `${risksCount}`,
+      description: "Riesgos identificados",
+    },
+    {
+      title: "Presupuesto",
+      value: `${budgetUsage}%`,
+      description: "Utilizado del total",
+    },
   ];
+
+  if (!project) {
+    return <MonitoreoSteps />;
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
       <header className="mb-8">
         <h1 className="text-2xl md:text-3xl font-semibold text-slate-800">
-          Monitoreo
+          Monitoreo: {project.title}
         </h1>
         <p className="text-slate-600 mt-1">
-          Aquí podrás ver el progreso de cada proyecto
+          Aquí podrás ver el progreso detallado del proyecto
         </p>
       </header>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-end mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span>
+            Fecha inicio: {new Date(project.startDate).toLocaleDateString()}
+          </span>
+          <span>•</span>
+          <span>
+            Fecha fin: {new Date(project.endDate).toLocaleDateString()}
+          </span>
+          <span>•</span>
+          <span>
+            Estado:{" "}
+            <span className="font-medium">
+              {progress === 0
+                ? "No iniciado"
+                : progress === 100
+                ? "Completado"
+                : "En progreso"}
+            </span>
+          </span>
+        </div>
+
         <div className="flex gap-3">
-          <Button variant="outline" className="w-full md:w-auto">
-            <Activity className="mr-2 h-4 w-4" /> Miembros
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full md:w-auto">
+                <Activity className="mr-2 h-4 w-4" /> Miembros
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 p-2">
+              {team ? (
+                <div className="space-y-3">
+                  <h4 className="text-md font-medium text-center mt-2">
+                    {team.name}
+                  </h4>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {team.members.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center gap-3 p-2 rounded hover:bg-gray-50"
+                      >
+                        <img
+                          src={member.photo}
+                          alt={`${member.firstName} ${member.lastName}`}
+                          className="w-8 h-8 rounded-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src =
+                              "https://www.gravatar.com/avatar/?d=mp";
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {member.firstName} {member.lastName}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {member.email}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 p-2">
+                  No se encontró información del equipo
+                </p>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button variant="outline" className="w-full md:w-auto">
             <GanttChartSquare className="mr-2 h-4 w-4" /> Monitoreo
           </Button>
@@ -63,79 +226,62 @@ export default function Monitoreo() {
           <TabsList className="bg-transparent h-auto p-0 w-full justify-around">
             <TabsTrigger
               value="kpi"
-              asChild
               className={cn(
                 "relative w-1/2 rounded-none px-4 py-2 data-[state=active]:shadow-none",
                 "text-slate-600 hover:text-primary transition-colors duration-200"
               )}
             >
-              <Link to="/user/monitoreo">
-                Indicadores KPI
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
-                    activeTab === "kpi" ? "bg-blue-500" : "bg-gray-300"
-                  )}
-                ></div>
-              </Link>
+              Indicadores KPI
+              <div
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
+                  activeTab === "kpi" ? "bg-blue-500" : "bg-gray-300"
+                )}
+              ></div>
             </TabsTrigger>
             <TabsTrigger
               value="gantt"
-              asChild
               className={cn(
                 "relative w-1/2 rounded-none px-4 py-2 data-[state=active]:shadow-none",
                 "text-slate-600 hover:text-primary transition-colors duration-200"
               )}
             >
-              <Link to="/user/monitoreoIA">
-                Vista de Gantt
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
-                    activeTab === "gantt" ? "bg-blue-500" : "bg-gray-300"
-                  )}
-                ></div>
-              </Link>
+              Vista de Gantt
+              <div
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 h-0.5 mt-2",
+                  activeTab === "gantt" ? "bg-blue-500" : "bg-gray-300"
+                )}
+              ></div>
             </TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="kpi" className="mt-6">
-          {!location.pathname.includes("monitoreoIA") && (
-            <div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {kpiData.map((kpi, index) => (
-                  <KpiCard
-                    key={index}
-                    title={kpi.title}
-                    value={kpi.value}
-                    description={kpi.description}
-                  />
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                <ActivityChart
-                  title="Actividad de Tareas"
-                  data={[1600, 700, 1800, 900, 2313, 600, 1500]}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {kpiData.map((kpi, index) => (
+                <KpiCard
+                  key={index}
+                  title={kpi.title}
+                  value={kpi.value}
+                  description={kpi.description}
                 />
-                <ActivityChart
-                  title="Horas Trabajadas"
-                  data={[1200, 900, 1500, 800, 2000, 500, 1800]}
-                />
-              </div>
+              ))}
             </div>
-          )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              <ActivityChart
+                title="Actividad de Tareas"
+                data={weeklyActivity.tasks}
+              />
+              <ActivityChart
+                title="Horas Trabajadas"
+                data={weeklyActivity.hours}
+              />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
-
-      <div className="flex justify-end gap-3 mt-8">
-        <Button variant="outline" className="w-full md:w-auto">
-          Ir Atrás
-        </Button>
-        <Button className="w-full md:w-auto bg-slate-700 hover:bg-slate-800">
-          Recomendaciones de IA
-        </Button>
-      </div>
     </div>
   );
 }

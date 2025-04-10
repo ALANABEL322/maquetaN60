@@ -46,13 +46,34 @@ interface ProjectForm {
 interface ProjectStore {
   teams: Team[];
   currentProject: ProjectForm;
+  reinforcements: Member[];
   projects: Project[];
   createProject: (project: Partial<ProjectForm>) => void;
   submitProject: () => void;
   resetProject: () => void;
   getTeamById: (id: string) => Team | undefined;
   deleteProject: (id: string) => void;
+  addReinforcement: (member: Omit<Member, "id">) => void;
+  removeReinforcement: (memberId: string) => void;
 }
+
+// const initialReinforcements: Member[] = [
+//   {
+//     id: "r1",
+//     firstName: "Refuerzo",
+//     lastName: "Uno",
+//     email: "refuerzo1@example.com",
+//     photo: "https://i.pravatar.cc/300?img=60",
+//   },
+//   {
+//     id: "r2",
+//     firstName: "Refuerzo",
+//     lastName: "Dos",
+//     email: "refuerzo2@example.com",
+//     photo: "https://i.pravatar.cc/300?img=61",
+//   },
+// ];
+
 const initialTeams: Team[] = [
   {
     id: "team1",
@@ -239,6 +260,7 @@ export const useCreateProjectStore = create<ProjectStore>()(
   persist(
     (set, get) => ({
       teams: initialTeams,
+      reinforcements: [],
       currentProject: initialProjectForm,
       projects: [],
 
@@ -287,12 +309,38 @@ export const useCreateProjectStore = create<ProjectStore>()(
           projects: state.projects.filter((project) => project.id !== id),
         }));
       },
+
+      // Nuevas funciones para manejar refuerzos
+      addReinforcement: (member) => {
+        if (get().reinforcements.length >= 10) {
+          console.error("No se pueden añadir más de 10 refuerzos");
+          return;
+        }
+        set((state) => ({
+          reinforcements: [
+            ...state.reinforcements,
+            {
+              ...member,
+              id: `reinforcement-${Date.now()}`,
+            },
+          ],
+        }));
+      },
+
+      removeReinforcement: (memberId) => {
+        set((state) => ({
+          reinforcements: state.reinforcements.filter(
+            (member) => member.id !== memberId
+          ),
+        }));
+      },
     }),
 
     {
       name: "project-storage", // nombre único para el localStorage
       partialize: (state) => ({
         projects: state.projects,
+        reinforcements: state.reinforcements,
         // Puedes incluir otros estados que quieras persistir
         // currentProject: state.currentProject,
       }),
