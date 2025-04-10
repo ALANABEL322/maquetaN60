@@ -117,8 +117,8 @@ export default function UserSupportPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="baja">Baja</SelectItem>
-                    <SelectItem value="medio">Media</SelectItem>
-                    <SelectItem value="alto">Alta</SelectItem>
+                    <SelectItem value="media">Media</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

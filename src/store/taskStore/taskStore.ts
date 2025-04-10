@@ -15,7 +15,7 @@ import { statusToGanttStatus } from "@/types/typesTask";
 
 interface TaskStore {
   tasks: Task[];
-  aiRecommendations: Record<string, AIRecommendation[]>; // Mapeo por projectId
+  aiRecommendations: Record<string, AIRecommendation[]>;
   addTask: (task: TaskInput) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
@@ -31,6 +31,10 @@ interface TaskStore {
   generateAIRecommendations: (projectId: string) => AIRecommendation[];
   applyRecommendation: (projectId: string, recommendationId: string) => void;
   getRecommendationsByProject: (projectId: string) => AIRecommendation[];
+  markRecommendationAsApplied: (
+    projectId: string,
+    recommendationId: string
+  ) => void;
 }
 
 export const useTaskStore = create<TaskStore>()(
@@ -202,120 +206,152 @@ export const useTaskStore = create<TaskStore>()(
       // Métodos para recomendaciones de IA
       generateAIRecommendations: (projectId) => {
         const tasks = get().getTasksByProject(projectId);
+        const todoTasks = get().getTasksByStatus(projectId, "por-hacer");
         const now = new Date();
 
-        // Analizar tareas para generar recomendaciones
         const recommendations: AIRecommendation[] = [];
 
-        // 1. Verificar tareas atrasadas
-        const overdueTasks = tasks.filter((task) => {
-          const deadline = new Date(task.deadline);
-          return deadline < now && task.status !== "finalizada";
-        });
+        // 1. Tareas pendientes (>5)
+        if (todoTasks.length > 5) {
+          recommendations.push({
+            id: `rec-many-tasks-${Date.now()}`,
+            title: "Demasiadas tareas pendientes",
+            description: `Hay ${todoTasks.length} tareas en "Por Hacer". Considera asignar más miembros o priorizar.`,
+            type: "reallocation",
+            action: "assign-members",
+            priority: "alta",
+            relatedTasks: todoTasks.map((t) => t.id),
+          });
+        }
+
+        // 2. Tareas con campos incompletos
+        const incompleteTasks = tasks.filter(
+          (task) => !task.name || !task.description || !task.deadline
+        );
+
+        if (incompleteTasks.length > 0) {
+          recommendations.push({
+            id: `rec-incomplete-${Date.now()}`,
+            title: "Tareas con información incompleta",
+            description: `${incompleteTasks.length} tareas tienen campos vacíos (nombre, descripción o fecha).`,
+            type: "improvement",
+            action: "complete-fields",
+            priority: "media",
+            relatedTasks: incompleteTasks.map((t) => t.id),
+          });
+        }
+
+        // 3. Tareas atrasadas
+        const overdueTasks = tasks.filter(
+          (task) =>
+            task.status !== "finalizada" &&
+            task.deadline &&
+            new Date(task.deadline) < now
+        );
 
         if (overdueTasks.length > 0) {
           recommendations.push({
             id: `rec-overdue-${Date.now()}`,
             title: "Tareas atrasadas",
-            description: `Hay ${overdueTasks.length} tareas que han pasado su fecha límite sin completarse. Considera reasignar recursos o ajustar prioridades.`,
+            description: `${overdueTasks.length} tareas han pasado su fecha límite.`,
             type: "improvement",
-            relatedTaskId: overdueTasks[0].id, // Enlazar a la primera tarea atrasada
+            action: "review-overdue",
+            priority: "alta",
+            relatedTasks: overdueTasks.map((t) => t.id),
           });
         }
 
-        // 2. Verificar distribución de carga
-        const memberTasks: Record<string, number> = {};
-        tasks.forEach((task) => {
-          task.assignedMembers.forEach((memberId) => {
-            memberTasks[memberId] = (memberTasks[memberId] || 0) + 1;
-          });
-        });
-
-        const memberEntries = Object.entries(memberTasks);
-        if (memberEntries.length > 0) {
-          const [busiestMemberId, busiestCount] = memberEntries.reduce(
-            (max, entry) => (entry[1] > max[1] ? entry : max)
-          );
-          const [leastBusyMemberId, leastBusyCount] = memberEntries.reduce(
-            (min, entry) => (entry[1] < min[1] ? entry : min)
-          );
-
-          if (busiestCount - leastBusyCount > 2) {
-            recommendations.push({
-              id: `rec-balance-${Date.now()}`,
-              title: "Distribución desigual de tareas",
-              description: `Hay una diferencia significativa en la carga de trabajo entre miembros. El miembro más ocupado tiene ${busiestCount} tareas mientras que el menos ocupado tiene ${leastBusyCount}.`,
-              type: "reallocation",
-            });
-          }
-        }
-
-        // 3. Verificar tareas sin asignar
+        // 4. Tareas sin asignar
         const unassignedTasks = tasks.filter(
           (task) => task.assignedMembers.length === 0
         );
+
         if (unassignedTasks.length > 0) {
           recommendations.push({
             id: `rec-unassigned-${Date.now()}`,
             title: "Tareas sin asignar",
-            description: `Hay ${unassignedTasks.length} tareas sin miembros asignados. Considera asignar responsables para estas tareas.`,
+            description: `${unassignedTasks.length} tareas no tienen responsables asignados.`,
             type: "reallocation",
-            relatedTaskId: unassignedTasks[0].id,
+            action: "assign-members",
+            priority: "media",
+            relatedTasks: unassignedTasks.map((t) => t.id),
           });
         }
 
-        // 4. Verificar dependencias temporales (para Gantt)
-        const ganttTasks = tasks.filter(
-          (task) => task.startWeek && task.endWeek
-        );
-        if (ganttTasks.length > 1) {
-          // Buscar solapamientos
-          const sortedTasks = [...ganttTasks].sort(
-            (a, b) => (a.startWeek || 0) - (b.startWeek || 0)
-          );
+        // 5. Distribución desigual de tareas
+        const memberWorkload: Record<string, number> = {};
+        tasks.forEach((task) => {
+          task.assignedMembers.forEach((memberId) => {
+            memberWorkload[memberId] = (memberWorkload[memberId] || 0) + 1;
+          });
+        });
 
-          for (let i = 0; i < sortedTasks.length - 1; i++) {
-            const current = sortedTasks[i];
-            const next = sortedTasks[i + 1];
+        const workloadEntries = Object.entries(memberWorkload);
+        if (workloadEntries.length > 1) {
+          const sortedWorkload = workloadEntries.sort((a, b) => b[1] - a[1]);
+          const [busiestId, busiestCount] = sortedWorkload[0];
+          const [leastBusyId, leastBusyCount] =
+            sortedWorkload[sortedWorkload.length - 1];
 
-            if ((current.endWeek || 0) > (next.startWeek || 0)) {
-              recommendations.push({
-                id: `rec-overlap-${Date.now()}-${i}`,
-                title: "Solapamiento en el cronograma",
-                description: `Las tareas "${current.name}" y "${next.name}" se solapan en el diagrama de Gantt. Considera ajustar las fechas para evitar conflictos.`,
-                type: "improvement",
-                relatedTaskId: current.id,
-              });
-              break;
-            }
+          if (busiestCount - leastBusyCount > 2) {
+            recommendations.push({
+              id: `rec-workload-${Date.now()}`,
+              title: "Distribución desigual de trabajo",
+              description: `El miembro más ocupado tiene ${busiestCount} tareas mientras que el menos ocupado tiene ${leastBusyCount}.`,
+              type: "reallocation",
+              action: "assign-members",
+              priority: "media",
+              relatedMembers: [busiestId, leastBusyId],
+            });
           }
         }
 
-        // Guardar las recomendaciones generadas
+        // Ordenar por prioridad y limitar a 5
+        const priorityOrder = { alta: 1, media: 2, baja: 3 };
+        const finalRecommendations = recommendations
+          .sort((a, b) => {
+            const aPriority = a.priority || "baja";
+            const bPriority = b.priority || "baja";
+            return priorityOrder[aPriority] - priorityOrder[bPriority];
+          })
+          .slice(0, 5);
+
+        // Guardar en el estado
         set((state) => ({
           aiRecommendations: {
             ...state.aiRecommendations,
-            [projectId]: recommendations,
+            [projectId]: finalRecommendations,
           },
         }));
 
-        return recommendations;
+        return finalRecommendations;
       },
 
       applyRecommendation: (projectId, recommendationId) => {
-        set((state) => {
-          const projectRecs = state.aiRecommendations[projectId] || [];
-          const updatedRecs = projectRecs.map((rec) =>
-            rec.id === recommendationId ? { ...rec, applied: true } : rec
-          );
+        const recommendation = get()
+          .getRecommendationsByProject(projectId)
+          .find((r) => r.id === recommendationId);
 
-          return {
-            aiRecommendations: {
-              ...state.aiRecommendations,
-              [projectId]: updatedRecs,
-            },
-          };
-        });
+        if (!recommendation) return;
+
+        // Marcar como aplicada
+        get().markRecommendationAsApplied(projectId, recommendationId);
+
+        // Aquí podrías añadir lógica específica para cada tipo de recomendación
+        console.log("Aplicando recomendación:", recommendation);
+      },
+
+      markRecommendationAsApplied: (projectId, recommendationId) => {
+        set((state) => ({
+          aiRecommendations: {
+            ...state.aiRecommendations,
+            [projectId]: (state.aiRecommendations[projectId] || []).map((r) =>
+              r.id === recommendationId
+                ? { ...r, applied: true, appliedAt: new Date().toISOString() }
+                : r
+            ),
+          },
+        }));
       },
 
       getRecommendationsByProject: (projectId) => {
@@ -328,14 +364,9 @@ export const useTaskStore = create<TaskStore>()(
         tasks: state.tasks,
         aiRecommendations: state.aiRecommendations,
       }),
-      version: 2,
+      version: 3, // Incrementar versión por los cambios
       migrate: (persistedState: any, version) => {
-        if (version === 0 || version === 1) {
-          return {
-            ...persistedState,
-            aiRecommendations: {},
-          };
-        }
+        // Lógica de migración si es necesario
         return persistedState;
       },
     }

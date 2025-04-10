@@ -1,4 +1,4 @@
-export type Priority = "Alta" | "Media" | "Baja";
+export type Priority = "alta" | "media" | "baja";
 
 export type Status = "por-hacer" | "en-curso" | "finalizada";
 export type TaskStatus = "completed" | "incomplete" | "not-started";
@@ -56,14 +56,22 @@ export interface Member {
   photo: string;
 }
 
-export interface AIRecommendation {
+export type AIRecommendation = {
   id: string;
   title: string;
   description: string;
   type: AIRecommendationType;
-  relatedTaskId?: string;
+  action?:
+    | "assign-members"
+    | "complete-fields"
+    | "review-overdue"
+    | "general-tip";
+  priority?: "alta" | "media" | "baja";
+  relatedTasks?: string[];
+  relatedMembers?: string[];
   applied?: boolean;
-}
+  appliedAt?: string;
+};
 
 export type AIRecommendationType = "improvement" | "new-task" | "reallocation";
 

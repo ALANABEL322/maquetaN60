@@ -57,22 +57,22 @@ interface ProjectStore {
   removeReinforcement: (memberId: string) => void;
 }
 
-const initialReinforcements: Member[] = [
-  {
-    id: "r1",
-    firstName: "Refuerzo",
-    lastName: "Uno",
-    email: "refuerzo1@example.com",
-    photo: "https://i.pravatar.cc/300?img=60",
-  },
-  {
-    id: "r2",
-    firstName: "Refuerzo",
-    lastName: "Dos",
-    email: "refuerzo2@example.com",
-    photo: "https://i.pravatar.cc/300?img=61",
-  },
-];
+// const initialReinforcements: Member[] = [
+//   {
+//     id: "r1",
+//     firstName: "Refuerzo",
+//     lastName: "Uno",
+//     email: "refuerzo1@example.com",
+//     photo: "https://i.pravatar.cc/300?img=60",
+//   },
+//   {
+//     id: "r2",
+//     firstName: "Refuerzo",
+//     lastName: "Dos",
+//     email: "refuerzo2@example.com",
+//     photo: "https://i.pravatar.cc/300?img=61",
+//   },
+// ];
 
 const initialTeams: Team[] = [
   {
@@ -260,7 +260,7 @@ export const useCreateProjectStore = create<ProjectStore>()(
   persist(
     (set, get) => ({
       teams: initialTeams,
-      reinforcements: initialReinforcements,
+      reinforcements: [],
       currentProject: initialProjectForm,
       projects: [],
 
