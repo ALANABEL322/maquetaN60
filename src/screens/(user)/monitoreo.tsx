@@ -50,7 +50,7 @@ export default function Monitoreo() {
 
   const risksCount = tasks.filter(
     (t) =>
-      t.priority === "Alta" &&
+      t.priority === "alta" &&
       (t.status === "por-hacer" || t.status === "en-curso")
   ).length;
 

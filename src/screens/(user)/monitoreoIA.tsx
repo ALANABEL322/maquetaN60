@@ -28,6 +28,11 @@ type AIRecommendation = {
   title: string;
   description: string;
   type: "improvement" | "new-task" | "reallocation";
+  action?:
+    | "assign-members"
+    | "complete-fields"
+    | "review-overdue"
+    | "general-tip";
 };
 
 type TaskStatus = "completed" | "incomplete" | "not-started";
@@ -179,18 +184,18 @@ export default function MonitoreoIA() {
   const generateAI = () => {
     setIsGeneratingRecommendations(true);
 
-    const onComplete = () => {
+    // Simular tiempo de análisis
+    setTimeout(() => {
       if (!projectId) return;
 
       const recommendations = useTaskStore
         .getState()
         .generateAIRecommendations(projectId);
+
       setAiRecommendations(recommendations);
       setIsRecommendationModalOpen(true);
       setIsGeneratingRecommendations(false);
-    };
-
-    setTimeout(onComplete, 22000);
+    }, 2000);
   };
 
   if (!project) {
