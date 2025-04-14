@@ -1,36 +1,45 @@
-import React, { createContext, useEffect, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginSchema, registerSchema } from './schemas';
-import { useAuthStore, User } from '@/store/useUserStore';
-import { paths } from '@/routes/paths';
-
+import React, { createContext, useEffect, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginSchema, registerSchema } from "./schemas";
+import { useAuthStore, User } from "@/store/useUserStore";
+import { paths } from "@/routes/paths";
 
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (username: string, email: string, password: string) => Promise<boolean>;
+  register: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<boolean>;
   logout: () => void;
-  isAdmin: boolean; 
+  isAdmin: boolean;
   isLoading: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { 
-    user, 
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const {
+    user,
     isAuthenticated,
-    login: zustandLogin, 
-    logout: zustandLogout, 
+    login: zustandLogin,
+    logout: zustandLogout,
     register: zustandRegister,
-    isAdmin
+    isAdmin,
   } = useAuthStore();
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate(user.role === 'admin' ? paths.admin.dashboard : paths.user.landingPage);
+      navigate(
+        user.role === "admin" ? paths.admin.perfil : paths.user.landingPage
+      );
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -41,31 +50,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await loginSchema.validate({ email, password });
       const success = zustandLogin(email, password);
-      
+
       if (success) {
-        const targetPath = isAdmin() ? paths.admin.dashboard : paths.user.landingPage;
+        const targetPath = isAdmin()
+          ? paths.admin.perfil
+          : paths.user.landingPage;
         navigate(targetPath);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       return false;
     }
   };
 
-  const register = async (username: string, email: string, password: string): Promise<boolean> => {
+  const register = async (
+    username: string,
+    email: string
+    // password: string
+  ): Promise<boolean> => {
     try {
-      await registerSchema.validate({ username, email, password });
-      const success = zustandRegister(email, password, username);
-      
+      await registerSchema.validate({ username, email });
+      const success = zustandRegister(email, username);
+
       if (success) {
         navigate(paths.user.landingPage);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Register error:', error);
+      console.error("Register error:", error);
       return false;
     }
   };
@@ -76,7 +91,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAdmin: isAdmin(), isLoading }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, isAdmin: isAdmin(), isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -85,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
   return context;
 }
