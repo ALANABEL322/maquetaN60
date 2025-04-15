@@ -1,10 +1,10 @@
 export const paths = {
-  // Auth routes
+
   auth: {
     login: "/login",
     register: "/register",
   },
-  // Admin routes
+
   admin: {
     root: "/admin",
     perfil: "/admin/perfil",
@@ -12,7 +12,7 @@ export const paths = {
     users: "/admin/users",
     support: "/admin/support",
   },
-  // User routes
+
   user: {
     root: "/user",
     landingPage: "/user",
@@ -25,6 +25,6 @@ export const paths = {
     monitoreoIA: "/user/monitoreoIA/:projectId",
     support: "/user/support",
   },
-  // Root route
+
   root: "/",
 } as const;
