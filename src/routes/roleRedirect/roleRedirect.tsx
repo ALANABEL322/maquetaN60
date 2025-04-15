@@ -11,7 +11,7 @@ export default function RoleRedirect() {
   }
 
   return isAdmin ? (
-    <Navigate to={paths.admin.dashboard} replace />
+    <Navigate to={paths.admin.perfil} replace />
   ) : (
     <Navigate to={paths.user.landingPage} replace />
   );

@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginSchema, registerSchema } from "./schemas";
-import { useAuthStore, User } from "@/store/useUserStore";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore, User } from "@/store/authStore";
 import { paths } from "@/routes/paths";
 
 export interface AuthContextType {
@@ -29,60 +28,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated,
     login: zustandLogin,
     logout: zustandLogout,
-    register: zustandRegister,
     isAdmin,
   } = useAuthStore();
-
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialRedirectDone, setInitialRedirectDone] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate(
-        user.role === "admin" ? paths.admin.perfil : paths.user.landingPage
-      );
-    }
-  }, [isAuthenticated, user, navigate]);
+    // Solo redirigir en el primer renderizado o cuando el estado de autenticación cambia
+    if (isAuthenticated && user && !initialRedirectDone) {
+      const isAuthPage = location.pathname.startsWith(paths.auth.login);
+      const isAdminPath = location.pathname.startsWith(paths.admin.root);
+      const isUserPath = location.pathname.startsWith(paths.user.root);
 
-  const [isLoading, setIsLoading] = useState(false);
+      // Solo redirigir si está en una página de auth o en la raíz
+      if (isAuthPage || location.pathname === "/") {
+        const targetPath =
+          user.role === "admin" ? paths.admin.perfil : paths.user.landingPage;
+
+        navigate(targetPath);
+        setInitialRedirectDone(true);
+      }
+    }
+  }, [isAuthenticated, user, navigate, location, initialRedirectDone]);
+
+  // Restablecer el flag de redirección cuando se desautentica
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setInitialRedirectDone(false);
+    }
+  }, [isAuthenticated]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    try {
-      await loginSchema.validate({ email, password });
-      const success = zustandLogin(email, password);
-
-      if (success) {
-        const targetPath = isAdmin()
-          ? paths.admin.perfil
-          : paths.user.landingPage;
-        navigate(targetPath);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      return false;
-    }
+    const success = await zustandLogin(email, password);
+    setIsLoading(false);
+    return success;
   };
 
   const register = async (
     username: string,
-    email: string
-    // password: string
+    email: string,
+    password: string
   ): Promise<boolean> => {
-    try {
-      await registerSchema.validate({ username, email });
-      const success = zustandRegister(email, username);
-
-      if (success) {
-        navigate(paths.user.landingPage);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Register error:", error);
-      return false;
-    }
+    // Implementa la lógica de registro aquí si es necesario
+    return false; // Placeholder
   };
 
   const logout = () => {

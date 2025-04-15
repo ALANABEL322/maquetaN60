@@ -56,7 +56,7 @@ export const adminRoutes: RouteObject[] = [
   {
     path: paths.admin.root,
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute adminOnly>
         <Layout>
           <Outlet />
         </Layout>
@@ -87,7 +87,7 @@ export const userRoutes: RouteObject[] = [
   {
     path: paths.user.root,
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute userOnly>
         <Layout>
           <Outlet />
         </Layout>
