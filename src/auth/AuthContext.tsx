@@ -36,13 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [initialRedirectDone, setInitialRedirectDone] = useState(false);
 
   useEffect(() => {
-    // Solo redirigir en el primer renderizado o cuando el estado de autenticación cambia
     if (isAuthenticated && user && !initialRedirectDone) {
       const isAuthPage = location.pathname.startsWith(paths.auth.login);
       const isAdminPath = location.pathname.startsWith(paths.admin.root);
       const isUserPath = location.pathname.startsWith(paths.user.root);
 
-      // Solo redirigir si está en una página de auth o en la raíz
       if (isAuthPage || location.pathname === "/") {
         const targetPath =
           user.role === "admin" ? paths.admin.perfil : paths.user.landingPage;
@@ -53,7 +51,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [isAuthenticated, user, navigate, location, initialRedirectDone]);
 
-  // Restablecer el flag de redirección cuando se desautentica
   useEffect(() => {
     if (!isAuthenticated) {
       setInitialRedirectDone(false);
@@ -72,8 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     email: string,
     password: string
   ): Promise<boolean> => {
-    // Implementa la lógica de registro aquí si es necesario
-    return false; // Placeholder
+    return false; 
   };
 
   const logout = () => {
