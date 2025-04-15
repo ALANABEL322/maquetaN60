@@ -1,12 +1,12 @@
-import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Eye, EyeOff } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/auth/AuthContext';
-import { registerSchema } from '@/auth/schemas';
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
+import { registerSchema } from "@/auth/schemas";
 
 export default function RegisterForm() {
   const { register } = useAuth();
@@ -16,14 +16,18 @@ export default function RegisterForm() {
     <div className="rounded-lg bg-white p-6 shadow-lg">
       <Formik
         initialValues={{
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
         }}
         validationSchema={registerSchema}
         onSubmit={async (values, { setSubmitting }) => {
-          const success = await register(values.username, values.email, values.password);
+          const success = await register(
+            values.username,
+            values.email,
+            values.password
+          );
           if (!success) {
             setSubmitting(false);
           }
@@ -102,7 +106,9 @@ export default function RegisterForm() {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-              <p className="text-xs text-gray-500">Ingresa tu correo electrónico</p>
+              <p className="text-xs text-gray-500">
+                Ingresa tu correo electrónico
+              </p>
             </div>
 
             <div className="space-y-1">
@@ -127,7 +133,7 @@ export default function RegisterForm() {
                 </div>
                 <Field
                   as={Input}
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   id="password"
                   placeholder="Ingresa tu contraseña"
@@ -153,7 +159,7 @@ export default function RegisterForm() {
               <p className="text-xs text-gray-500">Ingresa tu contraseña</p>
             </div>
 
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <Label htmlFor="confirmPassword" className="text-sm font-medium">
                 Confirmar Contraseña
               </Label>
@@ -188,19 +194,22 @@ export default function RegisterForm() {
                 className="text-red-500 text-sm mt-1"
               />
               <p className="text-xs text-gray-500">Confirma tu contraseña</p>
-            </div>
+            </div> */}
 
             <Button
               type="submit"
               disabled={isSubmitting}
               className="w-full bg-[#1a3c5b] hover:bg-[#15324c]"
             >
-              {isSubmitting ? 'Registrando...' : 'Registrarse'}
+              {isSubmitting ? "Registrando..." : "Registrarse"}
             </Button>
 
             <div className="mt-6 text-center text-sm">
-              ¿Ya tienes cuenta?{' '}
-              <Link to="/login" className="font-medium text-[#1a3c5b] hover:underline">
+              ¿Ya tienes cuenta?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-[#1a3c5b] hover:underline"
+              >
                 Inicia sesión
               </Link>
             </div>

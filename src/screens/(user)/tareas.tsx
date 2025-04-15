@@ -251,27 +251,43 @@ function TaskColumn({
           : ""
       )}
     >
-      <div
-        className="space-y-4"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={() => onDrop(status)}
-      >
-        <div className="flex items-center justify-between">
-          <div
-            className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}
-          >
-            {title}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
-            onClick={() => onAddTask(status)}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Agregar
-          </Button>
+      <div className="flex items-center justify-between">
+        <div
+          className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}
+        >
+          {title}
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={() => onAddTask(status)}
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Agregar
+        </Button>
+      </div>
+
+      {/* Área de drop que siempre está presente, incluso cuando no hay tarjetas */}
+      <div
+        className={cn(
+          "min-h-[100px] rounded-lg transition-colors",
+          tasks.length === 0 ? "border-2 border-dashed border-gray-300" : ""
+        )}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.add("bg-gray-100");
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.remove("bg-gray-100");
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.currentTarget.classList.remove("bg-gray-100");
+          onDrop(status);
+        }}
+      >
         <div className="space-y-4">
           {tasks.map((task) => (
             <TaskCard
@@ -286,8 +302,8 @@ function TaskColumn({
             />
           ))}
           {tasks.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              No hay tareas en esta sección
+            <div className="flex items-center justify-center h-full text-center py-8 text-muted-foreground text-sm">
+              Arrastra tarjetas aquí
             </div>
           )}
         </div>
