@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTaskStore } from "@/store/taskStore/taskStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useCurrentUser } from "@/store/useUserStore";
+import { useAuthStore } from "@/store/authStore";
 import { Task, Member, Comment } from "@/types/typesTask";
 
 interface TaskDetailsModalProps {
@@ -43,7 +43,7 @@ export function TaskDetailsModal({
   onSave,
   teamMembers,
 }: TaskDetailsModalProps) {
-  const currentUser = useCurrentUser();
+  const currentUser = useAuthStore((state) => state.currentUser);
   console.log({ currentUser });
 
   const { removeComment, addComment } = useTaskStore();
