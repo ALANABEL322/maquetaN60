@@ -33,10 +33,8 @@ export function RecommendationCard({
   const { markRecommendationAsApplied } = useTaskStore();
 
   const handleApplyRecommendation = () => {
-    // Marcar como aplicada en el store
     markRecommendationAsApplied(projectId, recommendation.id);
 
-    // Redirigir a la página de tareas con el foco adecuado
     navigate(`/user/tareas/${projectId}`, {
       state: {
         focus: recommendation.action,

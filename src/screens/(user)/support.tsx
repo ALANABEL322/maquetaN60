@@ -1,4 +1,3 @@
-// components/user/UserSupportPage.tsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +26,12 @@ export default function UserSupportPage() {
 
   const { tickets, addTicket, deleteTicket } = useSupportStore();
 
-  // Filtrar tickets del usuario actual
-  const userTickets = tickets.filter((ticket) => ticket.userId === user?.id);
+  const userTickets = tickets
+    .filter((ticket) => ticket.userId === String(user?.id))
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +82,8 @@ export default function UserSupportPage() {
       </div>
     ));
   };
+
+  console.log("console.log de USER SUPPORT PAGE userTickets", userTickets);
 
   return (
     <div className="container mx-auto py-10">
@@ -151,80 +156,89 @@ export default function UserSupportPage() {
           {userTickets.length === 0 ? (
             <p className="text-sm text-gray-500">No hay tickets creados</p>
           ) : (
-            userTickets.map((ticket) => (
-              <Card key={ticket.id}>
-                <CardHeader className="flex flex-row justify-between items-start">
-                  <CardTitle className="text-lg">{ticket.subject}</CardTitle>
-                  <button
-                    onClick={() => handleDeleteTicket(ticket.id)}
-                    className="text-gray-500 hover:text-red-500 transition-colors"
-                    aria-label="Eliminar ticket"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <div>
+            <>
+              <div className="hidden">
+                Debug: User ID: {user?.id}, Tickets count: {userTickets.length}
+              </div>
+              {userTickets.map((ticket) => (
+                <Card key={ticket.id}>
+                  <CardHeader className="flex flex-row justify-between items-start">
+                    <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                    <button
+                      onClick={() => handleDeleteTicket(ticket.id)}
+                      className="text-gray-500 hover:text-red-500 transition-colors"
+                      aria-label="Eliminar ticket"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Estado:{" "}
+                            <span
+                              className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                ticket.status === "open"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {ticket.status}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-500 mt-4">
+                            Prioridad:{" "}
+                            <span
+                              className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                ticket.priority === "alto"
+                                  ? "bg-red-100 text-red-800"
+                                  : ticket.priority === "medio"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              {ticket.priority}
+                            </span>
+                          </p>
+                        </div>
                         <p className="text-sm text-gray-500">
-                          Estado:{" "}
-                          <span
-                            className={`inline-block px-2 py-1 text-xs rounded-full ${
-                              ticket.status === "open"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {ticket.status}
-                          </span>
-                        </p>
-                        <p className="text-sm text-gray-500 mt-4">
-                          Prioridad:{" "}
-                          <span
-                            className={`inline-block px-2 py-1 text-xs rounded-full ${
-                              ticket.priority === "alto"
-                                ? "bg-red-100 text-red-800"
-                                : ticket.priority === "medio"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
-                          >
-                            {ticket.priority}
-                          </span>
+                          Creado:{" "}
+                          {new Date(ticket.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <p className="text-sm text-gray-500">
-                        Creado:{" "}
-                        {new Date(ticket.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
 
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Tu mensaje:</p>
-                      <p className="text-sm text-gray-600">
-                        {ticket.description}
-                      </p>
-                    </div>
-
-                    {ticket.response && (
-                      <div className="bg-gray-50 p-4 rounded-md">
-                        <p className="text-sm font-medium">
-                          Respuesta de {ticket.adminName} ({ticket.adminEmail}):
-                        </p>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Tu mensaje:</p>
                         <p className="text-sm text-gray-600">
-                          {ticket.response}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Actualizado:{" "}
-                          {new Date(ticket.updatedAt).toLocaleDateString()}
+                          {ticket.description}
                         </p>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+
+                      {ticket.response && (
+                        <div className="bg-gray-50 p-4 rounded-md">
+                          <p className="text-sm font-medium">
+                            Respuesta de {ticket.adminName} ({ticket.adminEmail}
+                            ):
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {ticket.response}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Actualizado:{" "}
+                            {new Date(ticket.updatedAt).toLocaleDateString()}
+                          </p>
+                          <div className="text-xs text-gray-500">
+                            Estado: {ticket.status} | ID: {ticket.id}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </div>
       </div>

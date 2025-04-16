@@ -164,7 +164,6 @@ export default function MonitoreoIA() {
     if (!projectId) return;
 
     useTaskStore.getState().applyRecommendation(projectId, recommendationId);
-    // Aquí podrías añadir lógica adicional basada en el tipo de recomendación
   };
 
   const handleTabChange = (value: string) => {
@@ -184,7 +183,6 @@ export default function MonitoreoIA() {
   const generateAI = () => {
     setIsGeneratingRecommendations(true);
 
-    // Simular tiempo de análisis
     setTimeout(() => {
       if (!projectId) return;
 

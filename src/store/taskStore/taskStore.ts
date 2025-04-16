@@ -159,7 +159,6 @@ export const useTaskStore = create<TaskStore>()(
       },
 
       addComment: (taskId, comment: Comment) => {
-        // Asegurar el tipo aquí
         const now = new Date().toISOString();
         set((state) => ({
           tasks: state.tasks.map((task) => {
@@ -306,7 +305,6 @@ export const useTaskStore = create<TaskStore>()(
           }
         }
 
-        // Ordenar por prioridad y limitar a 5
         const priorityOrder = { alta: 1, media: 2, baja: 3 };
         const finalRecommendations = recommendations
           .sort((a, b) => {
@@ -316,7 +314,6 @@ export const useTaskStore = create<TaskStore>()(
           })
           .slice(0, 5);
 
-        // Guardar en el estado
         set((state) => ({
           aiRecommendations: {
             ...state.aiRecommendations,
@@ -334,10 +331,8 @@ export const useTaskStore = create<TaskStore>()(
 
         if (!recommendation) return;
 
-        // Marcar como aplicada
         get().markRecommendationAsApplied(projectId, recommendationId);
 
-        // Aquí podrías añadir lógica específica para cada tipo de recomendación
         console.log("Aplicando recomendación:", recommendation);
       },
 
@@ -364,9 +359,8 @@ export const useTaskStore = create<TaskStore>()(
         tasks: state.tasks,
         aiRecommendations: state.aiRecommendations,
       }),
-      version: 3, // Incrementar versión por los cambios
+      version: 3, 
       migrate: (persistedState: any, version) => {
-        // Lógica de migración si es necesario
         return persistedState;
       },
     }
