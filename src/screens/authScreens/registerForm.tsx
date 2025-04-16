@@ -9,7 +9,6 @@ import { registerSchema } from "@/auth/schemas";
 import { api } from "@/api/auth";
 
 export default function RegisterForm() {
-  // const { register } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
 
   return (
@@ -28,10 +27,9 @@ export default function RegisterForm() {
             username,
             email,
             password,
-            role: "user", // Solo se permite el registro de usuarios
+            role: "user",
           });
           if (!response.success) {
-            // Manejar el error
             console.error(response.error);
           }
           setSubmitting(false);

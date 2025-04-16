@@ -45,7 +45,6 @@ export const useAuthStore = create<AuthState>()(
       isUser: () => get().user?.role === "user",
 
       login: async (email, password) => {
-        // Verificar credenciales del administrador
         if (email === "ADMIN123@gmail.com" && password === "ADMIN123") {
           const adminUser: User = {
             id: "system-admin",

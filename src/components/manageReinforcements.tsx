@@ -20,7 +20,7 @@ export default function ManageReinforcements() {
     firstName: "",
     lastName: "",
     email: "",
-    photo: "https://i.pravatar.cc/300?img=69", // Imagen por defecto
+    photo: "https://i.pravatar.cc/300?img=69",
   });
   const [errors, setErrors] = useState({
     firstName: "",
@@ -28,7 +28,6 @@ export default function ManageReinforcements() {
     email: "",
   });
 
-  // Validaciones
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
@@ -50,7 +49,6 @@ export default function ManageReinforcements() {
     };
     let isValid = true;
 
-    // Validar nombre
     if (!newMember.firstName.trim()) {
       newErrors.firstName = "El nombre es requerido";
       isValid = false;
@@ -60,7 +58,6 @@ export default function ManageReinforcements() {
       isValid = false;
     }
 
-    // Validar apellido
     if (!newMember.lastName.trim()) {
       newErrors.lastName = "El apellido es requerido";
       isValid = false;
@@ -70,7 +67,6 @@ export default function ManageReinforcements() {
       isValid = false;
     }
 
-    // Validar email
     if (!newMember.email.trim()) {
       newErrors.email = "El email es requerido";
       isValid = false;
@@ -91,7 +87,6 @@ export default function ManageReinforcements() {
       return;
     }
 
-    // Verificar si el email ya existe
     const emailExists = reinforcements.some(
       (member) => member.email.toLowerCase() === newMember.email.toLowerCase()
     );
@@ -122,7 +117,6 @@ export default function ManageReinforcements() {
       ...newMember,
       [field]: value,
     });
-    // Limpiar error cuando el usuario escribe
     if (errors[field as keyof typeof errors]) {
       setErrors({
         ...errors,

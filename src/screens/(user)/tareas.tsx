@@ -167,7 +167,6 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          // teamMembers={team?.members || []}
           teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
@@ -182,7 +181,6 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          // teamMembers={team?.members || []}
           teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
@@ -197,7 +195,6 @@ export default function Tareas() {
           setDraggedTaskId={setDraggedTaskId}
           onPriorityChange={handlePriorityChange}
           onAddTask={addNewTask}
-          // teamMembers={team?.members || []}
           teamMembers={allAvailableMembers}
           onAssignMember={assignMemberToTask}
           onUnassignMember={unassignMemberFromTask}
