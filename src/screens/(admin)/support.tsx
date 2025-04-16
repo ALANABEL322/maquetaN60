@@ -1,4 +1,3 @@
-// components/admin/AdminSupportPage.tsx
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -60,6 +59,14 @@ export default function AdminSupportPage() {
 
   const handleSubmitResponse = () => {
     if (currentTicketId && admin) {
+      console.log("Enviando respuesta...", {
+        ticketId: currentTicketId,
+        response,
+        adminId: String(admin.id),
+        adminName: admin.username,
+        adminEmail: admin.email
+      });
+      
       respondToTicket(
         currentTicketId,
         response,

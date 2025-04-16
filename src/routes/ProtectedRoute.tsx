@@ -14,7 +14,6 @@ export default function ProtectedRoute({
   userOnly = false,
 }: ProtectedRouteProps) {
   const location = useLocation();
-  // const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAdmin = useAuthStore((state) => state.isAdmin());
 
