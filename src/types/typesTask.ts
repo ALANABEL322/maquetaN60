@@ -71,6 +71,7 @@ export type AIRecommendation = {
   relatedMembers?: string[];
   applied?: boolean;
   appliedAt?: string;
+  isFramework?: boolean;
 };
 
 export type AIRecommendationType = "improvement" | "new-task" | "reallocation";

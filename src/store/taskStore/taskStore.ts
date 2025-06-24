@@ -314,14 +314,78 @@ export const useTaskStore = create<TaskStore>()(
           })
           .slice(0, 5);
 
+        // 6. Recomendaciones especiales de frameworks y herramientas
+        const frameworkRecommendations: AIRecommendation[] = [
+          {
+            id: `framework-react-${Date.now()}`,
+            title: "🚀 React + TypeScript",
+            description:
+              "Para interfaces robustas y tipado fuerte. Ideal para proyectos escalables con componentes reutilizables.",
+            type: "improvement",
+            action: "general-tip",
+            priority: "media",
+            isFramework: true,
+          },
+          {
+            id: `framework-tailwind-${Date.now() + 1}`,
+            title: "🎨 Tailwind CSS",
+            description:
+              "Framework CSS utility-first para desarrollo rápido y consistente. Perfecto para prototipado ágil.",
+            type: "improvement",
+            action: "general-tip",
+            priority: "media",
+            isFramework: true,
+          },
+          {
+            id: `framework-vite-${Date.now() + 2}`,
+            title: "⚡ Vite",
+            description:
+              "Build tool ultrarrápido para desarrollo frontend. Hot reload instantáneo y optimización automática.",
+            type: "improvement",
+            action: "general-tip",
+            priority: "baja",
+            isFramework: true,
+          },
+          {
+            id: `framework-figma-${Date.now() + 3}`,
+            title: "🎯 Figma",
+            description:
+              "Herramienta de diseño colaborativo. Esencial para crear mockups y mantener consistencia visual.",
+            type: "improvement",
+            action: "general-tip",
+            priority: "media",
+            isFramework: true,
+          },
+          {
+            id: `framework-github-${Date.now() + 4}`,
+            title: "🔄 GitHub Actions",
+            description:
+              "CI/CD automatizado para testing y deployment. Mejora la calidad y velocidad de entrega.",
+            type: "improvement",
+            action: "general-tip",
+            priority: "baja",
+            isFramework: true,
+          },
+        ];
+
+        // Combinar recomendaciones normales con frameworks (máximo 2 frameworks)
+        const selectedFrameworks = frameworkRecommendations
+          .sort(() => Math.random() - 0.5) // Aleatorizar
+          .slice(0, 2);
+
+        const allRecommendations = [
+          ...finalRecommendations,
+          ...selectedFrameworks,
+        ];
+
         set((state) => ({
           aiRecommendations: {
             ...state.aiRecommendations,
-            [projectId]: finalRecommendations,
+            [projectId]: allRecommendations,
           },
         }));
 
-        return finalRecommendations;
+        return allRecommendations;
       },
 
       applyRecommendation: (projectId, recommendationId) => {
@@ -359,7 +423,7 @@ export const useTaskStore = create<TaskStore>()(
         tasks: state.tasks,
         aiRecommendations: state.aiRecommendations,
       }),
-      version: 3, 
+      version: 3,
       migrate: (persistedState: any, version) => {
         return persistedState;
       },

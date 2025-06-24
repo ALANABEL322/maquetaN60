@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/api/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { paths } from "@/routes/paths";
 import { useAuthStore } from "@/store/authStore";
+import { showAvailableCredentials, QUICK_LOGIN } from "@/data/mockCredentials";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -15,18 +16,26 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // 🎭 Mostrar credenciales disponibles en desarrollo
+  useEffect(() => {
+    showAvailableCredentials();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       const response = await api.login(email, password);
-      if (response.success) {
-        const userRole = useAuthStore.getState().user?.role;
-        if (userRole === "admin" || userRole === "user") {
-          navigate("/admin/perfil");
+      if (response.success && response.user) {
+        const userRole = response.user.role;
+        console.log("🚀 Login exitoso, redirigiendo usuario:", userRole);
+
+        // Redirección corregida por rol
+        if (userRole === "admin") {
+          navigate(paths.admin.perfil);
         } else {
-          navigate("/user");
+          navigate(paths.user.landingPage);
         }
       } else {
         setError(response.error || "Error al iniciar sesión");
@@ -34,6 +43,17 @@ export default function LoginForm() {
     } catch (err) {
       setError("Error al iniciar sesión");
     }
+  };
+
+  // 🎯 Funciones para login rápido en desarrollo
+  const quickLoginAdmin = () => {
+    setEmail(QUICK_LOGIN.ADMIN.email);
+    setPassword(QUICK_LOGIN.ADMIN.password);
+  };
+
+  const quickLoginUser = () => {
+    setEmail(QUICK_LOGIN.USER.email);
+    setPassword(QUICK_LOGIN.USER.password);
   };
 
   return (
@@ -80,6 +100,33 @@ export default function LoginForm() {
           Iniciar sesión
         </Button>
       </form>
+
+      {/* 🎭 BOTONES DE LOGIN RÁPIDO PARA TESTING */}
+      <div className="mt-4 space-y-2">
+        <div className="text-xs text-center text-gray-500 mb-2">
+          🎭 Testing rápido:
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={quickLoginAdmin}
+            className="flex-1 text-xs"
+          >
+            👑 Admin
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={quickLoginUser}
+            className="flex-1 text-xs"
+          >
+            👤 Usuario
+          </Button>
+        </div>
+      </div>
 
       <div className="mt-6 text-center text-sm">
         <p>

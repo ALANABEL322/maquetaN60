@@ -23,6 +23,7 @@ interface AuthState {
   isUser: () => boolean;
   role: UserRole | null;
   login: (email: string, password: string) => Promise<boolean>;
+  setAuthenticatedUser: (user: User) => void; // 🆕 Para manejar login desde API mockeada
   registerLocalUser: (user: Omit<User, "id">) => User;
   logout: () => void;
   findLocalUserByEmail: (email: string) => User | undefined;
@@ -45,23 +46,11 @@ export const useAuthStore = create<AuthState>()(
       isUser: () => get().user?.role === "user",
 
       login: async (email, password) => {
-        if (email === "ADMIN123@gmail.com" && password === "ADMIN123") {
-          const adminUser: User = {
-            id: "system-admin",
-            email: "ADMIN123@gmail.com",
-            username: "System Administrator",
-            role: "admin",
-            isSystemAdmin: true,
-          };
-          set({
-            user: adminUser,
-            currentUser: adminUser,
-            isAuthenticated: true,
-            role: "admin",
-          });
-          return true;
-        }
+        // 🎭 SISTEMA SIMPLIFICADO - Ya no necesitamos lógica aquí
+        // porque api.login() maneja toda la autenticación con datos mockeados
+        console.log("🔄 AuthStore: Procesando login para", email);
 
+        // Verificar usuarios locales primero
         const localUser = get().findLocalUserByEmail(email);
         if (localUser && localUser.password === password) {
           set({
@@ -70,8 +59,12 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             role: localUser.role,
           });
+          console.log("✅ AuthStore: Login exitoso con usuario local");
           return true;
         }
+
+        // 📝 CÓDIGO STRAPI COMENTADO - Ya no se usa
+        /*
         const response = await axios.get(`${API_URL}/users`, {
           params: {
             "filters[email][$eq]": email,
@@ -95,7 +88,9 @@ export const useAuthStore = create<AuthState>()(
           });
           return true;
         }
+        */
 
+        console.log("❌ AuthStore: Credenciales no válidas");
         return false;
       },
 
@@ -120,6 +115,16 @@ export const useAuthStore = create<AuthState>()(
 
       findLocalUserByEmail: (email) => {
         return get().localUsers.find((user) => user.email === email);
+      },
+
+      setAuthenticatedUser: (user) => {
+        console.log("🔑 AuthStore: Estableciendo usuario autenticado", user);
+        set({
+          user,
+          currentUser: user,
+          isAuthenticated: true,
+          role: user.role,
+        });
       },
 
       setCurrentUser: (user) => set({ currentUser: user }),

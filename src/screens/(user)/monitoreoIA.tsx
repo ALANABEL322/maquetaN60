@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Activity, GanttChartSquare } from "lucide-react";
+import { Activity, GanttChartSquare, Sparkles, Brain } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { RecommendationCard } from "@/components/recomendationCard";
 import { AiRecommendationLoader } from "@/components/IARecomendationLoader";
+import { AIRecommendationModal } from "@/components/AIRecommendationModal";
+import gsap from "gsap";
 
 type AIRecommendation = {
   id: string;
@@ -70,6 +72,10 @@ export default function MonitoreoIA() {
   >([]);
   const [isGeneratingRecommendations, setIsGeneratingRecommendations] =
     useState(false);
+
+  // Referencias para animaciones GSAP
+  const aiButtonRef = useRef<HTMLButtonElement>(null);
+  const sparklesRef = useRef<HTMLDivElement>(null);
 
   const activeTab = location.pathname.includes("monitoreoIA") ? "gantt" : "kpi";
 
@@ -182,19 +188,75 @@ export default function MonitoreoIA() {
 
   const generateAI = () => {
     setIsGeneratingRecommendations(true);
-
-    setTimeout(() => {
-      if (!projectId) return;
-
-      const recommendations = useTaskStore
-        .getState()
-        .generateAIRecommendations(projectId);
-
-      setAiRecommendations(recommendations);
-      setIsRecommendationModalOpen(true);
-      setIsGeneratingRecommendations(false);
-    }, 2000);
   };
+
+  // Animaciones GSAP para el botón de IA
+  useEffect(() => {
+    const button = aiButtonRef.current;
+    const sparkles = sparklesRef.current;
+
+    if (!button) return;
+
+    // Animación de entrada del botón
+    gsap.fromTo(
+      button,
+      {
+        scale: 0.9,
+        opacity: 0,
+      },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        delay: 0.3,
+      }
+    );
+
+    // Pulsación periódica
+    gsap.to(button, {
+      scale: 1.05,
+      duration: 1.5,
+      repeat: -1,
+      yoyo: true,
+      ease: "power2.inOut",
+    });
+
+    // Eventos de hover
+    const handleMouseEnter = () => {
+      gsap.to(button, {
+        scale: 1.1,
+        rotationY: 5,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
+      if (sparkles) {
+        gsap.to(sparkles, {
+          rotation: 360,
+          duration: 1,
+          ease: "none",
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to(button, {
+        scale: 1,
+        rotationY: 0,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    };
+
+    button.addEventListener("mouseenter", handleMouseEnter);
+    button.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      button.removeEventListener("mouseenter", handleMouseEnter);
+      button.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
 
   if (!project) {
     return (
@@ -470,40 +532,107 @@ export default function MonitoreoIA() {
         >
           Ir Atrás
         </Button>
-        <Button
-          className="bg-[#38536E] hover:bg-[#2a4058] text-white"
-          onClick={generateAI}
-          disabled={isGeneratingRecommendations}
-        >
-          {isGeneratingRecommendations
-            ? "Generando..."
-            : "Recomendaciones de IA"}
-        </Button>
-      </div>
-      <Dialog
-        open={isRecommendationModalOpen}
-        onOpenChange={setIsRecommendationModalOpen}
-      >
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Recomendaciones de IA</DialogTitle>
-            <DialogDescription>
-              Basado en el análisis de tu proyecto, la IA te sugeriría las
-              siguientes acciones:
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {aiRecommendations.map((recommendation) => (
-              <RecommendationCard
-                key={recommendation.id}
-                recommendation={recommendation}
-                projectId={projectId || ""}
-                onClose={() => setIsRecommendationModalOpen(false)}
+
+        {/* Botón de IA Sofisticado */}
+        <div className="relative">
+          <Button
+            ref={aiButtonRef}
+            onClick={generateAI}
+            disabled={isGeneratingRecommendations}
+            className="relative overflow-hidden bg-gradient-to-r from-[#38536E] via-[#38536E] to-[#38536E] hover:from-[#2d3e52] hover:via-[#2d3e52] hover:to-[#2d3e52] text-white border-none shadow-2xl transition-all duration-300 px-6 py-3 text-lg font-semibold"
+            style={{
+              transformStyle: "preserve-3d",
+              boxShadow:
+                "0 10px 25px rgba(56, 83, 110, 0.5), 0 0 30px rgba(56, 83, 110, 0.3)",
+            }}
+          >
+            {/* Elementos decorativos flotantes */}
+            <div className="absolute -top-1 -left-1 w-3 h-3 bg-white/30 rounded-full animate-pulse" />
+            <div
+              className="absolute -bottom-1 -right-1 w-2 h-2 bg-white/40 rounded-full"
+              style={{
+                animation: "float 2s ease-in-out infinite",
+              }}
+            />
+
+            {/* Efecto de brillo que se mueve */}
+            <div
+              className="absolute inset-0 opacity-0 hover:opacity-30 transition-opacity duration-300"
+              style={{
+                background:
+                  "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.8) 50%, transparent 70%)",
+                transform: "translateX(-100%)",
+                animation: "shine 2s infinite",
+              }}
+            />
+
+            {/* Contenido del botón */}
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="relative">
+                <Brain className="w-6 h-6" />
+                <div
+                  ref={sparklesRef}
+                  className="absolute -top-1 -right-1 w-3 h-3"
+                >
+                  <Sparkles className="w-3 h-3 text-yellow-300" />
+                </div>
+              </div>
+
+              <span className="font-bold">
+                {isGeneratingRecommendations
+                  ? "🤖 Analizando..."
+                  : "🚀 Recomendaciones de IA"}
+              </span>
+
+              {!isGeneratingRecommendations && (
+                <div className="flex gap-1">
+                  <div
+                    className="w-1 h-1 bg-white/60 rounded-full animate-pulse"
+                    style={{ animationDelay: "0s" }}
+                  />
+                  <div
+                    className="w-1 h-1 bg-white/60 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.2s" }}
+                  />
+                  <div
+                    className="w-1 h-1 bg-white/60 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.4s" }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Borde holográfico */}
+            <div className="absolute inset-0 rounded-lg border-2 border-transparent bg-gradient-to-r from-[#38536E] via-[#38536E] to-[#38536E] opacity-30" />
+          </Button>
+
+          {/* Partículas flotantes alrededor del botón */}
+          {!isGeneratingRecommendations &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-gradient-to-r from-[#38536E] to-[#38536E] rounded-full opacity-60"
+                style={{
+                  left: `${20 + Math.cos((i * Math.PI) / 3) * 40}%`,
+                  top: `${50 + Math.sin((i * Math.PI) / 3) * 40}%`,
+                  animation: `float ${
+                    2 + i * 0.2
+                  }s ease-in-out infinite alternate`,
+                  animationDelay: `${i * 0.1}s`,
+                }}
               />
             ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
+
+      {/* Nuevo Modal 3D de Recomendaciones */}
+      <AIRecommendationModal
+        open={isRecommendationModalOpen}
+        onOpenChange={setIsRecommendationModalOpen}
+        recommendations={aiRecommendations}
+        projectId={projectId || ""}
+      />
+
       {isGeneratingRecommendations && (
         <AiRecommendationLoader
           onComplete={() => {
@@ -517,6 +646,18 @@ export default function MonitoreoIA() {
           }}
         />
       )}
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes shine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 }
