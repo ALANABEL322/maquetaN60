@@ -1,7 +1,7 @@
-import { BrowserRouter } from 'react-router-dom'
-import { Toaster } from '@/components/ui/sonner'
-import Router from '@/routes'
-import { AuthProvider } from './auth/AuthContext' 
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import Router from "@/routes";
+import { AuthProvider } from "./auth/AuthContext";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
         </div>
       </AuthProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

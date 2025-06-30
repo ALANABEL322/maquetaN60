@@ -23,6 +23,7 @@ interface AuthState {
   isUser: () => boolean;
   role: UserRole | null;
   login: (email: string, password: string) => Promise<boolean>;
+  setAuthenticatedUser: (user: User) => void; // 🆕 Para manejar login desde API mockeada
   registerLocalUser: (user: Omit<User, "id">) => User;
   logout: () => void;
   findLocalUserByEmail: (email: string) => User | undefined;
@@ -45,22 +46,9 @@ export const useAuthStore = create<AuthState>()(
       isUser: () => get().user?.role === "user",
 
       login: async (email, password) => {
-        if (email === "ADMIN123@gmail.com" && password === "ADMIN123") {
-          const adminUser: User = {
-            id: "system-admin",
-            email: "ADMIN123@gmail.com",
-            username: "System Administrator",
-            role: "admin",
-            isSystemAdmin: true,
-          };
-          set({
-            user: adminUser,
-            currentUser: adminUser,
-            isAuthenticated: true,
-            role: "admin",
-          });
-          return true;
-        }
+        // 🎭 SISTEMA SIMPLIFICADO - Ya no necesitamos lógica aquí
+        // porque api.login() maneja toda la autenticación con datos mockeados
+        console.log("🔄 AuthStore: Procesando login para", email);
 
         // 🔹 USUARIO NORMAL MOCKEADO
         if (email === "user@test.com" && password === "user123") {
@@ -79,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
           return true;
         }
 
+
         const localUser = get().findLocalUserByEmail(email);
         if (localUser && localUser.password === password) {
           set({
@@ -87,8 +76,10 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             role: localUser.role,
           });
+          console.log("✅ AuthStore: Login exitoso con usuario local");
           return true;
         }
+
 
         // 🚫 LÓGICA DE STRAPI COMENTADA
         // const response = await axios.get(`${API_URL}/users`, {
@@ -115,6 +106,36 @@ export const useAuthStore = create<AuthState>()(
         //   return true;
         // }
 
+
+        // 📝 CÓDIGO STRAPI COMENTADO - Ya no se usa
+        /*
+        const response = await axios.get(`${API_URL}/users`, {
+          params: {
+            "filters[email][$eq]": email,
+          },
+        });
+
+        const users = response.data;
+        if (users && users.length > 0) {
+          const userData = users[0];
+          const user: User = {
+            id: userData.id,
+            email: userData.email,
+            username: userData.username || email.split("@")[0],
+            role: email.includes("admin") ? "admin" : "user",
+          };
+          set({
+            user,
+            currentUser: user,
+            isAuthenticated: true,
+            role: user.role,
+          });
+          return true;
+        }
+        */
+
+
+        console.log("❌ AuthStore: Credenciales no válidas");
         return false;
       },
 
@@ -139,6 +160,16 @@ export const useAuthStore = create<AuthState>()(
 
       findLocalUserByEmail: (email) => {
         return get().localUsers.find((user) => user.email === email);
+      },
+
+      setAuthenticatedUser: (user) => {
+        console.log("🔑 AuthStore: Estableciendo usuario autenticado", user);
+        set({
+          user,
+          currentUser: user,
+          isAuthenticated: true,
+          role: user.role,
+        });
       },
 
       setCurrentUser: (user) => set({ currentUser: user }),
