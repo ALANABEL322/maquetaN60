@@ -18,11 +18,11 @@ export default function ProtectedRoute({
   const isAdmin = useAuthStore((state) => state.isAdmin());
 
   // Redirigir si no está autenticado
-  if (!isAuthenticated) {
-    return (
-      <Navigate to={paths.auth.login} state={{ from: location }} replace />
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <Navigate to={paths.auth.login} state={{ from: location }} replace />
+  //   );
+  // }
 
   // Admin intentando acceder a ruta de usuario
   if (userOnly && isAdmin) {
@@ -31,8 +31,8 @@ export default function ProtectedRoute({
 
   // Usuario normal intentando acceder a ruta de admin
   if (adminOnly && !isAdmin) {
-    return <Navigate to={paths.user.landingPage} replace />;
-  }
+        return <Navigate to={paths.user.landingPage} replace />;
+      }
 
   return <>{children}</>;
 }

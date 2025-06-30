@@ -134,8 +134,8 @@ export const userRoutes: RouteObject[] = [
   },
 ];
 
-export const routes: RouteObject[] = [
-  ...publicRoutes,
-  ...adminRoutes,
-  ...userRoutes,
-];
+// export const routes: RouteObject[] = [
+//   ...publicRoutes,
+//   ...adminRoutes,
+//   ...userRoutes,
+// ];

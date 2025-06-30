@@ -62,6 +62,23 @@ export const useAuthStore = create<AuthState>()(
           return true;
         }
 
+        // 🔹 USUARIO NORMAL MOCKEADO
+        if (email === "user@test.com" && password === "user123") {
+          const normalUser: User = {
+            id: "user-normal",
+            email: "user@test.com",
+            username: "Usuario Normal",
+            role: "user",
+          };
+          set({
+            user: normalUser,
+            currentUser: normalUser,
+            isAuthenticated: true,
+            role: "user",
+          });
+          return true;
+        }
+
         const localUser = get().findLocalUserByEmail(email);
         if (localUser && localUser.password === password) {
           set({
@@ -72,29 +89,31 @@ export const useAuthStore = create<AuthState>()(
           });
           return true;
         }
-        const response = await axios.get(`${API_URL}/users`, {
-          params: {
-            "filters[email][$eq]": email,
-          },
-        });
 
-        const users = response.data;
-        if (users && users.length > 0) {
-          const userData = users[0];
-          const user: User = {
-            id: userData.id,
-            email: userData.email,
-            username: userData.username || email.split("@")[0],
-            role: email.includes("admin") ? "admin" : "user",
-          };
-          set({
-            user,
-            currentUser: user,
-            isAuthenticated: true,
-            role: user.role,
-          });
-          return true;
-        }
+        // 🚫 LÓGICA DE STRAPI COMENTADA
+        // const response = await axios.get(`${API_URL}/users`, {
+        //   params: {
+        //     "filters[email][$eq]": email,
+        //   },
+        // });
+
+        // const users = response.data;
+        // if (users && users.length > 0) {
+        //   const userData = users[0];
+        //   const user: User = {
+        //     id: userData.id,
+        //     email: userData.email,
+        //     username: userData.username || email.split("@")[0],
+        //     role: email.includes("admin") ? "admin" : "user",
+        //   };
+        //   set({
+        //     user,
+        //     currentUser: user,
+        //     isAuthenticated: true,
+        //     role: user.role,
+        //   });
+        //   return true;
+        // }
 
         return false;
       },
