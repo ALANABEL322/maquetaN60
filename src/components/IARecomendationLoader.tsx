@@ -36,7 +36,6 @@ export const AiRecommendationLoader = ({
   const particlesRef = useRef<HTMLCanvasElement>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
 
-  // Inicializar partículas
   useEffect(() => {
     const initialParticles: Particle[] = [];
     for (let i = 0; i < 50; i++) {
@@ -53,7 +52,6 @@ export const AiRecommendationLoader = ({
     setParticles(initialParticles);
   }, []);
 
-  // Animación de partículas en canvas
   useEffect(() => {
     const canvas = particlesRef.current;
     if (!canvas) return;
@@ -69,25 +67,21 @@ export const AiRecommendationLoader = ({
 
       setParticles((prevParticles) => {
         return prevParticles.map((particle) => {
-          // Actualizar posición
           let newX = particle.x + particle.vx;
           let newY = particle.y + particle.vy;
 
-          // Rebotar en los bordes
           if (newX < 0 || newX > canvas.width) particle.vx *= -1;
           if (newY < 0 || newY > canvas.height) particle.vy *= -1;
 
           newX = Math.max(0, Math.min(canvas.width, newX));
           newY = Math.max(0, Math.min(canvas.height, newY));
 
-          // Dibujar partícula
           const alpha = particle.life / particle.maxLife;
           ctx.beginPath();
           ctx.arc(newX, newY, 2, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(56, 83, 110, ${alpha * 0.6})`;
           ctx.fill();
 
-          // Crear conexiones entre partículas cercanas
           prevParticles.forEach((otherParticle) => {
             const dx = newX - otherParticle.x;
             const dy = newY - otherParticle.y;
@@ -120,14 +114,12 @@ export const AiRecommendationLoader = ({
     animateParticles();
   }, []);
 
-  // Animaciones GSAP
   useEffect(() => {
     const container = containerRef.current;
     const brain = brainRef.current;
 
     if (!container || !brain) return;
 
-    // Entrada del modal con efecto 3D
     gsap.fromTo(
       container,
       {
@@ -145,7 +137,6 @@ export const AiRecommendationLoader = ({
       }
     );
 
-    // Animación del cerebro 3D
     gsap.to(brain, {
       rotationY: 360,
       duration: 4,
@@ -161,7 +152,6 @@ export const AiRecommendationLoader = ({
       ease: "power2.inOut",
     });
 
-    // Animación de los círculos orbitales
     circleRefs.current.forEach((circle, index) => {
       if (circle) {
         gsap.to(circle, {
@@ -183,10 +173,9 @@ export const AiRecommendationLoader = ({
     });
   }, []);
 
-  // Manejo de progreso y frases
   useEffect(() => {
     const totalPhrases = analysisPhrases.length;
-    const totalDuration = 8000; // Reducimos a 8 segundos para mejor UX
+    const totalDuration = 8000;
     const intervalTime = totalDuration / totalPhrases;
 
     const phraseInterval = setInterval(() => {
@@ -195,20 +184,16 @@ export const AiRecommendationLoader = ({
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        const increment = 100 / (totalDuration / 100); // Incremento más pequeño para suavidad
+        const increment = 100 / (totalDuration / 100);
 
         if (prev >= 99.5) {
-          // Cuando llegue cerca del 100%
           clearInterval(progressInterval);
           clearInterval(phraseInterval);
 
-          // Asegurar que llegue exactamente a 100%
           setTimeout(() => {
             setProgress(100);
 
-            // Esperar un poco en 100% antes de la animación de salida
             setTimeout(() => {
-              // Animación de salida
               if (containerRef.current) {
                 gsap.to(containerRef.current, {
                   scale: 0,
@@ -219,7 +204,7 @@ export const AiRecommendationLoader = ({
                   onComplete: onComplete,
                 });
               }
-            }, 1000); // Esperar 1 segundo en 100%
+            }, 1000);
           }, 100);
 
           return 100;
@@ -227,7 +212,7 @@ export const AiRecommendationLoader = ({
 
         return Math.min(prev + increment, 99.5);
       });
-    }, 100); // Actualizar cada 100ms para suavidad
+    }, 100);
 
     return () => {
       clearInterval(phraseInterval);
@@ -237,7 +222,6 @@ export const AiRecommendationLoader = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[999] backdrop-blur-sm">
-      {/* Canvas de partículas de fondo */}
       <canvas
         ref={particlesRef}
         className="absolute inset-0 opacity-30"
@@ -254,7 +238,6 @@ export const AiRecommendationLoader = ({
         }}
       >
         <div className="space-y-6">
-          {/* Título con gradiente */}
           <div className="text-center">
             <h3 className="text-2xl font-bold bg-gradient-to-r from-[#38536E] to-[#E8523B] bg-clip-text text-transparent">
               IA Analizando Proyecto
@@ -264,9 +247,7 @@ export const AiRecommendationLoader = ({
             </p>
           </div>
 
-          {/* Cerebro 3D con órbitas */}
           <div className="relative flex justify-center items-center h-32">
-            {/* Círculos orbitales */}
             {[1, 2, 3].map((_, index) => (
               <div
                 key={index}
@@ -289,7 +270,6 @@ export const AiRecommendationLoader = ({
               />
             ))}
 
-            {/* Cerebro central */}
             <div
               ref={brainRef}
               className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-3xl"
@@ -301,7 +281,6 @@ export const AiRecommendationLoader = ({
               🧠
             </div>
 
-            {/* Puntos de datos flotantes */}
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
@@ -318,7 +297,6 @@ export const AiRecommendationLoader = ({
             ))}
           </div>
 
-          {/* Barra de progreso 3D */}
           <div className="space-y-3">
             <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
               <div
@@ -332,7 +310,6 @@ export const AiRecommendationLoader = ({
                 <div className="absolute inset-0 bg-white opacity-20 animate-pulse" />
               </div>
 
-              {/* Indicador de progreso */}
               <div
                 className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-white shadow-lg border-2 border-[#E8523B] transition-all duration-300"
                 style={{ left: `calc(${progress}% - 12px)` }}
@@ -348,7 +325,6 @@ export const AiRecommendationLoader = ({
             </div>
           </div>
 
-          {/* Frase actual con animación */}
           <div className="text-center min-h-12 flex items-center justify-center">
             <p
               key={currentPhrase}
@@ -358,7 +334,6 @@ export const AiRecommendationLoader = ({
             </p>
           </div>
 
-          {/* Indicadores de estado */}
           <div className="flex justify-center space-x-4 text-sm text-gray-500">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />

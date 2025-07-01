@@ -49,7 +49,6 @@ export function RecommendationCard({
     }>
   >([]);
 
-  // Inicializar partículas
   useEffect(() => {
     const canvas = particleCanvasRef.current;
     if (!canvas) return;
@@ -60,17 +59,14 @@ export function RecommendationCard({
     canvas.width = 400;
     canvas.height = 250;
 
-    // Generar partículas
     const generateParticles = () => {
       const newParticles = [];
       for (let i = 0; i < 20; i++) {
         let color;
 
         if (recommendation.isFramework) {
-          // Colores especiales para frameworks (púrpura/índigo)
-          color = "#8B5CF6"; // Purple-500
+          color = "#8B5CF6";
         } else {
-          // Colores basados en prioridad para recomendaciones normales
           color =
             recommendation.priority === "alta"
               ? "#EF4444"
@@ -94,18 +90,15 @@ export function RecommendationCard({
 
     generateParticles();
 
-    // Animar partículas
     const animateParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       setParticles((prevParticles) => {
         return prevParticles.map((particle) => {
-          // Actualizar posición
           const newX = (particle.x + particle.vx + canvas.width) % canvas.width;
           const newY =
             (particle.y + particle.vy + canvas.height) % canvas.height;
 
-          // Dibujar partícula
           const alpha = particle.life / 100;
           ctx.beginPath();
           ctx.arc(newX, newY, 1, 0, Math.PI * 2);
@@ -133,14 +126,12 @@ export function RecommendationCard({
     }
   }, [isHovered, recommendation.applied, recommendation.priority]);
 
-  // Animaciones GSAP
   useEffect(() => {
     const card = cardRef.current;
     const hologram = hologramRef.current;
 
     if (!card) return;
 
-    // Entrada de la tarjeta con efecto 3D
     gsap.fromTo(
       card,
       {
@@ -156,11 +147,10 @@ export function RecommendationCard({
         opacity: 1,
         duration: 0.8,
         ease: "back.out(1.7)",
-        delay: Math.random() * 0.3, // Entrada escalonada
+        delay: Math.random() * 0.3,
       }
     );
 
-    // Animación de holograma
     if (hologram && !recommendation.applied) {
       gsap.to(hologram, {
         rotationY: 360,
@@ -178,7 +168,6 @@ export function RecommendationCard({
       });
     }
 
-    // Hover effects
     const handleMouseEnter = () => {
       setIsHovered(true);
       if (!recommendation.applied) {
@@ -217,7 +206,6 @@ export function RecommendationCard({
 
     const card = cardRef.current;
     if (card) {
-      // Animación de aplicación
       gsap.to(card, {
         scale: 0.95,
         duration: 0.1,
@@ -285,7 +273,6 @@ export function RecommendationCard({
     const priority = recommendation.priority || "baja";
     const badge = badges[priority];
 
-    // Fallback si no existe la prioridad
     if (!badge) {
       return (
         <Badge variant="outline" className="shadow-gray-500/50 shadow-lg">
@@ -315,7 +302,6 @@ export function RecommendationCard({
   };
 
   const getGradientByPriority = () => {
-    // Si es una recomendación de framework, usar gradientes especiales
     if (recommendation.isFramework) {
       return "from-purple-500/20 via-indigo-500/20 to-blue-500/20";
     }
@@ -346,7 +332,6 @@ export function RecommendationCard({
 
   return (
     <div className="relative">
-      {/* Canvas de partículas de fondo */}
       <canvas
         ref={particleCanvasRef}
         className="absolute inset-0 pointer-events-none opacity-30"
@@ -376,7 +361,6 @@ export function RecommendationCard({
           transformStyle: "preserve-3d",
         }}
       >
-        {/* Efecto holograma especial para frameworks */}
         {!recommendation.applied && (
           <div
             ref={hologramRef}
@@ -417,7 +401,6 @@ export function RecommendationCard({
             </div>
           </div>
 
-          {/* Línea decorativa animada especial para frameworks */}
           <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 to-transparent mt-3 overflow-hidden">
             <div
               className={`h-full w-1/3 ${
@@ -437,7 +420,6 @@ export function RecommendationCard({
             {recommendation.description}
           </p>
 
-          {/* Información adicional */}
           {recommendation.relatedTasks &&
             recommendation.relatedTasks.length > 0 && (
               <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -483,7 +465,6 @@ export function RecommendationCard({
           </div>
         </CardContent>
 
-        {/* Efecto de brillo en hover */}
         {!recommendation.applied && (
           <div
             className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity duration-300 pointer-events-none"

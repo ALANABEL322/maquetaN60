@@ -1,19 +1,9 @@
 import axios from "axios";
 import { useAuthStore, UserRole } from "@/store/authStore";
 
-// 🚫 STRAPI DESHABILITADO - Lógica de autenticación comentada
-// API_URL original: "http://34.238.122.213:1337/api"
 export const API_URL = "http://34.238.122.213:1337/api";
 
-// 🔐 CREDENCIALES MOCKEADAS DISPONIBLES:
-// 👤 ADMIN: admin@test.com / admin123
-// 👤 ADMIN: ADMIN123@gmail.com / ADMIN123 (admin del sistema)
-// 👤 USER: user@test.com / user123
-// 👤 USER: user2@test.com / user456
-
-// 🎭 DATOS MOCKEADOS PARA TESTING
 const MOCK_USERS = [
-  // Usuarios Admin
   {
     id: "admin-1",
     email: "admin@test.com",
@@ -22,21 +12,13 @@ const MOCK_USERS = [
     role: "admin" as UserRole,
   },
   {
-    id: "admin-2",
-    email: "admin2@test.com",
-    password: "admin456",
-    username: "Admin Secundario",
-    role: "admin" as UserRole,
-  },
-  // Admin del sistema (mantener para compatibilidad)
-  {
     id: "system-admin",
     email: "ADMIN123@gmail.com",
     password: "ADMIN123",
     username: "System Administrator",
     role: "admin" as UserRole,
   },
-  // Usuarios normales
+
   {
     id: "user-1",
     email: "user@test.com",
@@ -44,31 +26,11 @@ const MOCK_USERS = [
     username: "Usuario Test",
     role: "user" as UserRole,
   },
-  {
-    id: "user-2",
-    email: "user2@test.com",
-    password: "user456",
-    username: "María González",
-    role: "user" as UserRole,
-  },
-  {
-    id: "user-3",
-    email: "juan@test.com",
-    password: "juan123",
-    username: "Juan Pérez",
-    role: "user" as UserRole,
-  },
 ];
 
 export const api = {
   async login(email: string, password: string) {
     try {
-      console.log("🔐 Intentando iniciar sesión con email:", email);
-
-      // 🎭 USAR DATOS MOCKEADOS EN LUGAR DE STRAPI
-      console.log("🎯 Usando autenticación con datos mockeados...");
-
-      // Buscar usuario en datos mockeados
       const mockUser = MOCK_USERS.find(
         (user) =>
           user.email.toLowerCase() === email.toLowerCase() &&
@@ -82,8 +44,6 @@ export const api = {
           username: mockUser.username,
           role: mockUser.role,
         };
-
-        console.log("✅ Usuario mockeado encontrado:", user);
         useAuthStore.getState().setAuthenticatedUser(user);
         return { success: true, user };
       }
@@ -91,7 +51,7 @@ export const api = {
       console.log("❌ Usuario no encontrado en datos mockeados");
       return { success: false, error: "Credenciales incorrectas" };
 
-      // 📝 CÓDIGO STRAPI COMPLETAMENTE COMENTADO
+      // 📝 CÓDIGO STRAPI COMENTADO
       /*
       const response = await axios.get(`${API_URL}/users`, {
         params: {
@@ -141,8 +101,6 @@ export const api = {
       };
     }
   },
-
-  // 🎭 FUNCIÓN AUXILIAR PARA OBTENER USUARIOS MOCKEADOS (para debugging)
   getMockUsers() {
     return MOCK_USERS.map((user) => ({
       email: user.email,

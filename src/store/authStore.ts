@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-// import axios from "axios"; // 🚫 STRAPI DESHABILITADO
-// import { API_URL } from "@/api/auth"; // 🚫 STRAPI DESHABILITADO
 
 export type UserRole = "admin" | "user";
 
@@ -48,7 +46,6 @@ export const useAuthStore = create<AuthState>()(
       login: async (email, password) => {
         console.log("🔄 AuthStore: Procesando login para", email);
 
-        // 🔹 Verificar usuarios locales primero
         const localUser = get().findLocalUserByEmail(email);
         if (localUser && localUser.password === password) {
           set({
