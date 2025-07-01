@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
-import { API_URL } from "@/api/auth";
+// import axios from "axios"; // 🚫 STRAPI DESHABILITADO
+// import { API_URL } from "@/api/auth"; // 🚫 STRAPI DESHABILITADO
 
 export type UserRole = "admin" | "user";
 
@@ -23,7 +23,7 @@ interface AuthState {
   isUser: () => boolean;
   role: UserRole | null;
   login: (email: string, password: string) => Promise<boolean>;
-  setAuthenticatedUser: (user: User) => void; // 🆕 Para manejar login desde API mockeada
+  setAuthenticatedUser: (user: User) => void;
   registerLocalUser: (user: Omit<User, "id">) => User;
   logout: () => void;
   findLocalUserByEmail: (email: string) => User | undefined;
@@ -46,28 +46,9 @@ export const useAuthStore = create<AuthState>()(
       isUser: () => get().user?.role === "user",
 
       login: async (email, password) => {
-        // 🎭 SISTEMA SIMPLIFICADO - Ya no necesitamos lógica aquí
-        // porque api.login() maneja toda la autenticación con datos mockeados
         console.log("🔄 AuthStore: Procesando login para", email);
 
-        // 🔹 USUARIO NORMAL MOCKEADO
-        if (email === "user@test.com" && password === "user123") {
-          const normalUser: User = {
-            id: "user-normal",
-            email: "user@test.com",
-            username: "Usuario Normal",
-            role: "user",
-          };
-          set({
-            user: normalUser,
-            currentUser: normalUser,
-            isAuthenticated: true,
-            role: "user",
-          });
-          return true;
-        }
-
-
+        // 🔹 Verificar usuarios locales primero
         const localUser = get().findLocalUserByEmail(email);
         if (localUser && localUser.password === password) {
           set({
@@ -80,35 +61,12 @@ export const useAuthStore = create<AuthState>()(
           return true;
         }
 
+        // 🚫 TODA LA LÓGICA DE STRAPI COMENTADA
+        // La autenticación principal ahora se maneja en api.login()
+        // que usa setAuthenticatedUser() para establecer el estado
 
-        // 🚫 LÓGICA DE STRAPI COMENTADA
-        // const response = await axios.get(`${API_URL}/users`, {
-        //   params: {
-        //     "filters[email][$eq]": email,
-        //   },
-        // });
-
-        // const users = response.data;
-        // if (users && users.length > 0) {
-        //   const userData = users[0];
-        //   const user: User = {
-        //     id: userData.id,
-        //     email: userData.email,
-        //     username: userData.username || email.split("@")[0],
-        //     role: email.includes("admin") ? "admin" : "user",
-        //   };
-        //   set({
-        //     user,
-        //     currentUser: user,
-        //     isAuthenticated: true,
-        //     role: user.role,
-        //   });
-        //   return true;
-        // }
-
-
-        // 📝 CÓDIGO STRAPI COMENTADO - Ya no se usa
         /*
+        // 📝 CÓDIGO STRAPI COMPLETAMENTE COMENTADO
         const response = await axios.get(`${API_URL}/users`, {
           params: {
             "filters[email][$eq]": email,
@@ -133,7 +91,6 @@ export const useAuthStore = create<AuthState>()(
           return true;
         }
         */
-
 
         console.log("❌ AuthStore: Credenciales no válidas");
         return false;

@@ -1,13 +1,15 @@
 import axios from "axios";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, UserRole } from "@/store/authStore";
 
 // 🚫 STRAPI DESHABILITADO - Lógica de autenticación comentada
 // API_URL original: "http://34.238.122.213:1337/api"
 export const API_URL = "http://34.238.122.213:1337/api";
 
 // 🔐 CREDENCIALES MOCKEADAS DISPONIBLES:
-// 👤 ADMIN: ADMIN123@gmail.com / ADMIN123
-// 👤 USER:  user@test.com / user123
+// 👤 ADMIN: admin@test.com / admin123
+// 👤 ADMIN: ADMIN123@gmail.com / ADMIN123 (admin del sistema)
+// 👤 USER: user@test.com / user123
+// 👤 USER: user2@test.com / user456
 
 // 🎭 DATOS MOCKEADOS PARA TESTING
 const MOCK_USERS = [
@@ -17,36 +19,14 @@ const MOCK_USERS = [
     email: "admin@test.com",
     password: "admin123",
     username: "Administrador Test",
-    role: "admin",
+    role: "admin" as UserRole,
   },
   {
     id: "admin-2",
     email: "admin2@test.com",
     password: "admin456",
     username: "Admin Secundario",
-    role: "admin",
-  },
-  // Usuarios normales
-  {
-    id: "user-1",
-    email: "user@test.com",
-    password: "user123",
-    username: "Usuario Test",
-    role: "user",
-  },
-  {
-    id: "user-2",
-    email: "user2@test.com",
-    password: "user456",
-    username: "María González",
-    role: "user",
-  },
-  {
-    id: "user-3",
-    email: "juan@test.com",
-    password: "juan123",
-    username: "Juan Pérez",
-    role: "user",
+    role: "admin" as UserRole,
   },
   // Admin del sistema (mantener para compatibilidad)
   {
@@ -54,7 +34,29 @@ const MOCK_USERS = [
     email: "ADMIN123@gmail.com",
     password: "ADMIN123",
     username: "System Administrator",
-    role: "admin",
+    role: "admin" as UserRole,
+  },
+  // Usuarios normales
+  {
+    id: "user-1",
+    email: "user@test.com",
+    password: "user123",
+    username: "Usuario Test",
+    role: "user" as UserRole,
+  },
+  {
+    id: "user-2",
+    email: "user2@test.com",
+    password: "user456",
+    username: "María González",
+    role: "user" as UserRole,
+  },
+  {
+    id: "user-3",
+    email: "juan@test.com",
+    password: "juan123",
+    username: "Juan Pérez",
+    role: "user" as UserRole,
   },
 ];
 
@@ -86,7 +88,10 @@ export const api = {
         return { success: true, user };
       }
 
-      // 📝 CÓDIGO STRAPI COMENTADO PARA REFERENCIA
+      console.log("❌ Usuario no encontrado en datos mockeados");
+      return { success: false, error: "Credenciales incorrectas" };
+
+      // 📝 CÓDIGO STRAPI COMPLETAMENTE COMENTADO
       /*
       const response = await axios.get(`${API_URL}/users`, {
         params: {
@@ -107,13 +112,10 @@ export const api = {
         };
         console.log("✅ Usuario encontrado:", user);
 
-        useAuthStore.getState().login(user.email, password);
+        useAuthStore.getState().setAuthenticatedUser(user);
         return { success: true, user };
       }
       */
-
-      console.log("❌ Usuario no encontrado en datos mockeados");
-      return { success: false, error: "Credenciales incorrectas" };
     } catch (error) {
       console.error("❌ Error en login:", error);
       return { success: false, error: "Error al intentar iniciar sesión" };
