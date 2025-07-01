@@ -1,8 +1,5 @@
-// 🎭 CREDENCIALES MOCKEADAS PARA TESTING
-// Este archivo contiene todas las credenciales disponibles para pruebas
 
 export const MOCK_CREDENTIALS = {
-  // 👑 ADMINISTRADORES
   admins: [
     {
       email: "admin@test.com",
@@ -23,8 +20,6 @@ export const MOCK_CREDENTIALS = {
       description: "Admin del sistema (legacy)",
     },
   ],
-
-  // 👤 USUARIOS NORMALES
   users: [
     {
       email: "user@test.com",
@@ -47,7 +42,6 @@ export const MOCK_CREDENTIALS = {
   ],
 };
 
-// 🚀 FUNCIÓN PARA MOSTRAR CREDENCIALES EN CONSOLA
 export const showAvailableCredentials = () => {
   console.group("🎭 CREDENCIALES DISPONIBLES PARA TESTING");
 
@@ -68,7 +62,6 @@ export const showAvailableCredentials = () => {
   console.groupEnd();
 };
 
-// 🎯 CREDENCIALES RÁPIDAS PARA COPIAR/PEGAR
 export const QUICK_LOGIN = {
   ADMIN: { email: "admin@test.com", password: "admin123" },
   USER: { email: "user@test.com", password: "user123" },

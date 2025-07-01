@@ -73,7 +73,6 @@ export default function MonitoreoIA() {
   const [isGeneratingRecommendations, setIsGeneratingRecommendations] =
     useState(false);
 
-  // Referencias para animaciones GSAP
   const aiButtonRef = useRef<HTMLButtonElement>(null);
   const sparklesRef = useRef<HTMLDivElement>(null);
 
@@ -190,14 +189,12 @@ export default function MonitoreoIA() {
     setIsGeneratingRecommendations(true);
   };
 
-  // Animaciones GSAP para el botón de IA
   useEffect(() => {
     const button = aiButtonRef.current;
     const sparkles = sparklesRef.current;
 
     if (!button) return;
 
-    // Animación de entrada del botón
     gsap.fromTo(
       button,
       {
@@ -213,7 +210,6 @@ export default function MonitoreoIA() {
       }
     );
 
-    // Pulsación periódica
     gsap.to(button, {
       scale: 1.05,
       duration: 1.5,
@@ -222,7 +218,6 @@ export default function MonitoreoIA() {
       ease: "power2.inOut",
     });
 
-    // Eventos de hover
     const handleMouseEnter = () => {
       gsap.to(button, {
         scale: 1.1,
@@ -533,7 +528,6 @@ export default function MonitoreoIA() {
           Ir Atrás
         </Button>
 
-        {/* Botón de IA Sofisticado */}
         <div className="relative">
           <Button
             ref={aiButtonRef}
@@ -546,7 +540,6 @@ export default function MonitoreoIA() {
                 "0 10px 25px rgba(56, 83, 110, 0.5), 0 0 30px rgba(56, 83, 110, 0.3)",
             }}
           >
-            {/* Elementos decorativos flotantes */}
             <div className="absolute -top-1 -left-1 w-3 h-3 bg-white/30 rounded-full animate-pulse" />
             <div
               className="absolute -bottom-1 -right-1 w-2 h-2 bg-white/40 rounded-full"
@@ -555,7 +548,6 @@ export default function MonitoreoIA() {
               }}
             />
 
-            {/* Efecto de brillo que se mueve */}
             <div
               className="absolute inset-0 opacity-0 hover:opacity-30 transition-opacity duration-300"
               style={{
@@ -566,7 +558,6 @@ export default function MonitoreoIA() {
               }}
             />
 
-            {/* Contenido del botón */}
             <div className="relative flex items-center gap-3 z-10">
               <div className="relative">
                 <Brain className="w-6 h-6" />
@@ -602,11 +593,9 @@ export default function MonitoreoIA() {
               )}
             </div>
 
-            {/* Borde holográfico */}
             <div className="absolute inset-0 rounded-lg border-2 border-transparent bg-gradient-to-r from-[#38536E] via-[#38536E] to-[#38536E] opacity-30" />
           </Button>
 
-          {/* Partículas flotantes alrededor del botón */}
           {!isGeneratingRecommendations &&
             Array.from({ length: 6 }).map((_, i) => (
               <div
@@ -625,7 +614,6 @@ export default function MonitoreoIA() {
         </div>
       </div>
 
-      {/* Nuevo Modal 3D de Recomendaciones */}
       <AIRecommendationModal
         open={isRecommendationModalOpen}
         onOpenChange={setIsRecommendationModalOpen}
