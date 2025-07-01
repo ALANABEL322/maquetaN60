@@ -16,7 +16,6 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // 🎭 Mostrar credenciales disponibles en desarrollo
   useEffect(() => {
     showAvailableCredentials();
   }, []);
@@ -31,7 +30,6 @@ export default function LoginForm() {
         const userRole = response.user.role;
         console.log("🚀 Login exitoso, redirigiendo usuario:", userRole);
 
-        // Redirección corregida por rol
         if (userRole === "admin") {
           navigate(paths.admin.perfil);
         } else {
@@ -45,7 +43,6 @@ export default function LoginForm() {
     }
   };
 
-  // 🎯 Funciones para login rápido en desarrollo
   const quickLoginAdmin = () => {
     setEmail(QUICK_LOGIN.ADMIN.email);
     setPassword(QUICK_LOGIN.ADMIN.password);
@@ -101,7 +98,6 @@ export default function LoginForm() {
         </Button>
       </form>
 
-      {/* 🎭 BOTONES DE LOGIN RÁPIDO PARA TESTING */}
       <div className="mt-4 space-y-2">
         <div className="text-xs text-center text-gray-500 mb-2">
           🎭 Testing rápido:

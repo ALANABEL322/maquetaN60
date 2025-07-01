@@ -57,7 +57,6 @@ export function AIRecommendationModal({
     }>
   >([]);
 
-  // Inicializar sistema de partículas
   useEffect(() => {
     if (!open) return;
 
@@ -70,7 +69,6 @@ export function AIRecommendationModal({
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Generar partículas
     const generateParticles = () => {
       const newParticles = [];
       const colors = ["#3B82F6", "#8B5CF6", "#06B6D4", "#10B981", "#F59E0B"];
@@ -91,21 +89,17 @@ export function AIRecommendationModal({
 
     generateParticles();
 
-    // Animar partículas
     const animateParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       setParticles((prevParticles) => {
         return prevParticles.map((particle) => {
-          // Actualizar posición
           const newX = (particle.x + particle.vx + canvas.width) % canvas.width;
           const newY =
             (particle.y + particle.vy + canvas.height) % canvas.height;
 
-          // Dibujar partícula con glow
           const alpha = (particle.life / 100) * 0.6;
 
-          // Efecto glow
           ctx.shadowBlur = 10;
           ctx.shadowColor = particle.color;
 
@@ -118,10 +112,8 @@ export function AIRecommendationModal({
               .padStart(2, "0");
           ctx.fill();
 
-          // Reset shadow
           ctx.shadowBlur = 0;
 
-          // Crear conexiones entre partículas cercanas
           prevParticles.forEach((otherParticle) => {
             const dx = newX - otherParticle.x;
             const dy = newY - otherParticle.y;
@@ -156,7 +148,6 @@ export function AIRecommendationModal({
     animateParticles();
   }, [open]);
 
-  // Animaciones GSAP
   useEffect(() => {
     if (!open) return;
 
@@ -166,7 +157,6 @@ export function AIRecommendationModal({
 
     if (!modal || !header || !background) return;
 
-    // Entrada del modal con efectos 3D
     gsap.fromTo(
       background,
       {
@@ -198,7 +188,6 @@ export function AIRecommendationModal({
       }
     );
 
-    // Animación del header
     gsap.fromTo(
       header,
       {
@@ -214,7 +203,6 @@ export function AIRecommendationModal({
       }
     );
 
-    // Animación de las tarjetas con delay escalonado
     const cards = modal.querySelectorAll("[data-recommendation-card]");
     gsap.fromTo(
       cards,
@@ -240,7 +228,6 @@ export function AIRecommendationModal({
     const background = backgroundRef.current;
 
     if (modal && background) {
-      // Animación de salida
       gsap.to(background, {
         opacity: 0,
         backdropFilter: "blur(0px)",
@@ -271,14 +258,12 @@ export function AIRecommendationModal({
           "radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%)",
       }}
     >
-      {/* Canvas de partículas de fondo */}
       <canvas
         ref={particleCanvasRef}
         className="absolute inset-0 opacity-40"
         style={{ mixBlendMode: "screen" }}
       />
 
-      {/* Modal principal */}
       <div
         ref={modalRef}
         className="relative bg-white rounded-3xl shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
@@ -289,7 +274,6 @@ export function AIRecommendationModal({
             "0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
         }}
       >
-        {/* Botón X para cerrar - Esquina superior derecha */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 z-50 group p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 cursor-pointer"
@@ -300,14 +284,11 @@ export function AIRecommendationModal({
         >
           <X className="w-5 h-5 text-white/80 group-hover:text-white group-hover:rotate-90 transition-all duration-300" />
 
-          {/* Efecto de glow en hover */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400/0 to-red-400/0 group-hover:from-red-400/20 group-hover:to-pink-400/20 transition-all duration-300" />
 
-          {/* Ring effect en hover */}
           <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-white/30 group-hover:scale-110 transition-all duration-300" />
         </button>
 
-        {/* Header con efectos holográficos */}
         <div
           ref={headerRef}
           className="relative p-8 border-b border-gray-200/50"
@@ -315,7 +296,6 @@ export function AIRecommendationModal({
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           }}
         >
-          {/* Elementos decorativos flotantes */}
           <div className="absolute top-4 left-8 w-8 h-8 rounded-full bg-white/20 animate-pulse" />
           <div className="absolute top-8 right-16 w-4 h-4 rounded-full bg-white/30 animate-bounce" />
           <div
@@ -347,7 +327,6 @@ export function AIRecommendationModal({
           </div>
         </div>
 
-        {/* Contenido */}
         <div className="p-8 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           {recommendations.length > 0 ? (
             <div className="space-y-6">
@@ -380,7 +359,6 @@ export function AIRecommendationModal({
           )}
         </div>
 
-        {/* Barra de progreso decorativa */}
         <div className="mt-6 h-2 bg-white/20 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
