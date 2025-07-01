@@ -1,14 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // 🚫 No usado
 import { RecommendationCard } from "@/components/recomendationCard";
-import { Button } from "@/components/ui/button";
 import { Sparkles, Brain, X } from "lucide-react";
 
 interface AIRecommendation {
@@ -45,7 +38,7 @@ export function AIRecommendationModal({
   const headerRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [particles, setParticles] = useState<
+  const [_particles, setParticles] = useState<
     Array<{
       x: number;
       y: number;
@@ -69,9 +62,10 @@ export function AIRecommendationModal({
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const colors = ["#3B82F6", "#8B5CF6", "#06B6D4", "#10B981"];
+
     const generateParticles = () => {
       const newParticles = [];
-      const colors = ["#3B82F6", "#8B5CF6", "#06B6D4", "#10B981", "#F59E0B"];
 
       for (let i = 0; i < 100; i++) {
         newParticles.push({
@@ -79,8 +73,8 @@ export function AIRecommendationModal({
           y: Math.random() * canvas.height,
           vx: (Math.random() - 0.5) * 2,
           vy: (Math.random() - 0.5) * 2,
-          life: Math.random() * 100,
-          size: Math.random() * 3 + 1,
+          life: 100,
+          size: 3,
           color: colors[Math.floor(Math.random() * colors.length)],
         });
       }
@@ -123,7 +117,7 @@ export function AIRecommendationModal({
               ctx.beginPath();
               ctx.moveTo(newX, newY);
               ctx.lineTo(otherParticle.x, otherParticle.y);
-              ctx.strokeStyle = `rgba(59, 130, 246, ${
+              ctx.strokeStyle = `rgba(${particle.color.slice(0, 7)}, ${
                 (1 - distance / 150) * 0.2
               })`;
               ctx.lineWidth = 1;
@@ -330,7 +324,7 @@ export function AIRecommendationModal({
         <div className="p-8 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           {recommendations.length > 0 ? (
             <div className="space-y-6">
-              {recommendations.map((recommendation, index) => (
+              {recommendations.map((recommendation, _index) => (
                 <div
                   key={recommendation.id}
                   data-recommendation-card

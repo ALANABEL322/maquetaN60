@@ -34,7 +34,7 @@ export const AiRecommendationLoader = ({
   const brainRef = useRef<HTMLDivElement>(null);
   const circleRefs = useRef<HTMLDivElement[]>([]);
   const particlesRef = useRef<HTMLCanvasElement>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
+  const [_particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     const initialParticles: Particle[] = [];

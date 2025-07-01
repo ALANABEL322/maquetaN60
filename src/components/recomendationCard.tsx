@@ -38,7 +38,7 @@ export function RecommendationCard({
   const hologramRef = useRef<HTMLDivElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [particles, setParticles] = useState<
+  const [_particles, setParticles] = useState<
     Array<{
       x: number;
       y: number;

@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { paths } from "./paths";
 
@@ -13,8 +13,6 @@ export default function ProtectedRoute({
   adminOnly = false,
   userOnly = false,
 }: ProtectedRouteProps) {
-  const location = useLocation();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAdmin = useAuthStore((state) => state.isAdmin());
 
   // Redirigir si no está autenticado
@@ -31,8 +29,8 @@ export default function ProtectedRoute({
 
   // Usuario normal intentando acceder a ruta de admin
   if (adminOnly && !isAdmin) {
-        return <Navigate to={paths.user.landingPage} replace />;
-      }
+    return <Navigate to={paths.user.landingPage} replace />;
+  }
 
   return <>{children}</>;
 }

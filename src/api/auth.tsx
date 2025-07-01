@@ -1,4 +1,4 @@
-import axios from "axios";
+// import axios from "axios"; // 🚫 COMENTADO - No se usa con datos mockeados
 import { useAuthStore, UserRole } from "@/store/authStore";
 
 export const API_URL = "http://34.238.122.213:1337/api";

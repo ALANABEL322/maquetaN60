@@ -42,8 +42,6 @@ export default function Monitoreo() {
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === "finalizada").length;
-  const inProgressTasks = tasks.filter((t) => t.status === "en-curso").length;
-  const todoTasks = tasks.filter((t) => t.status === "por-hacer").length;
 
   const progress =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;

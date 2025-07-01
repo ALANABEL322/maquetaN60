@@ -13,14 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activity, GanttChartSquare, Sparkles, Brain } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { RecommendationCard } from "@/components/recomendationCard";
+// import { // 🚫 Imports no usados comentados
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogDescription,
+// } from "@/components/ui/dialog";
+// import { RecommendationCard } from "@/components/recomendationCard"; // 🚫 No usado
 import { AiRecommendationLoader } from "@/components/IARecomendationLoader";
 import { AIRecommendationModal } from "@/components/AIRecommendationModal";
 import gsap from "gsap";
@@ -155,21 +155,21 @@ export default function MonitoreoIA() {
     ],
   });
 
-  const generateAIRecommendations = () => {
-    if (!projectId) return;
+  // const generateAIRecommendations = () => { // 🚫 Función no usada comentada
+  //   if (!projectId) return;
 
-    const recommendations = useTaskStore
-      .getState()
-      .generateAIRecommendations(projectId);
-    setAiRecommendations(recommendations);
-    setIsRecommendationModalOpen(true);
-  };
+  //   const recommendations = useTaskStore
+  //     .getState()
+  //     .generateAIRecommendations(projectId);
+  //   setAiRecommendations(recommendations);
+  //   setIsRecommendationModalOpen(true);
+  // };
 
-  const handleApplyRecommendation = (recommendationId: string) => {
-    if (!projectId) return;
+  // const handleApplyRecommendation = (recommendationId: string) => { // 🚫 Función no usada comentada
+  //   if (!projectId) return;
 
-    useTaskStore.getState().applyRecommendation(projectId, recommendationId);
-  };
+  //   useTaskStore.getState().applyRecommendation(projectId, recommendationId);
+  // };
 
   const handleTabChange = (value: string) => {
     if (value === "gantt") {

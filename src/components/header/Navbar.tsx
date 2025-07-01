@@ -1,16 +1,8 @@
 import { useAuthStore } from "@/store/authStore";
-import { useNavigate } from "react-router-dom";
 import logo from "../../assets/LeadtyLogo.png";
-import { paths } from "@/routes/paths";
 
 export default function Navbar() {
-  const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate(paths.auth.login);
-  };
+  const { user } = useAuthStore();
 
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">

@@ -1,28 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { api } from "@/api/auth";
 import { Link, useNavigate } from "react-router-dom";
+import { paths } from "@/routes/paths";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { paths } from "@/routes/paths";
-import { useAuthStore } from "@/store/authStore";
-import { showAvailableCredentials, QUICK_LOGIN } from "@/data/mockCredentials";
+import { QUICK_LOGIN } from "@/data/mockCredentials";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    showAvailableCredentials();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     try {
       const response = await api.login(email, password);
@@ -36,10 +29,16 @@ export default function LoginForm() {
           navigate(paths.user.landingPage);
         }
       } else {
-        setError(response.error || "Error al iniciar sesión");
+        console.error(
+          "Error al iniciar sesión:",
+          response.error || "Error desconocido"
+        );
       }
     } catch (err) {
-      setError("Error al iniciar sesión");
+      console.error(
+        "Error al iniciar sesión:",
+        err instanceof Error ? err.message : "Error desconocido"
+      );
     }
   };
 

@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 
 export default function Tareas() {
   const location = useLocation();
-  const [focusArea, setFocusArea] = useState<string | null>(null);
   const { projectId } = useParams();
   const { getTeamById, reinforcements } = useCreateProjectStore();
   const project = useCreateProjectStore((state) =>
@@ -44,8 +43,6 @@ export default function Tareas() {
 
   useEffect(() => {
     if (location.state?.focus) {
-      setFocusArea(location.state.focus);
-
       switch (location.state.focus) {
         case "assign-members":
           break;
@@ -217,7 +214,6 @@ function TaskColumn({
   onAssignMember,
   onUnassignMember,
   currentMemberId,
-  focusArea,
 }: {
   title: string;
   status: Status;
@@ -231,7 +227,6 @@ function TaskColumn({
   onUnassignMember: (taskId: string, memberId: string) => void;
   onUpdateTask: (id: string, updates: Partial<Task>) => void;
   currentMemberId?: string;
-  focusArea?: string | null;
 }) {
   const statusColors = {
     "por-hacer": "bg-red-200 text-red-800",
@@ -240,14 +235,7 @@ function TaskColumn({
   };
 
   return (
-    <div
-      className={cn(
-        "space-y-4",
-        focusArea === "assign-members" && status === "por-hacer"
-          ? "ring-2 ring-blue-500 rounded-lg p-1"
-          : ""
-      )}
-    >
+    <div className={cn("space-y-4")}>
       <div className="flex items-center justify-between">
         <div
           className={`${statusColors[status]} py-2 px-4 rounded-md text-center font-medium`}

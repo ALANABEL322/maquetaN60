@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   Priority,
-  AIRecommendationType,
+  // AIRecommendationType, // 🚫 No usado
   Task,
   Comment,
   TaskInput,
@@ -10,6 +10,7 @@ import {
   AIRecommendation,
   Status,
   TaskStatus,
+  // Project, // 🚫 No usado
 } from "@/types/typesTask";
 import { statusToGanttStatus } from "@/types/typesTask";
 
@@ -424,7 +425,7 @@ export const useTaskStore = create<TaskStore>()(
         aiRecommendations: state.aiRecommendations,
       }),
       version: 3,
-      migrate: (persistedState: any, version) => {
+      migrate: (persistedState: any, _version) => {
         return persistedState;
       },
     }
