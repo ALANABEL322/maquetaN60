@@ -82,7 +82,7 @@ export default function SidebarUser() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => navigate(paths.user.tareas)}
+                    onClick={() => navigate(paths.user.tareasSelector)}
                     className="w-full"
                   >
                     <FilePenLine className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default function SidebarUser() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => navigate(paths.user.monitoreo)}
+                    onClick={() => navigate(paths.user.monitoreoSelector)}
                     className="w-full"
                   >
                     <Cctv className="h-4 w-4" />

@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import MonitoreoSteps from "@/components/monitoreoSteps";
+import ProjectSelector from "@/components/ProjectSelector";
 
 export default function Monitoreo() {
   const { projectId } = useParams();
@@ -123,7 +124,13 @@ export default function Monitoreo() {
   ];
 
   if (!project) {
-    return <MonitoreoSteps />;
+    return (
+      <ProjectSelector
+        mode="monitoreo"
+        title="Selecciona un proyecto"
+        description="Elige el proyecto para el cual deseas ver el monitoreo"
+      />
+    );
   }
 
   return (

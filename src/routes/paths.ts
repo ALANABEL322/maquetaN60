@@ -1,5 +1,4 @@
 export const paths = {
-
   auth: {
     login: "/login",
     register: "/register",
@@ -19,9 +18,11 @@ export const paths = {
     createProject: "/user/createProject",
     projects: "/user/projects",
     tareas: "/user/tareas/:projectId",
+    tareasSelector: "/user/tareas",
     capacitacion: "/user/capacitacion",
     tutoriales: "/user/tutoriales",
     monitoreo: "/user/monitoreo/:projectId",
+    monitoreoSelector: "/user/monitoreo",
     monitoreoIA: "/user/monitoreoIA/:projectId",
     support: "/user/support",
   },

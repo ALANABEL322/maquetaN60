@@ -111,6 +111,10 @@ export const userRoutes: RouteObject[] = [
         element: <Tareas />,
       },
       {
+        path: paths.user.tareasSelector,
+        element: <Tareas />,
+      },
+      {
         path: paths.user.capacitacion,
         element: <Capacitacion />,
       },
@@ -120,6 +124,10 @@ export const userRoutes: RouteObject[] = [
       },
       {
         path: paths.user.monitoreo,
+        element: <Monitoreo />,
+      },
+      {
+        path: paths.user.monitoreoSelector,
         element: <Monitoreo />,
       },
       {
