@@ -8,6 +8,7 @@ import {
   UserPlus,
   Trash2,
   ChevronDown,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
@@ -341,7 +342,6 @@ function TaskColumn({
             />
           ))}
 
-          {/* Área de drop visible cuando está vacía o cuando se arrastra sobre ella */}
           {(tasks.length === 0 || (isDraggedOver && draggedTaskId)) && (
             <div
               className={cn(
@@ -592,7 +592,7 @@ function TaskCard({
                 onClick={() => setIsDetailsModalOpen(true)}
                 title="Editar detalles"
               >
-                <Eye className="h-3 w-3" />
+                <Pencil className="h-3 w-3" />
               </Button>
             </div>
           </div>

@@ -165,166 +165,180 @@ export function TaskDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar detalles de la tarea</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label htmlFor="name" className="text-right">
+        <div className="grid gap-3 py-2">
+          {/* Título */}
+          <div className="grid grid-cols-4 items-center gap-3">
+            <label htmlFor="name" className="text-right text-sm">
               Título
             </label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
+              className="col-span-3 h-8"
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right">Fecha de inicio</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "col-span-3 justify-start text-left font-normal",
-                    !startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formatDateDisplay(startDate)}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+          {/* Fechas en una fila */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                Fecha inicio
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-8 text-xs",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    {startDate ? formatDateDisplay(startDate) : "Seleccionar"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Fecha fin</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-8 text-xs",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    {endDate ? formatDateDisplay(endDate) : "Seleccionar"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <label className="text-right">Fecha de fin</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "col-span-3 justify-start text-left font-normal",
-                    !endDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formatDateDisplay(endDate)}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="grid grid-cols-4 items-start gap-4">
-            <label htmlFor="description" className="text-right mt-2">
+          {/* Descripción */}
+          <div className="space-y-1">
+            <label
+              htmlFor="description"
+              className="text-xs text-muted-foreground"
+            >
               Descripción
             </label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="col-span-3"
-              rows={3}
+              className="text-sm"
+              rows={2}
             />
           </div>
 
-          <div className="grid grid-cols-4 items-start gap-4">
-            <div className="text-right mt-2 space-y-4">
-              <label htmlFor="comments">Miembros</label>
-              <div className="flex flex-col items-center space-y-2">
+          {/* Miembros asignados */}
+          {assignedMembers.length > 0 && (
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground">
+                Miembros asignados
+              </label>
+              <div className="flex flex-wrap gap-2">
                 {assignedMembers.map((member) => (
-                  <div key={member.id} className="flex flex-col items-center">
-                    <Avatar className="h-10 w-10">
+                  <div
+                    key={member.id}
+                    className="flex items-center gap-2 bg-gray-50 rounded-full px-2 py-1"
+                  >
+                    <Avatar className="h-6 w-6">
                       <AvatarImage src={member.photo} />
-                      <AvatarFallback>
+                      <AvatarFallback className="text-xs">
                         {member.firstName.charAt(0)}
                         {member.lastName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-xs text-center mt-1">
-                      {member.firstName}
-                    </span>
+                    <span className="text-xs">{member.firstName}</span>
                   </div>
                 ))}
               </div>
             </div>
+          )}
 
-            <div className="col-span-3 space-y-4">
-              {/* Sección de comentarios existentes con scroll */}
-              <div className="border rounded p-2 max-h-40 overflow-y-auto">
-                <h4 className="text-sm font-medium mb-2">
-                  Comentarios existentes
-                </h4>
-                {comments.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No hay comentarios aún
-                  </p>
-                ) : (
-                  <div className="space-y-3">
-                    {comments.map((comment) => {
-                      const commentAuthor = teamMembers.find(
-                        (m) => m.id === comment.memberId
-                      );
-                      return (
-                        <div
-                          key={comment.id}
-                          className="p-2 border rounded bg-gray-50 relative group"
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src={commentAuthor?.photo} />
-                              <AvatarFallback>
-                                {commentAuthor?.firstName.charAt(0)}
-                                {commentAuthor?.lastName.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <p className="text-sm font-medium">
-                              {commentAuthor?.firstName ||
-                                "Usuario desconocido"}
-                              :
-                            </p>
-                          </div>
-                          <p className="text-sm">{comment.content}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(comment.createdAt).toLocaleString()}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDeleteComment(comment.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </Button>
+          {/* Comentarios existentes */}
+          {comments.length > 0 && (
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground">
+                Comentarios existentes
+              </label>
+              <div className="border rounded-md p-2 max-h-24 overflow-y-auto bg-gray-50">
+                <div className="space-y-2">
+                  {comments.map((comment) => {
+                    const commentAuthor = teamMembers.find(
+                      (m) => m.id === comment.memberId
+                    );
+                    return (
+                      <div
+                        key={comment.id}
+                        className="p-2 border rounded bg-white relative group text-xs"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Avatar className="h-4 w-4">
+                            <AvatarImage src={commentAuthor?.photo} />
+                            <AvatarFallback className="text-xs">
+                              {commentAuthor?.firstName.charAt(0)}
+                              {commentAuthor?.lastName.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-xs">
+                            {commentAuthor?.firstName || "Usuario"}:
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        <p className="text-xs text-gray-700">
+                          {comment.content}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-4 w-4 p-0"
+                          onClick={() => handleDeleteComment(comment.id)}
+                        >
+                          <Trash2 className="h-3 w-3 text-red-500" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+            </div>
+          )}
 
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium">Nuevos comentarios</h4>
+          {/* Nuevos comentarios */}
+          {assignedMembers.length > 0 && (
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground">
+                Agregar comentarios
+              </label>
+              <div className="space-y-2 max-h-32 overflow-y-auto">
                 {assignedMembers.map((member) => {
                   const memberCommentCount = comments.filter(
                     (c) => c.memberId === member.id
@@ -332,17 +346,17 @@ export function TaskDetailsModal({
                   const isLimitReached = memberCommentCount >= 3;
 
                   return (
-                    <div key={member.id} className="space-y-2">
+                    <div key={member.id} className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-4 w-4">
                           <AvatarImage src={member.photo} />
-                          <AvatarFallback>
+                          <AvatarFallback className="text-xs">
                             {member.firstName.charAt(0)}
                             {member.lastName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <label className="text-sm font-medium">
-                          Comentario para {member.firstName}:
+                        <label className="text-xs font-medium">
+                          {member.firstName}:
                         </label>
                       </div>
                       <Textarea
@@ -352,34 +366,31 @@ export function TaskDetailsModal({
                         }
                         placeholder={
                           isLimitReached
-                            ? `Límite de 3 comentarios alcanzado`
-                            : `Escribe un comentario para ${member.firstName}...`
+                            ? `Límite alcanzado (${memberCommentCount}/3)`
+                            : `Comentario para ${member.firstName}...`
                         }
-                        rows={2}
+                        rows={1}
                         disabled={isLimitReached}
-                        className={
+                        className={cn(
+                          "text-xs",
                           isLimitReached ? "opacity-50 cursor-not-allowed" : ""
-                        }
+                        )}
                       />
-                      {isLimitReached && (
-                        <p className="text-xs text-muted-foreground">
-                          Este miembro ya ha alcanzado el límite de 3
-                          comentarios
-                        </p>
-                      )}
                     </div>
                   );
                 })}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex justify-end gap-2 mt-3">
+          <Button variant="outline" onClick={onClose} size="sm">
             Cancelar
           </Button>
-          <Button onClick={handleSubmit}>Guardar cambios</Button>
+          <Button onClick={handleSubmit} size="sm">
+            Guardar
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
